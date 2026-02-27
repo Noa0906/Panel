@@ -406,7 +406,7 @@
       const { collection, getDocs } = firestoreOps;
       const snap = await getDocs(collection(_dbRef, 'licenses'));
       let found = null;
-      snap.forEach(d => { if (d.data().code === code) found = d.data(); });
+      snap.forEach(d => { if (d.data().code === code) { found = d.data(); if (!found.guildId) found.guildId = d.id; } });
       if (!found) { errEl.textContent = '❌ 유효하지 않은 라이선스 코드입니다.'; errEl.style.display = 'block'; return; }
       if (!found.isActive) { errEl.textContent = '❌ 비활성화된 라이선스입니다.'; errEl.style.display = 'block'; return; }
       if (found.expiresAt && new Date(found.expiresAt) < new Date()) { errEl.textContent = '❌ 만료된 라이선스입니다.'; errEl.style.display = 'block'; return; }
@@ -460,6 +460,7 @@
         if (sd.exists()) Object.assign(vendingSettings, sd.data());
       } catch(e) {}
     } catch(e) { console.error('로드 오류:', e); }
+    await loadDiscordData();
   }
 
   /* ── ROUTING ── */
@@ -575,6 +576,46 @@
   }
 
   /* ── SETTINGS PAGE ── */
+  let discordChannels = [];
+  let discordRoles = [];
+  let serverConfig = {
+    vendingChannelId: '', vendingChannelName: '',
+    stockAlertChannelId: '', stockAlertChannelName: '',
+    stockAlertRoleId: '', stockAlertRoleName: '',
+    buyLogChannelId: '', buyLogChannelName: '',
+  };
+
+  async function loadDiscordData() {
+    try {
+      const { doc, getDoc } = firestoreOps;
+      const guildId = currentLicense.guildId;
+      if (!guildId) { console.warn('[Panel] guildId 없음 - 라이선스 확인 필요'); return; }
+      console.log('[Panel] Discord 데이터 로드 중... guildId:', guildId);
+      const chSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'channels'));
+      const roSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'roles'));
+      const cfSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'config'));
+      if (chSnap.exists()) { discordChannels = chSnap.data().list || []; console.log('[Panel] 채널', discordChannels.length, '개 로드됨'); }
+      else { console.warn('[Panel] 채널 데이터 없음 - 봇이 syncGuildData()를 실행해야 함'); }
+      if (roSnap.exists()) { discordRoles = roSnap.data().list || []; console.log('[Panel] 역할', discordRoles.length, '개 로드됨'); }
+      else { console.warn('[Panel] 역할 데이터 없음'); }
+      if (cfSnap.exists()) Object.assign(serverConfig, cfSnap.data());
+    } catch(e) { console.error('Discord 데이터 로드 오류:', e); }
+  }
+
+  function chOptions(selectedId) {
+    if (!discordChannels.length) return `<option value="">⚠️ 봇이 채널 목록을 아직 업로드하지 않음</option>`;
+    return discordChannels.map(ch =>
+      `<option value="${ch.id}" ${ch.id === selectedId ? 'selected' : ''}># ${esc(ch.name)}</option>`
+    ).join('');
+  }
+
+  function roleOptions(selectedId) {
+    if (!discordRoles.length) return `<option value="">⚠️ 봇이 역할 목록을 아직 업로드하지 않음</option>`;
+    return discordRoles.map(r =>
+      `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>@ ${esc(r.name)}</option>`
+    ).join('');
+  }
+
   function buildSettingsPage() {
     const btnRows = vendingSettings.buttons.map((b,i) => `
       <div class="btn-edit-row">
@@ -583,15 +624,59 @@
         <button class="btn btn-red-ghost btn-sm" onclick="removeBtn(${i})">✕</button>
       </div>`).join('');
 
+    const syncBadge = discordChannels.length
+      ? `<span class="tag tag-green">✓ 동기화됨 · ${discordChannels.length}개 채널</span>`
+      : `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⚠️ 봇 미동기화</span>`;
+
     return `
       <div class="page-header">
         <div class="page-title">설정</div>
-        <div class="page-sub">// 자판기 및 공지 설정</div>
+        <div class="page-sub">// 채널·역할 설정 및 자판기 관리</div>
       </div>
       <div class="settings-layout">
         <div>
+
           <div class="card">
-            <div class="card-header"><div class="card-title">🤖 자판기 메시지 설정</div></div>
+            <div class="card-header">
+              <div class="card-title">📡 서버 채널 설정 ${syncBadge}</div>
+              <button class="btn btn-ghost btn-sm" onclick="refreshDiscordData()">🔄 새로고침</button>
+            </div>
+            <div class="form-field">
+              <label>🤖 자판기 메시지 채널</label>
+              <select id="cfg_vendingCh">
+                <option value="">채널 선택</option>
+                ${chOptions(serverConfig.vendingChannelId)}
+              </select>
+            </div>
+            <div class="form-field">
+              <label>📦 입고 알림 채널</label>
+              <select id="cfg_stockCh">
+                <option value="">채널 선택</option>
+                ${chOptions(serverConfig.stockAlertChannelId)}
+              </select>
+            </div>
+            <div class="form-field">
+              <label>🔔 입고 알림 핑 역할</label>
+              <select id="cfg_stockRole">
+                <option value="">역할 선택 (없음)</option>
+                ${roleOptions(serverConfig.stockAlertRoleId)}
+              </select>
+            </div>
+            <div class="form-field">
+              <label>🧾 구매 로그 채널</label>
+              <select id="cfg_buyCh">
+                <option value="">채널 선택</option>
+                ${chOptions(serverConfig.buyLogChannelId)}
+              </select>
+            </div>
+            <hr class="divider"/>
+            <div class="actions-bar">
+              <button class="btn btn-white btn-md" onclick="saveServerConfig()">💾 채널 설정 저장</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">🤖 자판기 메시지 내용</div></div>
             <div class="form-field">
               <label>임베드 제목</label>
               <input type="text" id="vs_title" value="${esc(vendingSettings.title)}" placeholder="Vending | 구매하기" oninput="livePreview()"/>
@@ -611,29 +696,30 @@
 
           <div class="card">
             <div class="card-header"><div class="card-title">📤 자판기 메시지 전송</div></div>
-            <div class="form-field">
-              <label>Discord 채널 ID</label>
-              <input type="text" id="vendingCh" placeholder="채널 ID 입력"/>
-            </div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">위에서 설정한 자판기 채널로 메시지를 전송해요.</p>
             <div class="actions-bar">
-              <button class="btn btn-white btn-md" onclick="sendVending()">전송하기</button>
+              <button class="btn btn-white btn-md" onclick="sendVending()">📤 전송하기</button>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-header"><div class="card-title">📢 공지 설정</div></div>
+            <div class="card-header"><div class="card-title">📢 공지 전송</div></div>
             <div class="form-field">
-              <label>공지 채널 ID</label>
-              <input type="text" id="noticeCh" placeholder="채널 ID 입력"/>
+              <label>공지 채널</label>
+              <select id="cfg_noticeCh">
+                <option value="">채널 선택</option>
+                ${chOptions('')}
+              </select>
             </div>
             <div class="form-field">
               <label>공지 내용</label>
               <textarea id="noticeText" placeholder="공지 내용을 입력하세요..."></textarea>
             </div>
             <div class="actions-bar">
-              <button class="btn btn-white btn-md" onclick="sendNotice()">공지 전송</button>
+              <button class="btn btn-white btn-md" onclick="sendNotice()">📢 공지 전송</button>
             </div>
           </div>
+
         </div>
 
         <div class="vending-preview">
@@ -707,17 +793,57 @@
     } catch(e) { console.error(e); showToast('❌ 저장 실패', true); }
   }
 
-  function sendVending() {
-    const ch = document.getElementById('vendingCh')?.value?.trim();
-    if (!ch) { showToast('⚠️ 채널 ID를 입력하세요', true); return; }
-    showToast('📤 봇 연동 후 전송됩니다. 봇에서 처리해주세요.');
+  async function saveServerConfig() {
+    const v = document.getElementById('cfg_vendingCh');
+    const s = document.getElementById('cfg_stockCh');
+    const r = document.getElementById('cfg_stockRole');
+    const b = document.getElementById('cfg_buyCh');
+    if (v) { serverConfig.vendingChannelId = v.value; serverConfig.vendingChannelName = v.options[v.selectedIndex]?.text.replace(/^# /,'') || ''; }
+    if (s) { serverConfig.stockAlertChannelId = s.value; serverConfig.stockAlertChannelName = s.options[s.selectedIndex]?.text.replace(/^# /,'') || ''; }
+    if (r) { serverConfig.stockAlertRoleId = r.value; serverConfig.stockAlertRoleName = r.options[r.selectedIndex]?.text.replace(/^@ /,'') || ''; }
+    if (b) { serverConfig.buyLogChannelId = b.value; serverConfig.buyLogChannelName = b.options[b.selectedIndex]?.text.replace(/^# /,'') || ''; }
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'guilds', currentLicense.guildId, 'meta', 'config'), serverConfig);
+      showToast('✅ 채널 설정이 저장되었습니다!');
+    } catch(e) { console.error(e); showToast('❌ 저장 실패', true); }
   }
 
-  function sendNotice() {
-    const ch = document.getElementById('noticeCh')?.value?.trim();
+  async function refreshDiscordData() {
+    showToast('🔄 새로고침 중...');
+    await loadDiscordData();
+    showPage('settings');
+    showToast('✅ 새로고침 완료!');
+  }
+
+  async function sendVending() {
+    if (!serverConfig.vendingChannelId) { showToast('⚠️ 자판기 채널을 먼저 설정해주세요', true); return; }
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'guilds', currentLicense.guildId, 'tasks', 'sendVending'), {
+        type: 'sendVending', channelId: serverConfig.vendingChannelId,
+        settings: vendingSettings, requestedAt: new Date().toISOString(), done: false
+      });
+      showToast('📤 봇에 전송 요청을 보냈습니다!');
+    } catch(e) { showToast('❌ 전송 요청 실패', true); }
+  }
+
+  async function sendNotice() {
+    const chEl = document.getElementById('cfg_noticeCh');
     const text = document.getElementById('noticeText')?.value?.trim();
-    if (!ch || !text) { showToast('⚠️ 채널 ID와 내용을 입력하세요', true); return; }
-    showToast('📢 봇 연동 후 전송됩니다. 봇에서 처리해주세요.');
+    const chId = chEl?.value;
+    if (!chId || !text) { showToast('⚠️ 채널과 공지 내용을 입력하세요', true); return; }
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'guilds', currentLicense.guildId, 'tasks', 'sendNotice'), {
+        type: 'sendNotice', channelId: chId,
+        content: text, requestedAt: new Date().toISOString(), done: false
+      });
+      showToast('📢 봇에 공지 전송 요청을 보냈습니다!');
+      document.getElementById('noticeText').value = '';
+    } catch(e) { showToast('❌ 공지 전송 요청 실패', true); }
+  }
+
   }
 
   /* ── MODALS ── */
