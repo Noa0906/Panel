@@ -4,13 +4,11 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Core Web Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, collection, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
     const firebaseConfig = {
       apiKey: "AIzaSyD9AFpU-tlO487wKNQ83fct9_hw_4Tu-3k",
       authDomain: "web-panel-5b06d.firebaseapp.com",
@@ -19,11 +17,8 @@
       messagingSenderId: "680917315874",
       appId: "1:680917315874:web:73e33d46b7f8b13972357b"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // 전역으로 노출
     window._db = db;
     window._firestoreOps = { doc, getDoc, collection, setDoc, getDocs, deleteDoc };
     window._firebaseReady = true;
@@ -32,373 +27,247 @@
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #080810;
-      --surface: #10101c;
-      --surface2: #18182a;
-      --border: #252538;
-      --accent: #7c6aff;
-      --accent-glow: rgba(124,106,255,0.3);
-      --accent2: #ff6aac;
-      --text: #e4e4f0;
-      --muted: #5a5a72;
+      --bg: #0d0d0d;
+      --surface: #141414;
+      --surface2: #1a1a1a;
+      --surface3: #202020;
+      --border: #262626;
+      --border2: #303030;
+      --text: #f0f0f0;
+      --text2: #909090;
+      --text3: #555555;
       --success: #4ade80;
       --danger: #f87171;
       --warning: #fbbf24;
     }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+    .screen { display:none; width:100%; min-height:100vh; }
+    .screen.active { display:flex; }
 
-    body {
-      font-family: 'Space Grotesk', sans-serif;
-      background: var(--bg) url('logo.gif') center/cover no-repeat fixed;
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+    /* LOGIN */
+    #loginScreen {
+      align-items:center; justify-content:center; position:relative;
+      background: url('logo.gif') center/cover no-repeat fixed;
     }
-
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(124,106,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124,106,255,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
+    #loginScreen::before {
+      content:''; position:absolute; inset:0;
+      background:rgba(0,0,0,0.75); backdrop-filter:blur(3px);
     }
-
-    .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; animation: float 8s ease-in-out infinite; }
-    .orb1 { width: 400px; height: 400px; background: rgba(124,106,255,0.12); top: -100px; left: -100px; }
-    .orb2 { width: 300px; height: 300px; background: rgba(255,106,172,0.08); bottom: -80px; right: -80px; animation-delay: -4s; }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-10px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .screen { display: none; width: 100%; min-height: 100vh; }
-    .screen.active { display: flex; }
-
-    /* ══ LOGIN ══ */
-    #loginScreen { align-items: center; justify-content: center; animation: fadeIn 0.6s ease; }
-
     .login-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 48px 44px;
-      width: 100%; max-width: 440px;
-      position: relative;
-      box-shadow: 0 0 60px rgba(124,106,255,0.08), 0 40px 80px rgba(0,0,0,0.4);
+      position:relative; z-index:1;
+      background:rgba(12,12,12,0.94); border:1px solid var(--border2);
+      border-radius:16px; padding:44px 40px; width:100%; max-width:420px;
+      animation:fadeUp 0.45s ease; backdrop-filter:blur(20px);
+      box-shadow:0 32px 80px rgba(0,0,0,0.7);
     }
+    .login-brand { display:flex; align-items:center; gap:11px; margin-bottom:30px; }
+    .login-brand-icon { width:36px; height:36px; border-radius:9px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
+    .login-brand-icon img { width:100%; height:100%; object-fit:cover; }
+    .login-brand-name { font-size:18px; font-weight:700; letter-spacing:-0.02em; }
+    .login-brand-name span { color:var(--text2); font-weight:400; }
+    .login-title { font-size:24px; font-weight:700; letter-spacing:-0.02em; margin-bottom:5px; }
+    .login-sub { font-size:12px; color:var(--text2); font-family:'JetBrains Mono',monospace; margin-bottom:26px; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--text3); margin-bottom:6px; }
+    .field input { width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:9px; padding:12px 14px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:border-color 0.15s,box-shadow 0.15s; }
+    .field input:focus { border-color:rgba(255,255,255,0.35); box-shadow:0 0 0 3px rgba(255,255,255,0.04); }
+    .field input::placeholder { color:var(--text3); }
+    .btn-login { width:100%; padding:13px; background:var(--text); border:none; border-radius:9px; color:#000; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; margin-top:6px; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-login:hover { background:#d8d8d8; }
+    .btn-login:disabled { opacity:0.5; cursor:not-allowed; }
+    .alert { border-radius:8px; padding:10px 13px; font-size:12px; margin-bottom:14px; display:none; font-family:'JetBrains Mono',monospace; }
+    .alert-error { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.25); color:var(--danger); }
+    .alert-warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.25); color:var(--warning); }
+    .spinner { width:15px; height:15px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.6s linear infinite; }
 
-    .login-card::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 20%; right: 20%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    }
+    /* DASHBOARD */
+    #dashScreen { flex-direction:row; align-items:stretch; }
 
-    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 36px; }
-    .logo-icon {
-      width: 38px; height: 38px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 0 20px var(--accent-glow);
-    }
-    .logo-text { font-size: 22px; font-weight: 800; }
-    .logo-text span { color: var(--accent); }
+    /* SIDEBAR */
+    .sidebar { width:220px; min-height:100vh; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:20px 0; animation:fadeIn 0.35s ease; }
+    .sidebar-brand { display:flex; align-items:center; gap:10px; padding:0 16px 18px; border-bottom:1px solid var(--border); margin-bottom:10px; }
+    .sidebar-brand-icon { width:30px; height:30px; border-radius:7px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
+    .sidebar-brand-icon img { width:100%; height:100%; object-fit:cover; }
+    .sidebar-brand-name { font-size:14px; font-weight:700; letter-spacing:-0.02em; white-space:nowrap; }
+    .sidebar-brand-name span { color:var(--text2); font-weight:400; }
+    .server-chip { margin:0 10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:9px 11px; }
+    .server-chip .chip-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.07em; font-family:'JetBrains Mono',monospace; }
+    .server-chip .chip-name { font-size:13px; font-weight:600; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .server-chip .chip-exp { font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:1px; }
+    .nav-section { padding:0 10px 4px; }
+    .nav-section-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.08em; padding:8px 8px 4px; font-family:'JetBrains Mono',monospace; }
+    .nav-item { display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:8px; font-size:13px; font-weight:500; color:var(--text2); cursor:pointer; transition:all 0.15s; margin-bottom:1px; }
+    .nav-item:hover { background:var(--surface2); color:var(--text); }
+    .nav-item.active { background:rgba(255,255,255,0.07); color:var(--text); font-weight:600; }
+    .nav-icon { font-size:14px; width:18px; text-align:center; flex-shrink:0; }
+    .sidebar-footer { margin-top:auto; padding:14px 10px 0; border-top:1px solid var(--border); }
+    .user-row { display:flex; align-items:center; gap:9px; padding:0 4px; margin-bottom:10px; }
+    .user-avatar { width:30px; height:30px; border-radius:50%; flex-shrink:0; background:var(--surface3); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:1px solid var(--border2); }
+    .user-name { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-role { font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+    .btn-logout { width:100%; padding:8px; background:transparent; border:1px solid var(--border); border-radius:7px; color:var(--text3); font-family:'Outfit',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
+    .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
-    .login-title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
-    .login-sub { color: var(--muted); font-size: 14px; font-family: 'JetBrains Mono', monospace; margin-bottom: 32px; }
+    /* MAIN */
+    .main { flex:1; overflow-y:auto; background:#181818; }
+    .main-inner { padding:30px 34px; max-width:960px; }
+    .page-header { margin-bottom:24px; }
+    .page-title { font-size:21px; font-weight:700; letter-spacing:-0.02em; }
+    .page-sub { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:4px; }
 
-    .field { margin-bottom: 18px; }
-    .field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-    .field input {
-      width: 100%;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px; padding: 13px 16px;
-      color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 14px;
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .field input::placeholder { color: var(--muted); }
+    /* CARDS */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+    .card-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+    .tag { font-size:10px; padding:2px 7px; border-radius:99px; font-family:'JetBrains Mono',monospace; font-weight:400; background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
 
-    .btn-primary {
-      width: 100%; padding: 14px;
-      background: linear-gradient(135deg, var(--accent), #9b6aff);
-      border: none; border-radius: 10px;
-      color: #fff; font-family: 'Space Grotesk', sans-serif;
-      font-size: 15px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
-      box-shadow: 0 4px 24px var(--accent-glow);
-      margin-top: 8px;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    /* FORMS */
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .form-row.full { grid-column:1/-1; }
+    .form-field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+    .form-field label { font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--text3); }
+    .form-field input,.form-field select,.form-field textarea { background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:border-color 0.15s,box-shadow 0.15s; }
+    .form-field select option { background:var(--surface2); }
+    .form-field input:focus,.form-field select:focus,.form-field textarea:focus { border-color:rgba(255,255,255,0.3); box-shadow:0 0 0 3px rgba(255,255,255,0.04); }
+    .form-field input::placeholder,.form-field textarea::placeholder { color:var(--text3); }
+    .form-field textarea { resize:vertical; min-height:80px; }
 
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+    /* BUTTONS */
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:8px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; transition:all 0.15s; }
+    .btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn-sm { padding:6px 13px; font-size:12px; }
+    .btn-md { padding:9px 18px; font-size:13px; }
+    .btn-white { background:var(--text); color:#000; }
+    .btn-white:hover:not(:disabled) { background:#d4d4d4; }
+    .btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border2); }
+    .btn-ghost:hover:not(:disabled) { border-color:rgba(255,255,255,0.3); color:var(--text); }
+    .btn-red-ghost { background:transparent; color:var(--text3); border:1px solid var(--border); }
+    .btn-red-ghost:hover:not(:disabled) { border-color:var(--danger); color:var(--danger); }
+    .btn-dashed { padding:9px; background:var(--surface2); border:1px dashed var(--border2); border-radius:8px; color:var(--text2); font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .btn-dashed:hover { border-color:rgba(255,255,255,0.25); color:var(--text); }
 
-    .alert {
-      border-radius: 8px; padding: 10px 14px;
-      font-size: 13px; margin-bottom: 16px; display: none;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
-    .alert-warn  { background: rgba(251,191,36,0.1);  border: 1px solid rgba(251,191,36,0.3);  color: var(--warning); }
+    /* LIST */
+    .list-item { display:flex; align-items:center; gap:12px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:11px 14px; margin-bottom:7px; transition:border-color 0.15s; }
+    .list-item:last-child { margin-bottom:0; }
+    .list-item:hover { border-color:var(--border2); }
+    .item-name { flex:1; font-size:13px; font-weight:600; }
+    .item-meta { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+    .item-qty { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text); background:var(--surface3); padding:3px 9px; border-radius:5px; border:1px solid var(--border); }
+    .empty-state { text-align:center; padding:32px 20px; }
+    .empty-icon { font-size:26px; margin-bottom:8px; }
+    .empty-title { font-size:13px; color:var(--text2); font-weight:500; }
+    .empty-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:4px; }
+    .divider { border:none; border-top:1px solid var(--border); margin:18px 0; }
+    .actions-bar { display:flex; gap:10px; justify-content:flex-end; }
 
-    /* ══ DASHBOARD ══ */
-    #dashScreen { flex-direction: row; align-items: stretch; }
+    /* TABS */
+    .tabs { display:flex; gap:2px; margin-bottom:20px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:3px; }
+    .tab { flex:1; padding:8px 10px; border-radius:7px; font-size:12px; font-weight:600; text-align:center; cursor:pointer; transition:all 0.15s; color:var(--text3); }
+    .tab:hover { color:var(--text2); }
+    .tab.active { background:var(--surface2); color:var(--text); border:1px solid var(--border2); }
+    .tab-section { display:none; }
+    .tab-section.active { display:block; animation:fadeUp 0.25s ease; }
 
-    .sidebar {
-      width: 230px; min-height: 100vh;
-      background: var(--surface); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      padding: 28px 0; flex-shrink: 0;
-    }
+    /* SETTINGS LAYOUT */
+    .settings-layout { display:grid; grid-template-columns:1fr 340px; gap:18px; align-items:start; }
+    .vending-preview { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; position:sticky; top:30px; }
+    .preview-header { padding:11px 14px; border-bottom:1px solid var(--border); font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; display:flex; align-items:center; gap:7px; }
+    .preview-dot { width:7px; height:7px; border-radius:50%; background:var(--success); animation:pulse 2s infinite; }
+    .discord-mock { padding:16px; background:#313338; }
+    .discord-msg { display:flex; gap:12px; }
+    .discord-avatar { width:38px; height:38px; border-radius:50%; flex-shrink:0; background:#5865f2; display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .discord-body { flex:1; }
+    .discord-username { font-size:14px; font-weight:600; color:#fff; margin-bottom:4px; }
+    .discord-username span { font-size:11px; font-weight:400; color:#949ba4; margin-left:6px; }
+    .discord-embed { background:#2b2d31; border:1px solid #3f4147; border-radius:4px; border-left:4px solid #5865f2; padding:12px 14px; margin-top:4px; }
+    .discord-embed-title { font-size:14px; font-weight:700; color:#fff; margin-bottom:6px; }
+    .discord-embed-desc { font-size:13px; color:#dbdee1; line-height:1.5; margin-bottom:10px; white-space:pre-wrap; word-break:break-word; }
+    .discord-buttons { display:flex; flex-wrap:wrap; gap:6px; }
+    .discord-btn { display:flex; align-items:center; gap:4px; background:#4e5058; border-radius:4px; padding:5px 12px; font-size:13px; color:#dbdee1; font-weight:500; }
 
-    .sidebar-logo {
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 24px 28px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
-    }
-    .sidebar-logo .logo-icon { width: 32px; height: 32px; font-size: 15px; }
-    .sidebar-logo .logo-text { font-size: 18px; font-weight: 800; }
+    /* BUTTON EDITOR ROW */
+    .btn-edit-row { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
+    .btn-edit-emoji { width:46px; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px; color:var(--text); font-size:13px; outline:none; text-align:center; }
+    .btn-edit-label { flex:1; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px 10px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; }
+    .btn-edit-emoji:focus,.btn-edit-label:focus { border-color:rgba(255,255,255,0.3); }
 
-    .server-badge {
-      margin: 0 16px 16px;
-      background: rgba(124,106,255,0.1);
-      border: 1px solid rgba(124,106,255,0.3);
-      border-radius: 10px; padding: 10px 12px;
-    }
-    .server-badge .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-family: 'JetBrains Mono', monospace; }
-    .server-badge .name { font-size: 13px; font-weight: 700; margin-top: 3px; color: var(--accent); }
-    .server-badge .expiry { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.open { display:flex; animation:fadeIn 0.2s ease; }
+    .modal { background:var(--surface); border:1px solid var(--border2); border-radius:14px; padding:26px; width:100%; max-width:420px; animation:fadeUp 0.22s ease; box-shadow:0 24px 60px rgba(0,0,0,0.6); }
+    .modal-title { font-size:15px; font-weight:700; margin-bottom:18px; }
+    .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
 
-    .nav-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 11px 24px; font-size: 14px; font-weight: 600;
-      color: var(--muted); cursor: pointer; transition: all 0.2s;
-      border-left: 3px solid transparent;
-    }
-    .nav-item:hover { color: var(--text); background: var(--surface2); }
-    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(124,106,255,0.07); }
+    /* TOAST */
+    .toast { position:fixed; bottom:26px; right:26px; background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:11px 17px; font-size:13px; font-weight:500; box-shadow:0 8px 30px rgba(0,0,0,0.5); opacity:0; transform:translateY(8px); transition:all 0.25s ease; pointer-events:none; z-index:9999; }
+    .toast.show { opacity:1; transform:translateY(0); }
 
-    .sidebar-bottom { margin-top: auto; padding: 20px 24px 0; border-top: 1px solid var(--border); }
-    .user-info { display: flex; align-items: center; gap: 10px; }
-    .avatar {
-      width: 34px; height: 34px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; flex-shrink: 0;
-    }
-    .user-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-    .user-role { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-
-    .btn-logout {
-      margin-top: 12px; width: 100%; padding: 9px;
-      background: transparent; border: 1px solid var(--border);
-      border-radius: 8px; color: var(--muted);
-      font-family: 'Space Grotesk', sans-serif; font-size: 13px;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
-
-    .main { flex: 1; padding: 36px 40px; overflow-y: auto; animation: fadeIn 0.4s ease; }
-
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
-    .page-title { font-size: 26px; font-weight: 800; }
-    .page-sub { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
-
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 32px; margin-bottom: 24px;
-    }
-    .card-title {
-      font-size: 15px; font-weight: 700; margin-bottom: 24px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .badge {
-      font-size: 11px; padding: 2px 8px;
-      background: rgba(124,106,255,0.15); color: var(--accent);
-      border-radius: 99px; font-family: 'JetBrains Mono', monospace; font-weight: 400;
-    }
-    .badge-green { background: rgba(74,222,128,0.15); color: var(--success); }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .form-grid .full { grid-column: 1 / -1; }
-
-    .form-field { display: flex; flex-direction: column; gap: 7px; }
-    .form-field label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 14px;
-      color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px;
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-field select option { background: var(--surface2); }
-    .form-field input:focus,
-    .form-field select:focus,
-    .form-field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-    .form-field textarea { resize: vertical; min-height: 80px; }
-
-    .btn-add {
-      padding: 10px 20px;
-      background: rgba(124,106,255,0.1); border: 1px dashed rgba(124,106,255,0.4);
-      border-radius: 10px; color: var(--accent);
-      font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; width: 100%; margin-top: 14px;
-    }
-    .btn-add:hover { background: rgba(124,106,255,0.2); border-color: var(--accent); }
-
-    .stock-list { display: flex; flex-direction: column; gap: 10px; }
-
-    .stock-item {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 16px;
-      animation: slideIn 0.3s ease;
-    }
-    .item-name { flex: 1; font-size: 14px; font-weight: 600; }
-    .item-qty {
-      font-family: 'JetBrains Mono', monospace; font-size: 13px;
-      color: var(--accent); background: rgba(124,106,255,0.12);
-      padding: 3px 10px; border-radius: 6px;
-    }
-    .item-server { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-
-    .btn-remove {
-      background: none; border: none; color: var(--muted);
-      cursor: pointer; font-size: 16px; padding: 2px 6px;
-      border-radius: 6px; transition: all 0.2s;
-    }
-    .btn-remove:hover { background: rgba(248,113,113,0.15); color: var(--danger); }
-
-    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-
-    .actions { display: flex; gap: 12px; justify-content: flex-end; }
-
-    .btn-secondary {
-      padding: 12px 24px; background: transparent;
-      border: 1px solid var(--border); border-radius: 10px;
-      color: var(--muted); font-family: 'Space Grotesk', sans-serif;
-      font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-    }
-    .btn-secondary:hover { border-color: var(--text); color: var(--text); }
-
-    .btn-save {
-      padding: 12px 32px;
-      background: linear-gradient(135deg, var(--accent), #9b6aff);
-      border: none; border-radius: 10px; color: #fff;
-      font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-    .empty { text-align: center; padding: 40px; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-    .empty-icon { font-size: 32px; margin-bottom: 12px; }
-
-    .toast {
-      position: fixed; bottom: 32px; right: 32px;
-      background: var(--surface); border-radius: 12px; padding: 14px 20px;
-      font-size: 14px; font-weight: 600;
-      display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      opacity: 0; transform: translateY(10px);
-      transition: all 0.3s ease; pointer-events: none; z-index: 999;
-    }
-    .toast.show { opacity: 1; transform: translateY(0); }
-
-    @media (max-width: 700px) {
-      .sidebar { display: none; }
-      .main { padding: 24px 20px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .login-card { margin: 20px; padding: 32px 24px; }
+    @media (max-width:780px) {
+      .sidebar { display:none; }
+      .main-inner { padding:18px 16px; }
+      .settings-layout { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-
-<!-- ══ LOGIN ══ -->
+<!-- LOGIN -->
 <div id="loginScreen" class="screen active">
   <div class="login-card">
-    <div class="logo">
-      <div class="logo-icon">
-        <img src="logo.gif" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.style.display='none'"/>
+    <div class="login-brand">
+      <div class="login-brand-icon">
+        <img src="logo.gif" onerror="this.parentElement.textContent='⚙️'"/>
       </div>
-      <div class="logo-text">Core Web<span>Panel</span></div>
+      <div class="login-brand-name">Core Web<span>Panel</span></div>
     </div>
     <div class="login-title">라이선스 로그인</div>
-    <div class="login-sub">// 발급받은 라이선스 코드로 로그인하세요</div>
-
+    <div class="login-sub">// 발급받은 코드로 로그인하세요</div>
     <div class="alert alert-error" id="loginError"></div>
     <div class="alert alert-warn" id="loginWarn"></div>
-
     <div class="field">
       <label>라이선스 코드</label>
-      <input type="text" id="inputCode" placeholder="예) F7E3A3B645260AF3D1868A193EAE1DD7" autocomplete="off" style="font-size:12px"/>
+      <input type="text" id="inputCode" placeholder="예) F7E3A3B645260AF3D1868A193EAE1DD7" autocomplete="off"/>
     </div>
-    <button class="btn-primary" id="loginBtn" onclick="doLogin()">
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">
       <span id="loginBtnText">로그인</span>
     </button>
   </div>
 </div>
 
-<!-- ══ DASHBOARD ══ -->
+<!-- DASHBOARD -->
 <div id="dashScreen" class="screen">
   <div class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <img src="logo.gif" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'"/>
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <img src="logo.gif" onerror="this.parentElement.textContent='⚙️'" style="width:100%;height:100%;object-fit:cover;border-radius:7px;"/>
       </div>
-      <div class="logo-text">Core Web<span style="color:var(--accent)">Panel</span></div>
+      <div class="sidebar-brand-name">Core Web<span>Panel</span></div>
     </div>
-
-    <div class="server-badge">
-      <div class="label">연결된 서버</div>
-      <div class="name" id="serverNameBadge">-</div>
-      <div class="expiry" id="serverExpiryBadge"></div>
+    <div class="server-chip">
+      <div class="chip-label">연결된 서버</div>
+      <div class="chip-name" id="serverNameBadge">-</div>
+      <div class="chip-exp" id="serverExpiryBadge"></div>
     </div>
-
-    <div class="nav-item active"><span>📦</span> 재고 관리</div>
-    <div class="nav-item"><span>⚙️</span> 설정</div>
-
-    <div class="sidebar-bottom">
-      <div class="user-info">
-        <div class="avatar" id="avatarLetter">?</div>
+    <div class="nav-section">
+      <div class="nav-section-label">메뉴</div>
+      <div class="nav-item active" onclick="showPage('inventory')" id="nav-inventory">
+        <span class="nav-icon">📦</span> 재고 관리
+      </div>
+      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
+        <span class="nav-icon">⚙️</span> 설정
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="avatarLetter">?</div>
         <div>
           <div class="user-name" id="sidebarGuildName">-</div>
           <div class="user-role">// 라이선스 유저</div>
@@ -409,330 +278,606 @@
   </div>
 
   <div class="main">
-    <div class="page-header">
-      <div>
-        <div class="page-title">재고 관리</div>
-        <div class="page-sub" id="pageSubTitle">// 서버 재고를 추가하고 저장하세요</div>
-      </div>
-    </div>
+    <div class="main-inner" id="mainContent"></div>
+  </div>
+</div>
 
-    <!-- 재고 추가 폼 -->
-    <div class="card">
-      <div class="card-title">📦 재고 추가 <span class="badge">NEW ITEM</span></div>
-      <div class="form-grid">
-        <div class="form-field">
-          <label>서버</label>
-          <input type="text" id="serverNameInput" readonly style="color:var(--accent); cursor:not-allowed;"/>
-        </div>
-        <div class="form-field">
-          <label>아이템 이름</label>
-          <input type="text" id="itemName" placeholder="예) 다이아몬드"/>
-        </div>
-        <div class="form-field">
-          <label>수량</label>
-          <input type="number" id="itemQty" placeholder="0" min="0"/>
-        </div>
-        <div class="form-field">
-          <label>카테고리</label>
-          <select id="itemCategory">
-            <option value="">카테고리 선택</option>
-            <option>광물</option>
-            <option>무기</option>
-            <option>방어구</option>
-            <option>소모품</option>
-            <option>블록</option>
-            <option>기타</option>
-          </select>
-        </div>
-        <div class="form-field full">
-          <label>메모 (선택)</label>
-          <textarea id="itemNote" placeholder="추가 설명을 입력하세요..."></textarea>
-        </div>
-      </div>
-      <button class="btn-add" onclick="addItem()">+ 목록에 추가</button>
-    </div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-    <!-- 재고 목록 -->
-    <div class="card">
-      <div class="card-title">
-        📋 재고 목록
-        <span class="badge" id="itemCountBadge">0개</span>
-        <span class="badge badge-green" id="savedBadge" style="display:none">✓ 저장됨</span>
-      </div>
-      <div class="stock-list" id="stockList">
-        <div class="empty"><div class="empty-icon">📭</div>아직 추가된 재고가 없습니다</div>
-      </div>
-      <hr class="divider"/>
-      <div class="actions">
-        <button class="btn-secondary" onclick="clearAll()">전체 초기화</button>
-        <button class="btn-save" id="saveBtn" onclick="saveStock()">💾 저장하기</button>
-      </div>
+<!-- MODAL: Category -->
+<div class="modal-overlay" id="modalCat">
+  <div class="modal">
+    <div class="modal-title">카테고리 추가</div>
+    <div class="form-field">
+      <label>카테고리 이름</label>
+      <input type="text" id="catNameInput" placeholder="예) 광물, 무기, 소모품"/>
+    </div>
+    <div class="form-field">
+      <label>이모지 (선택)</label>
+      <input type="text" id="catEmojiInput" placeholder="예) 💎"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeModal('modalCat')">취소</button>
+      <button class="btn btn-white btn-md" onclick="saveCategory()">추가하기</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- MODAL: Product -->
+<div class="modal-overlay" id="modalProd">
+  <div class="modal">
+    <div class="modal-title">제품 추가</div>
+    <div class="form-field">
+      <label>카테고리</label>
+      <select id="prodCatSel"></select>
+    </div>
+    <div class="form-field">
+      <label>제품 이름</label>
+      <input type="text" id="prodNameInput" placeholder="예) 다이아몬드 검"/>
+    </div>
+    <div class="form-field">
+      <label>설명 (선택)</label>
+      <input type="text" id="prodDescInput" placeholder="예) 최강의 무기"/>
+    </div>
+    <div class="form-field">
+      <label>가격</label>
+      <input type="number" id="prodPriceInput" placeholder="0" min="0"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeModal('modalProd')">취소</button>
+      <button class="btn btn-white btn-md" onclick="saveProduct()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Stock -->
+<div class="modal-overlay" id="modalStock">
+  <div class="modal">
+    <div class="modal-title">재고 추가</div>
+    <div class="form-field">
+      <label>제품 선택</label>
+      <select id="stockProdSel"></select>
+    </div>
+    <div class="form-field">
+      <label>수량</label>
+      <input type="number" id="stockQtyInput" placeholder="0" min="1"/>
+    </div>
+    <div class="form-field">
+      <label>메모 (선택)</label>
+      <input type="text" id="stockNoteInput" placeholder="예) 2025-01-01 입고"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeModal('modalStock')">취소</button>
+      <button class="btn btn-white btn-md" onclick="saveStock()">추가하기</button>
+    </div>
+  </div>
+</div>
 
 <script>
+  /* STATE */
   let currentLicense = null;
-  let stockItems = [];
   let _dbRef = null;
   let firestoreOps = null;
-  // db is initialized via firebaseReady event below
+  let categories = [];
+  let products = [];
+  let stockItems = [];
+  let vendingSettings = {
+    title: 'Vending | 구매하기',
+    desc: '아래 버튼을 눌러 자판기를 이용해주세요!',
+    buttons: [
+      {emoji:'🖊️', label:'구매'},
+      {emoji:'🧭', label:'제품'},
+      {emoji:'🎁', label:'충전'},
+      {emoji:'👤', label:'정보'},
+      {emoji:'📢', label:'공지'},
+    ]
+  };
 
-  // Firebase 준비 대기
   window.addEventListener('firebaseReady', () => {
     _dbRef = window._db;
     firestoreOps = window._firestoreOps;
   });
 
   function waitForFirebase() {
-    return new Promise((resolve) => {
-      if (window._firebaseReady) return resolve();
-      window.addEventListener('firebaseReady', resolve, { once: true });
+    return new Promise(r => {
+      if (window._firebaseReady) return r();
+      window.addEventListener('firebaseReady', r, { once: true });
     });
   }
 
-  // ── 로그인 ──
+  /* ── LOGIN ── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
+  });
+
   async function doLogin() {
     const code = document.getElementById('inputCode').value.trim().toUpperCase();
     const errEl = document.getElementById('loginError');
     const warnEl = document.getElementById('loginWarn');
     const btn = document.getElementById('loginBtn');
     const btnText = document.getElementById('loginBtnText');
-
-    errEl.style.display = 'none';
-    warnEl.style.display = 'none';
-
-    if (!code) {
-      errEl.textContent = '❌ 라이선스 코드를 입력하세요.';
-      errEl.style.display = 'block';
-      return;
-    }
-
-    // 로딩
+    errEl.style.display = 'none'; warnEl.style.display = 'none';
+    if (!code) { errEl.textContent = '❌ 라이선스 코드를 입력하세요.'; errEl.style.display = 'block'; return; }
     btn.disabled = true;
-    btnText.innerHTML = '<div class="spinner"></div> 확인 중...';
-
+    btnText.innerHTML = '<div class="spinner"></div>';
     await waitForFirebase();
-
     try {
-      // Firestore에서 코드 검색
       const { collection, getDocs } = firestoreOps;
-      const snapshot = await getDocs(collection(_dbRef, 'licenses'));
+      const snap = await getDocs(collection(_dbRef, 'licenses'));
       let found = null;
-
-      snapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        if (data.code === code) found = data;
-      });
-
-      if (!found) {
-        errEl.textContent = '❌ 유효하지 않은 라이선스 코드입니다.';
-        errEl.style.display = 'block';
-        return;
-      }
-
-      if (!found.isActive) {
-        errEl.textContent = '❌ 비활성화된 라이선스입니다.';
-        errEl.style.display = 'block';
-        return;
-      }
-
-      if (found.expiresAt && new Date(found.expiresAt) < new Date()) {
-        errEl.textContent = '❌ 만료된 라이선스입니다.';
-        errEl.style.display = 'block';
-        return;
-      }
-
-      // 만료 임박 경고 (7일 이내)
+      snap.forEach(d => { if (d.data().code === code) found = d.data(); });
+      if (!found) { errEl.textContent = '❌ 유효하지 않은 라이선스 코드입니다.'; errEl.style.display = 'block'; return; }
+      if (!found.isActive) { errEl.textContent = '❌ 비활성화된 라이선스입니다.'; errEl.style.display = 'block'; return; }
+      if (found.expiresAt && new Date(found.expiresAt) < new Date()) { errEl.textContent = '❌ 만료된 라이선스입니다.'; errEl.style.display = 'block'; return; }
       if (found.expiresAt) {
-        const daysLeft = Math.ceil((new Date(found.expiresAt) - new Date()) / (1000 * 60 * 60 * 24));
-        if (daysLeft <= 7) {
-          warnEl.textContent = `⚠️ 라이선스가 ${daysLeft}일 후 만료됩니다.`;
-          warnEl.style.display = 'block';
-        }
+        const d = Math.ceil((new Date(found.expiresAt) - new Date()) / 86400000);
+        if (d <= 7) { warnEl.textContent = `⚠️ ${d}일 후 만료됩니다.`; warnEl.style.display = 'block'; }
       }
-
-      // 로그인 성공
       currentLicense = found;
+      await loadAllData(found.guildId);
       enterDashboard(found);
-      await loadInventory(found.guildId);
-
-    } catch (err) {
-      console.error(err);
-      errEl.textContent = '❌ 서버 오류가 발생했습니다. 잠시 후 다시 시도하세요.';
-      errEl.style.display = 'block';
-    } finally {
-      btn.disabled = false;
-      btnText.textContent = '로그인';
-    }
+    } catch(e) { console.error(e); errEl.textContent = '❌ 서버 오류가 발생했습니다.'; errEl.style.display = 'block'; }
+    finally { btn.disabled = false; btnText.textContent = '로그인'; }
   }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
-  });
 
   function enterDashboard(license) {
     document.getElementById('loginScreen').classList.remove('active');
     document.getElementById('dashScreen').classList.add('active');
-
     const name = license.guildName || '알 수 없는 서버';
     document.getElementById('serverNameBadge').textContent = name;
     document.getElementById('sidebarGuildName').textContent = name;
     document.getElementById('avatarLetter').textContent = name[0] || '?';
-    document.getElementById('serverNameInput').value = name;
-    document.getElementById('pageSubTitle').textContent = `// ${name} 서버의 재고를 관리하세요`;
-
-    if (license.expiresAt) {
-      const d = new Date(license.expiresAt);
-      document.getElementById('serverExpiryBadge').textContent = `만료: ${d.toLocaleDateString('ko-KR')}`;
-    } else {
-      document.getElementById('serverExpiryBadge').textContent = '영구 라이선스';
-    }
+    document.getElementById('serverExpiryBadge').textContent = license.expiresAt
+      ? `만료: ${new Date(license.expiresAt).toLocaleDateString('ko-KR')}`
+      : '영구 라이선스';
+    showPage('inventory');
   }
 
-  // ── 재고 불러오기 ──
-  async function loadInventory(guildId) {
-    try {
-      const { collection, getDocs } = firestoreOps;
-      const snapshot = await getDocs(collection(_dbRef, 'inventory', guildId, 'items'));
-      stockItems = [];
-      snapshot.forEach(docSnap => {
-        stockItems.push({ ...docSnap.data(), id: docSnap.id });
-      });
-      renderList();
-      if (stockItems.length > 0) {
-        document.getElementById('savedBadge').style.display = 'inline';
-      }
-    } catch (err) {
-      console.error('재고 불러오기 오류:', err);
-    }
-  }
-
-  // ── 재고 추가 ──
-  function addItem() {
-    const name = document.getElementById('itemName').value.trim();
-    const qty  = document.getElementById('itemQty').value;
-    const cat  = document.getElementById('itemCategory').value;
-    const note = document.getElementById('itemNote').value.trim();
-
-    if (!name || !qty) {
-      showToast('⚠️ 아이템 이름과 수량은 필수입니다!', true);
-      return;
-    }
-
-    stockItems.push({
-      id: Date.now().toString(),
-      serverName: currentLicense.guildName,
-      guildId: currentLicense.guildId,
-      name, qty: parseInt(qty), cat, note,
-      addedAt: new Date().toISOString()
-    });
-
-    renderList();
-    document.getElementById('itemName').value = '';
-    document.getElementById('itemQty').value = '';
-    document.getElementById('itemCategory').value = '';
-    document.getElementById('itemNote').value = '';
-    document.getElementById('savedBadge').style.display = 'none';
-  }
-
-  function removeItem(id) {
-    stockItems = stockItems.filter(i => i.id !== id);
-    renderList();
-    document.getElementById('savedBadge').style.display = 'none';
-  }
-
-  function clearAll() {
-    if (!stockItems.length) return;
-    if (confirm('전체 목록을 초기화할까요?')) {
-      stockItems = [];
-      renderList();
-      document.getElementById('savedBadge').style.display = 'none';
-    }
-  }
-
-  function renderList() {
-    const list = document.getElementById('stockList');
-    document.getElementById('itemCountBadge').textContent = stockItems.length + '개';
-
-    if (!stockItems.length) {
-      list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>아직 추가된 재고가 없습니다</div>';
-      return;
-    }
-
-    list.innerHTML = stockItems.map(i => `
-      <div class="stock-item">
-        <div style="flex:1">
-          <div class="item-name">${i.name}${i.cat ? ' <span style="font-size:11px;color:var(--muted)">['+i.cat+']</span>' : ''}</div>
-          ${i.note ? '<div style="font-size:11px;color:var(--muted);font-family:DM Mono,monospace;margin-top:3px">'+i.note+'</div>' : ''}
-        </div>
-        <span class="item-server">${i.serverName || ''}</span>
-        <span class="item-qty">x${i.qty}</span>
-        <button class="btn-remove" onclick="removeItem('${i.id}')">✕</button>
-      </div>`).join('');
-  }
-
-  // ── 저장하기 ──
-  async function saveStock() {
-    if (!stockItems.length) {
-      showToast('⚠️ 저장할 재고가 없습니다!', true);
-      return;
-    }
-
-    const btn = document.getElementById('saveBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div> 저장 중...';
-
-    try {
-      const { collection, setDoc, doc, getDocs, deleteDoc } = firestoreOps;
-      const guildId = currentLicense.guildId;
-      const colRef = collection(_dbRef, 'inventory', guildId, 'items');
-
-      // 기존 데이터 전체 삭제
-      const existing = await getDocs(colRef);
-      for (const d of existing.docs) {
-        await deleteDoc(d.ref);
-      }
-
-      // 새 데이터 저장
-      for (const item of stockItems) {
-        await setDoc(doc(colRef, item.id), item);
-      }
-
-      document.getElementById('savedBadge').style.display = 'inline';
-      showToast(`💾 재고가 저장되었습니다! (${stockItems.length}개 항목)`);
-    } catch (err) {
-      console.error(err);
-      showToast('❌ 저장 중 오류가 발생했습니다.', true);
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '💾 저장하기';
-    }
-  }
-
-  // ── 로그아웃 ──
   function doLogout() {
-    currentLicense = null;
-    stockItems = [];
+    currentLicense = null; categories = []; products = []; stockItems = [];
     document.getElementById('dashScreen').classList.remove('active');
     document.getElementById('loginScreen').classList.add('active');
     document.getElementById('inputCode').value = '';
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('loginWarn').style.display = 'none';
-    renderList();
   }
 
-  function showToast(msg, warn = false) {
+  /* ── DATA ── */
+  async function loadAllData(guildId) {
+    try {
+      const { collection, getDocs, doc, getDoc } = firestoreOps;
+      const [catSnap, prodSnap, stockSnap] = await Promise.all([
+        getDocs(collection(_dbRef, 'inventory', guildId, 'categories')),
+        getDocs(collection(_dbRef, 'inventory', guildId, 'products')),
+        getDocs(collection(_dbRef, 'inventory', guildId, 'stock')),
+      ]);
+      categories = []; catSnap.forEach(d => categories.push({...d.data(), id: d.id}));
+      products = []; prodSnap.forEach(d => products.push({...d.data(), id: d.id}));
+      stockItems = []; stockSnap.forEach(d => stockItems.push({...d.data(), id: d.id}));
+      try {
+        const sd = await getDoc(doc(_dbRef, 'inventory', guildId, 'settings', 'vending'));
+        if (sd.exists()) Object.assign(vendingSettings, sd.data());
+      } catch(e) {}
+    } catch(e) { console.error('로드 오류:', e); }
+  }
+
+  /* ── ROUTING ── */
+  function showPage(page) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + page);
+    if (navEl) navEl.classList.add('active');
+    const mc = document.getElementById('mainContent');
+    if (page === 'inventory') mc.innerHTML = buildInventoryPage();
+    if (page === 'settings') mc.innerHTML = buildSettingsPage();
+  }
+
+  /* ── INVENTORY PAGE ── */
+  function buildInventoryPage() {
+    return `
+      <div class="page-header">
+        <div class="page-title">재고 관리</div>
+        <div class="page-sub">// 카테고리 → 제품 → 재고 순서로 추가하세요</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('cat',this)">📂 카테고리</div>
+        <div class="tab" onclick="switchTab('prod',this)">📦 제품</div>
+        <div class="tab" onclick="switchTab('stock',this)">📋 재고</div>
+      </div>
+      <div class="tab-section active" id="tab-cat">${buildCatSection()}</div>
+      <div class="tab-section" id="tab-prod">${buildProdSection()}</div>
+      <div class="tab-section" id="tab-stock">${buildStockSection()}</div>
+    `;
+  }
+
+  function switchTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  function buildCatSection() {
+    const items = categories.map(cat => `
+      <div class="list-item">
+        <span style="font-size:17px">${cat.emoji||'📁'}</span>
+        <div class="item-name">${esc(cat.name)}</div>
+        <div class="item-meta">${products.filter(p=>p.catId===cat.id).length}개 제품</div>
+        <button class="btn btn-red-ghost btn-sm" onclick="deleteCategory('${cat.id}')">삭제</button>
+      </div>`).join('');
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📂 카테고리 <span class="tag">${categories.length}개</span></div>
+          <button class="btn btn-white btn-sm" onclick="openModal('modalCat')">+ 추가</button>
+        </div>
+        ${categories.length ? items : emptyState('📂','카테고리가 없습니다','카테고리를 먼저 추가하세요')}
+      </div>`;
+  }
+
+  function buildProdSection() {
+    if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
+    const items = products.map(p => {
+      const cat = categories.find(c => c.id === p.catId);
+      return `
+        <div class="list-item">
+          <span style="font-size:16px">${cat?.emoji||'📦'}</span>
+          <div style="flex:1">
+            <div class="item-name">${esc(p.name)}</div>
+            ${p.desc ? `<div class="item-meta">${esc(p.desc)}</div>` : ''}
+          </div>
+          <div class="item-meta">${esc(cat?.name||'-')}</div>
+          ${p.price ? `<div class="item-qty">${Number(p.price).toLocaleString()}원</div>` : ''}
+          <button class="btn btn-red-ghost btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>
+        </div>`;
+    }).join('');
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 제품 <span class="tag">${products.length}개</span></div>
+          <button class="btn btn-white btn-sm" onclick="openModalProd()">+ 추가</button>
+        </div>
+        ${products.length ? items : emptyState('📭','제품이 없습니다','제품을 추가해주세요')}
+      </div>`;
+  }
+
+  function buildStockSection() {
+    if (!products.length) return `<div class="card">${emptyState('⚠️','제품을 먼저 추가해주세요','제품 탭에서 추가하세요')}</div>`;
+    const items = stockItems.map(item => {
+      const prod = products.find(p => p.id === item.prodId);
+      const cat = prod ? categories.find(c => c.id === prod.catId) : null;
+      return `
+        <div class="list-item">
+          <span style="font-size:16px">${cat?.emoji||'📦'}</span>
+          <div style="flex:1">
+            <div class="item-name">${esc(prod?.name||'알 수 없음')}</div>
+            ${item.note ? `<div class="item-meta">${esc(item.note)}</div>` : ''}
+          </div>
+          <div class="item-meta">${esc(cat?.name||'-')}</div>
+          <div class="item-qty">x${item.qty}</div>
+          <button class="btn btn-red-ghost btn-sm" onclick="deleteStock('${item.id}')">삭제</button>
+        </div>`;
+    }).join('');
+    const total = stockItems.reduce((s,i) => s+(parseInt(i.qty)||0), 0);
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 재고 <span class="tag">${stockItems.length}종</span><span class="tag">${total}개</span></div>
+          <button class="btn btn-white btn-sm" onclick="openModalStock()">+ 추가</button>
+        </div>
+        ${stockItems.length ? items : emptyState('📭','재고가 없습니다','재고를 추가해주세요')}
+        ${stockItems.length ? `<hr class="divider"/><div class="actions-bar"><button class="btn btn-ghost btn-md" onclick="clearAllStock()">전체 초기화</button></div>` : ''}
+      </div>`;
+  }
+
+  function emptyState(icon, title, desc) {
+    return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`;
+  }
+
+  /* ── SETTINGS PAGE ── */
+  function buildSettingsPage() {
+    const btnRows = vendingSettings.buttons.map((b,i) => `
+      <div class="btn-edit-row">
+        <input class="btn-edit-emoji" type="text" value="${esc(b.emoji)}" id="be${i}" placeholder="🔘" oninput="livePreview()"/>
+        <input class="btn-edit-label" type="text" value="${esc(b.label)}" id="bl${i}" placeholder="버튼 이름" oninput="livePreview()"/>
+        <button class="btn btn-red-ghost btn-sm" onclick="removeBtn(${i})">✕</button>
+      </div>`).join('');
+
+    return `
+      <div class="page-header">
+        <div class="page-title">설정</div>
+        <div class="page-sub">// 자판기 및 공지 설정</div>
+      </div>
+      <div class="settings-layout">
+        <div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">🤖 자판기 메시지 설정</div></div>
+            <div class="form-field">
+              <label>임베드 제목</label>
+              <input type="text" id="vs_title" value="${esc(vendingSettings.title)}" placeholder="Vending | 구매하기" oninput="livePreview()"/>
+            </div>
+            <div class="form-field">
+              <label>임베드 설명</label>
+              <textarea id="vs_desc" placeholder="설명..." oninput="livePreview()">${esc(vendingSettings.desc)}</textarea>
+            </div>
+            <div class="form-field" style="margin-bottom:6px;"><label>버튼 목록</label></div>
+            <div id="btnRows">${btnRows}</div>
+            <button class="btn-dashed" onclick="addBtn()">+ 버튼 추가</button>
+            <hr class="divider"/>
+            <div class="actions-bar">
+              <button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">📤 자판기 메시지 전송</div></div>
+            <div class="form-field">
+              <label>Discord 채널 ID</label>
+              <input type="text" id="vendingCh" placeholder="채널 ID 입력"/>
+            </div>
+            <div class="actions-bar">
+              <button class="btn btn-white btn-md" onclick="sendVending()">전송하기</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">📢 공지 설정</div></div>
+            <div class="form-field">
+              <label>공지 채널 ID</label>
+              <input type="text" id="noticeCh" placeholder="채널 ID 입력"/>
+            </div>
+            <div class="form-field">
+              <label>공지 내용</label>
+              <textarea id="noticeText" placeholder="공지 내용을 입력하세요..."></textarea>
+            </div>
+            <div class="actions-bar">
+              <button class="btn btn-white btn-md" onclick="sendNotice()">공지 전송</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="vending-preview">
+          <div class="preview-header">
+            <div class="preview-dot"></div>Discord 미리보기
+          </div>
+          <div class="discord-mock">
+            <div id="discordPreview">${buildPreview()}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildPreview() {
+    const btns = vendingSettings.buttons.map(b =>
+      `<div class="discord-btn">${b.emoji ? b.emoji+' ' : ''}${esc(b.label)}</div>`
+    ).join('');
+    return `
+      <div class="discord-msg">
+        <div class="discord-avatar">🤖</div>
+        <div class="discord-body">
+          <div class="discord-username">Core <span>앱 · 오늘 오전 12:01</span></div>
+          <div class="discord-embed">
+            <div class="discord-embed-title">${esc(vendingSettings.title)}</div>
+            <div class="discord-embed-desc">${esc(vendingSettings.desc)}</div>
+            <div class="discord-buttons">${btns}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function livePreview() {
+    vendingSettings.title = document.getElementById('vs_title')?.value || '';
+    vendingSettings.desc = document.getElementById('vs_desc')?.value || '';
+    syncBtnsFromDOM();
+    const p = document.getElementById('discordPreview');
+    if (p) p.innerHTML = buildPreview();
+  }
+
+  function syncBtnsFromDOM() {
+    const newBtns = [];
+    let i = 0;
+    while (document.getElementById('be'+i)) {
+      newBtns.push({ emoji: document.getElementById('be'+i).value, label: document.getElementById('bl'+i).value });
+      i++;
+    }
+    if (newBtns.length >= 0) vendingSettings.buttons = newBtns;
+  }
+
+  function addBtn() {
+    syncBtnsFromDOM();
+    vendingSettings.buttons.push({ emoji: '🔘', label: '버튼' });
+    showPage('settings');
+  }
+
+  function removeBtn(idx) {
+    syncBtnsFromDOM();
+    vendingSettings.buttons.splice(idx, 1);
+    showPage('settings');
+  }
+
+  async function saveVending() {
+    syncBtnsFromDOM();
+    vendingSettings.title = document.getElementById('vs_title')?.value || vendingSettings.title;
+    vendingSettings.desc = document.getElementById('vs_desc')?.value || vendingSettings.desc;
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'settings', 'vending'), vendingSettings);
+      showToast('✅ 자판기 설정이 저장되었습니다!');
+    } catch(e) { console.error(e); showToast('❌ 저장 실패', true); }
+  }
+
+  function sendVending() {
+    const ch = document.getElementById('vendingCh')?.value?.trim();
+    if (!ch) { showToast('⚠️ 채널 ID를 입력하세요', true); return; }
+    showToast('📤 봇 연동 후 전송됩니다. 봇에서 처리해주세요.');
+  }
+
+  function sendNotice() {
+    const ch = document.getElementById('noticeCh')?.value?.trim();
+    const text = document.getElementById('noticeText')?.value?.trim();
+    if (!ch || !text) { showToast('⚠️ 채널 ID와 내용을 입력하세요', true); return; }
+    showToast('📢 봇 연동 후 전송됩니다. 봇에서 처리해주세요.');
+  }
+
+  /* ── MODALS ── */
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function openModalProd() {
+    if (!categories.length) { showToast('⚠️ 카테고리를 먼저 추가해주세요!', true); return; }
+    const sel = document.getElementById('prodCatSel');
+    sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.emoji||''} ${esc(c.name)}</option>`).join('');
+    document.getElementById('prodNameInput').value = '';
+    document.getElementById('prodDescInput').value = '';
+    document.getElementById('prodPriceInput').value = '';
+    openModal('modalProd');
+  }
+
+  function openModalStock() {
+    if (!products.length) { showToast('⚠️ 제품을 먼저 추가해주세요!', true); return; }
+    const sel = document.getElementById('stockProdSel');
+    sel.innerHTML = products.map(p => {
+      const cat = categories.find(c => c.id === p.catId);
+      return `<option value="${p.id}">[${esc(cat?.name||'-')}] ${esc(p.name)}</option>`;
+    }).join('');
+    document.getElementById('stockQtyInput').value = '';
+    document.getElementById('stockNoteInput').value = '';
+    openModal('modalStock');
+  }
+
+  /* ── CATEGORY CRUD ── */
+  async function saveCategory() {
+    const name = document.getElementById('catNameInput').value.trim();
+    const emoji = document.getElementById('catEmojiInput').value.trim();
+    if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
+    const id = Date.now().toString();
+    const cat = { id, name, emoji: emoji || '📁' };
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'categories', id), cat);
+      categories.push(cat);
+      closeModal('modalCat');
+      document.getElementById('catNameInput').value = '';
+      document.getElementById('catEmojiInput').value = '';
+      showToast('✅ 카테고리가 추가되었습니다!');
+      showPage('inventory');
+    } catch(e) { showToast('❌ 저장 실패', true); }
+  }
+
+  async function deleteCategory(id) {
+    if (!confirm('이 카테고리를 삭제할까요? 포함된 제품도 삭제됩니다.')) return;
+    try {
+      const { doc, deleteDoc } = firestoreOps;
+      await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'categories', id));
+      const relProds = products.filter(p => p.catId === id);
+      for (const p of relProds) {
+        await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'products', p.id));
+        stockItems = stockItems.filter(s => s.prodId !== p.id);
+      }
+      categories = categories.filter(c => c.id !== id);
+      products = products.filter(p => p.catId !== id);
+      showToast('🗑️ 삭제되었습니다');
+      showPage('inventory');
+    } catch(e) { showToast('❌ 삭제 실패', true); }
+  }
+
+  /* ── PRODUCT CRUD ── */
+  async function saveProduct() {
+    const catId = document.getElementById('prodCatSel').value;
+    const name = document.getElementById('prodNameInput').value.trim();
+    const desc = document.getElementById('prodDescInput').value.trim();
+    const price = parseInt(document.getElementById('prodPriceInput').value) || 0;
+    if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
+    const id = Date.now().toString();
+    const prod = { id, catId, name, desc, price };
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'products', id), prod);
+      products.push(prod);
+      closeModal('modalProd');
+      showToast('✅ 제품이 추가되었습니다!');
+      showPage('inventory');
+      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
+    } catch(e) { showToast('❌ 저장 실패', true); }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('이 제품을 삭제할까요?')) return;
+    try {
+      const { doc, deleteDoc } = firestoreOps;
+      await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'products', id));
+      stockItems = stockItems.filter(s => s.prodId !== id);
+      products = products.filter(p => p.id !== id);
+      showToast('🗑️ 삭제되었습니다');
+      showPage('inventory');
+      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
+    } catch(e) { showToast('❌ 삭제 실패', true); }
+  }
+
+  /* ── STOCK CRUD ── */
+  async function saveStock() {
+    const prodId = document.getElementById('stockProdSel').value;
+    const qty = parseInt(document.getElementById('stockQtyInput').value);
+    const note = document.getElementById('stockNoteInput').value.trim();
+    if (!qty || qty < 1) { showToast('⚠️ 수량을 입력하세요', true); return; }
+    const id = Date.now().toString();
+    const item = { id, prodId, qty, note, addedAt: new Date().toISOString() };
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'stock', id), item);
+      stockItems.push(item);
+      closeModal('modalStock');
+      showToast('✅ 재고가 추가되었습니다!');
+      showPage('inventory');
+      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); }, 80);
+    } catch(e) { showToast('❌ 저장 실패', true); }
+  }
+
+  async function deleteStock(id) {
+    try {
+      const { doc, deleteDoc } = firestoreOps;
+      await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'stock', id));
+      stockItems = stockItems.filter(s => s.id !== id);
+      showToast('🗑️ 삭제되었습니다');
+      showPage('inventory');
+      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); }, 80);
+    } catch(e) { showToast('❌ 삭제 실패', true); }
+  }
+
+  async function clearAllStock() {
+    if (!confirm('재고를 전부 삭제할까요?')) return;
+    try {
+      const { doc, deleteDoc } = firestoreOps;
+      for (const item of stockItems) {
+        await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'stock', item.id));
+      }
+      stockItems = [];
+      showToast('🗑️ 재고가 초기화되었습니다');
+      showPage('inventory');
+    } catch(e) { showToast('❌ 실패', true); }
+  }
+
+  /* ── TOAST ── */
+  function showToast(msg, warn=false) {
     const t = document.getElementById('toast');
     t.textContent = msg;
-    t.style.borderColor = warn ? 'var(--danger)' : 'var(--success)';
     t.style.color = warn ? 'var(--danger)' : 'var(--success)';
-    t.style.border = `1px solid ${warn ? 'var(--danger)' : 'var(--success)'}`;
+    t.style.borderColor = warn ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.2)';
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.classList.remove('show'), 3000);
   }
+
+  /* ── HELPERS ── */
+  function esc(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Close modal on outside click
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
 </script>
 </body>
 </html>
