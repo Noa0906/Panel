@@ -279,13 +279,17 @@
       </div>
       <div class="login-brand-name">Core Web<span>Panel</span></div>
     </div>
-    <div class="login-title">라이선스 로그인</div>
-    <div class="login-sub">// 발급받은 코드로 로그인하세요</div>
+    <div class="login-title">웹패널 로그인</div>
+    <div class="login-sub">// /웹패널 명령어로 확인한 정보로 로그인하세요</div>
     <div class="alert alert-error" id="loginError"></div>
     <div class="alert alert-warn" id="loginWarn"></div>
     <div class="field">
-      <label>라이선스 코드</label>
-      <input type="text" id="inputCode" placeholder="예) F7E3A3B645260AF3D1868A193EAE1DD7" autocomplete="off"/>
+      <label>아이디</label>
+      <input type="text" id="inputCode" placeholder="예) F7E3A3B6" autocomplete="off"/>
+    </div>
+    <div class="field">
+      <label>비밀번호</label>
+      <input type="password" id="inputPassword" placeholder="웹패널 비밀번호 입력" autocomplete="off"/>
     </div>
     <button class="btn-login" id="loginBtn" onclick="doLogin()">
       <span id="loginBtnText">로그인</span>
@@ -559,25 +563,45 @@
     if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
   });
 
+  // SHA-256 해시
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
   async function doLogin() {
-    const code = document.getElementById('inputCode').value.trim().toUpperCase();
-    const errEl = document.getElementById('loginError');
-    const warnEl = document.getElementById('loginWarn');
-    const btn = document.getElementById('loginBtn');
-    const btnText = document.getElementById('loginBtnText');
+    const panelId  = document.getElementById('inputCode').value.trim().toUpperCase();
+    const password = document.getElementById('inputPassword').value;
+    const errEl    = document.getElementById('loginError');
+    const warnEl   = document.getElementById('loginWarn');
+    const btn      = document.getElementById('loginBtn');
+    const btnText  = document.getElementById('loginBtnText');
     errEl.style.display = 'none'; warnEl.style.display = 'none';
-    if (!code) { errEl.textContent = '❌ 라이선스 코드를 입력하세요.'; errEl.style.display = 'block'; return; }
+    if (!panelId)   { errEl.textContent = '❌ 아이디를 입력하세요.';    errEl.style.display = 'block'; return; }
+    if (!password)  { errEl.textContent = '❌ 비밀번호를 입력하세요.';  errEl.style.display = 'block'; return; }
     btn.disabled = true;
     btnText.innerHTML = '<div class="spinner"></div>';
     await waitForFirebase();
     try {
       const { collection, getDocs } = firestoreOps;
+      // panelId로 라이선스 조회
       const snap = await getDocs(collection(_dbRef, 'licenses'));
       let found = null;
-      snap.forEach(d => { if (d.data().code === code) { found = d.data(); if (!found.guildId) found.guildId = d.id; } });
-      if (!found) { errEl.textContent = '❌ 유효하지 않은 라이선스 코드입니다.'; errEl.style.display = 'block'; return; }
+      snap.forEach(d => {
+        const data = d.data();
+        if (data.panelId === panelId) { found = data; if (!found.guildId) found.guildId = d.id; }
+      });
+      if (!found) { errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.'; errEl.style.display = 'block'; return; }
       if (!found.isActive) { errEl.textContent = '❌ 비활성화된 라이선스입니다.'; errEl.style.display = 'block'; return; }
       if (found.expiresAt && new Date(found.expiresAt) < new Date()) { errEl.textContent = '❌ 만료된 라이선스입니다.'; errEl.style.display = 'block'; return; }
+
+      // 비밀번호 해시 검증
+      const inputHash = await sha256(password);
+      if (!found.passwordHash || inputHash !== found.passwordHash) {
+        errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
+        errEl.style.display = 'block'; return;
+      }
+
       if (found.expiresAt) {
         const d = Math.ceil((new Date(found.expiresAt) - new Date()) / 86400000);
         if (d <= 7) { warnEl.textContent = `⚠️ ${d}일 후 만료됩니다.`; warnEl.style.display = 'block'; }
