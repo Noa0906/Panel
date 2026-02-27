@@ -42,7 +42,7 @@
       --warning: #fbbf24;
     }
 
-    body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+    html, body { height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -52,7 +52,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
     .screen { display:none; }
-    .screen.active { display:flex; width:100%; height:100vh; }
+    .screen.active { display:flex; width:100%; height:100%; position:fixed; top:0; left:0; right:0; bottom:0; }
 
     /* LOGIN */
     #loginScreen {
@@ -90,10 +90,10 @@
     .alert-warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.25); color:var(--warning); }
     .spinner { width:15px; height:15px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.6s linear infinite; }
 
-    #dashScreen { flex-direction:row; align-items:stretch; overflow:hidden; }
+    #dashScreen { flex-direction:row; overflow:hidden; }
 
     /* SIDEBAR */
-    .sidebar { width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:20px 0; animation:fadeIn 0.35s ease; overflow-y:auto; }
+    .sidebar { width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:20px 0; animation:fadeIn 0.35s ease; overflow-y:auto; height:100%; }
     .sidebar-brand { display:flex; align-items:center; gap:10px; padding:0 16px 18px; border-bottom:1px solid var(--border); margin-bottom:10px; }
     .sidebar-brand-icon { width:30px; height:30px; border-radius:7px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
     .sidebar-brand-icon img { width:100%; height:100%; object-fit:cover; }
@@ -117,7 +117,7 @@
     .btn-logout { width:100%; padding:8px; background:transparent; border:1px solid var(--border); border-radius:7px; color:var(--text3); font-family:'Outfit',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
     .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
-    .main { flex:1; overflow-y:auto; background:#181818; min-height:0; }
+    .main { flex:1; overflow-y:auto; background:#181818; height:100%; }
     .main-inner { padding:30px 34px; max-width:960px; }
     .page-header { margin-bottom:24px; }
     .page-title { font-size:21px; font-weight:700; letter-spacing:-0.02em; }
