@@ -40,6 +40,7 @@
       --success: #4ade80;
       --danger: #f87171;
       --warning: #fbbf24;
+      --accent: #60a5fa;
     }
 
     html, body { height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
@@ -52,6 +53,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
     @keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
     .screen { display:none; }
     .screen.active { display:flex; width:100%; height:100%; position:fixed; top:0; left:0; right:0; bottom:0; }
 
@@ -194,7 +196,7 @@
     .discord-buttons { display:flex; flex-wrap:wrap; gap:6px; }
     .discord-btn { display:flex; align-items:center; gap:4px; background:#4e5058; border-radius:4px; padding:5px 12px; font-size:13px; color:#dbdee1; font-weight:500; }
 
-    /* BUTTON EDITOR ROW — display only, no add/remove */
+    /* BUTTON EDITOR ROW */
     .btn-edit-row { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
     .btn-edit-emoji { width:46px; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px; color:var(--text); font-size:13px; outline:none; text-align:center; cursor:default; opacity:0.7; }
     .btn-edit-label { flex:1; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px 10px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; cursor:default; opacity:0.7; }
@@ -265,6 +267,82 @@
 
     /* STOCK TEXTAREA HELPER */
     .stock-count-badge { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:4px; }
+
+    /* ── AUTO CHARGE PAGE ── */
+    .ac-hero {
+      border-radius:14px; padding:26px 28px;
+      background: linear-gradient(135deg, #050e1f 0%, #071020 60%, #0d0d0d 100%);
+      border:1px solid #1a2a50; position:relative; overflow:hidden; margin-bottom:18px;
+    }
+    .ac-hero::after {
+      content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px;
+      background:radial-gradient(circle, rgba(96,165,250,0.08) 0%, transparent 70%); pointer-events:none;
+    }
+    .ac-hero-row { display:flex; align-items:center; gap:16px; }
+    .ac-hero-icon { width:48px; height:48px; border-radius:13px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+    .ac-hero-info { flex:1; }
+    .ac-hero-label { font-size:11px; color:rgba(96,165,250,0.6); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
+    .ac-hero-title { font-size:18px; font-weight:700; color:#fff; margin-bottom:3px; }
+    .ac-hero-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+    .ac-status-badge { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace; border:1px solid; flex-shrink:0; }
+    .ac-status-badge.on { background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.3); color:#4ade80; }
+    .ac-status-badge.off { background:rgba(255,255,255,0.05); border-color:var(--border2); color:var(--text3); }
+    .ac-status-dot { width:6px; height:6px; border-radius:50%; animation:blink 1.5s infinite; }
+    .ac-status-badge.on .ac-status-dot { background:#4ade80; }
+    .ac-status-badge.off .ac-status-dot { background:var(--text3); animation:none; }
+
+    .ac-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .ac-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
+    .ac-stat-label { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .ac-stat-value { font-size:22px; font-weight:700; letter-spacing:-0.02em; color:var(--accent); }
+    .ac-stat-sub { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:5px; }
+
+    /* 충전 로그 테이블 */
+    .charge-log-table { width:100%; border-collapse:collapse; }
+    .charge-log-table th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:var(--text3); border-bottom:1px solid var(--border2); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.06em; }
+    .charge-log-table td { padding:11px 14px; font-size:12px; border-bottom:1px solid var(--border); }
+    .charge-log-table tr:last-child td { border-bottom:none; }
+    .charge-log-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .log-status-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px; font-size:11px; font-family:'JetBrains Mono',monospace; border:1px solid; }
+    .log-status-badge.pending { background:rgba(251,191,36,0.1); border-color:rgba(251,191,36,0.3); color:var(--warning); }
+    .log-status-badge.confirmed { background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.3); color:var(--success); }
+    .log-status-badge.rejected { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--danger); }
+
+    /* 계좌 카드 */
+    .account-card { background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:14px; transition:border-color 0.15s; }
+    .account-card:hover { border-color:rgba(96,165,250,0.25); }
+    .account-card-icon { width:38px; height:38px; border-radius:9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .account-card-info { flex:1; }
+    .account-card-bank { font-size:13px; font-weight:600; margin-bottom:3px; }
+    .account-card-num { font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text2); }
+    .account-card-holder { font-size:11px; color:var(--text3); margin-top:2px; }
+
+    /* API 키 입력 */
+    .api-key-field { position:relative; }
+    .api-key-field input { padding-right:40px; }
+    .api-key-toggle { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text3); font-size:14px; padding:4px; transition:color 0.15s; }
+    .api-key-toggle:hover { color:var(--text); }
+    .api-key-status { display:flex; align-items:center; gap:6px; font-size:11px; font-family:'JetBrains Mono',monospace; margin-top:6px; }
+    .api-key-status.ok { color:var(--success); }
+    .api-key-status.err { color:var(--danger); }
+    .api-key-status.idle { color:var(--text3); }
+
+    /* Pushbullet 도움말 */
+    .pb-help { background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    .pb-help-title { font-size:12px; font-weight:600; color:var(--accent); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .pb-help-steps { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; line-height:1.8; }
+    .pb-help-steps span { color:var(--text2); }
+
+    /* 알림 토글 스위치 */
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+    .toggle-row:last-child { border-bottom:none; }
+    .toggle-label { font-size:13px; font-weight:500; }
+    .toggle-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:2px; }
+    .toggle-switch { width:44px; height:24px; border-radius:99px; position:relative; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+    .toggle-thumb { position:absolute; left:3px; top:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left 0.2s; }
+
+    /* 최소충전액 배지 */
+    .min-charge-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:var(--accent); font-size:11px; font-family:'JetBrains Mono',monospace; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -324,6 +402,9 @@
       </div>
       <div class="nav-item" onclick="showPage('grades')" id="nav-grades">
         <span class="nav-icon">🏅</span> 등급 관리
+      </div>
+      <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge">
+        <span class="nav-icon">💳</span> 자동충전
       </div>
       <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
         <span class="nav-icon">⚙️</span> 설정
@@ -395,7 +476,7 @@
   </div>
 </div>
 
-<!-- MODAL: Stock — 줄바꿈으로 여러 재고 추가 -->
+<!-- MODAL: Stock -->
 <div class="modal-overlay" id="modalStock">
   <div class="modal">
     <div class="modal-title">재고 추가</div>
@@ -414,7 +495,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- MODAL: 유저 편집 -->
 <div class="modal-overlay" id="modalUserEdit">
@@ -523,6 +603,59 @@
   </div>
 </div>
 
+<!-- MODAL: 계좌 추가/편집 -->
+<div class="modal-overlay" id="modalAccount">
+  <div class="modal">
+    <div class="modal-title" id="accountModalTitle">💳 계좌 추가</div>
+    <input type="hidden" id="editAccountId"/>
+    <div class="form-field">
+      <label>은행명</label>
+      <select id="accountBankSel">
+        <option value="">은행 선택</option>
+        <option value="카카오뱅크">카카오뱅크</option>
+        <option value="국민은행">국민은행 (KB)</option>
+        <option value="신한은행">신한은행</option>
+        <option value="우리은행">우리은행</option>
+        <option value="하나은행">하나은행</option>
+        <option value="농협은행">농협은행 (NH)</option>
+        <option value="기업은행">기업은행 (IBK)</option>
+        <option value="토스뱅크">토스뱅크</option>
+        <option value="케이뱅크">케이뱅크</option>
+        <option value="SC제일은행">SC제일은행</option>
+        <option value="씨티은행">씨티은행</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>계좌번호</label>
+      <input type="text" id="accountNumberInput" placeholder="예) 3333-01-1234567"/>
+    </div>
+    <div class="form-field">
+      <label>예금주</label>
+      <input type="text" id="accountHolderInput" placeholder="예) 홍길동"/>
+    </div>
+    <div class="form-field">
+      <label>최소 충전액 (원)</label>
+      <input type="number" id="accountMinInput" placeholder="예) 5000" min="0"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeModal('modalAccount')">취소</button>
+      <button class="btn btn-white btn-md" onclick="saveAccount()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: 충전로그 상세 -->
+<div class="modal-overlay" id="modalChargeDetail">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title">💳 충전 요청 상세</div>
+    <div id="chargeDetailContent" style="margin-bottom:16px;"></div>
+    <div class="modal-footer" id="chargeDetailFooter">
+      <button class="btn btn-ghost btn-md" onclick="closeModal('modalChargeDetail')">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script>
   /* STATE */
   let currentLicense = null;
@@ -543,7 +676,16 @@
     ]
   };
 
-  // realtime listener cleanup
+  // Auto-charge state
+  let chargeAccounts = [];
+  let chargeLogs = [];
+  let autoChargeConfig = {
+    pushbulletApiKey: '',
+    enabled: false,
+    notifyOnCharge: true,
+    autoConfirm: false,
+  };
+
   let _rtUnsubscribe = null;
 
   window.addEventListener('firebaseReady', () => {
@@ -563,7 +705,6 @@
     if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
   });
 
-  // SHA-256 해시
   async function sha256(str) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
@@ -584,7 +725,6 @@
     await waitForFirebase();
     try {
       const { collection, getDocs } = firestoreOps;
-      // panelId로 라이선스 조회
       const snap = await getDocs(collection(_dbRef, 'licenses'));
       let found = null;
       snap.forEach(d => {
@@ -594,14 +734,11 @@
       if (!found) { errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.'; errEl.style.display = 'block'; return; }
       if (!found.isActive) { errEl.textContent = '❌ 비활성화된 라이선스입니다.'; errEl.style.display = 'block'; return; }
       if (found.expiresAt && new Date(found.expiresAt) < new Date()) { errEl.textContent = '❌ 만료된 라이선스입니다.'; errEl.style.display = 'block'; return; }
-
-      // 비밀번호 해시 검증
       const inputHash = await sha256(password);
       if (!found.passwordHash || inputHash !== found.passwordHash) {
         errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
         errEl.style.display = 'block'; return;
       }
-
       if (found.expiresAt) {
         const d = Math.ceil((new Date(found.expiresAt) - new Date()) / 86400000);
         if (d <= 7) { warnEl.textContent = `⚠️ ${d}일 후 만료됩니다.`; warnEl.style.display = 'block'; }
@@ -627,9 +764,9 @@
   }
 
   function doLogout() {
-    // cleanup realtime listener
     if (_rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe = null; }
     currentLicense = null; categories = []; products = []; stockItems = [];
+    chargeAccounts = []; chargeLogs = [];
     document.getElementById('dashScreen').classList.remove('active');
     document.getElementById('loginScreen').classList.add('active');
     document.getElementById('inputCode').value = '';
@@ -656,11 +793,11 @@
     } catch(e) { console.error('로드 오류:', e); }
     await loadDiscordData();
     await loadGrades();
+    await loadAutoChargeData();
   }
 
   /* ── ROUTING ── */
   function showPage(page) {
-    // cleanup realtime listener when leaving dashboard
     if (page !== 'dashboard' && _rtUnsubscribe) {
       _rtUnsubscribe(); _rtUnsubscribe = null;
     }
@@ -673,6 +810,7 @@
     if (page === 'settings') mc.innerHTML = buildSettingsPage();
     if (page === 'users') { mc.innerHTML = buildUsersPage(); initUsersPage(); }
     if (page === 'grades') { mc.innerHTML = buildGradesPage(); }
+    if (page === 'autocharge') { mc.innerHTML = buildAutoChargePage(); initAutoCharge(); }
     const main = document.querySelector('.main');
     if (main) main.scrollTop = 0;
   }
@@ -779,6 +917,466 @@
     return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`;
   }
 
+  /* ══════════════════════════════════════════════
+     ── AUTO CHARGE PAGE ──
+  ══════════════════════════════════════════════ */
+
+  async function loadAutoChargeData() {
+    const guildId = currentLicense?.guildId;
+    if (!guildId || !firestoreOps) return;
+    const { collection, getDocs, doc, getDoc } = firestoreOps;
+    try {
+      // 계좌 목록
+      const accSnap = await getDocs(collection(_dbRef, 'guilds', guildId, 'chargeAccounts'));
+      chargeAccounts = [];
+      accSnap.forEach(d => chargeAccounts.push({ ...d.data(), id: d.id }));
+
+      // 충전 로그
+      const logSnap = await getDocs(collection(_dbRef, 'guilds', guildId, 'chargeLogs'));
+      chargeLogs = [];
+      logSnap.forEach(d => chargeLogs.push({ ...d.data(), _docId: d.id }));
+      chargeLogs.sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+
+      // 자동충전 설정
+      try {
+        const cfSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'autoCharge', 'config'));
+        if (cfSnap.exists()) Object.assign(autoChargeConfig, cfSnap.data());
+      } catch(e) {}
+    } catch(e) { console.error('자동충전 로드 오류:', e); }
+  }
+
+  function buildAutoChargePage() {
+    const totalAmount = chargeLogs.filter(l=>l.status==='confirmed').reduce((s,l)=>s+(l.amount||0),0);
+    const pendingCount = chargeLogs.filter(l=>l.status==='pending').length;
+    const todayStart = new Date(new Date().setHours(0,0,0,0)).getTime();
+    const todayAmount = chargeLogs.filter(l=>l.status==='confirmed'&&(l.timestamp||0)>=todayStart).reduce((s,l)=>s+(l.amount||0),0);
+
+    const logRows = chargeLogs.slice(0,50).map(l => {
+      const statusMap = { pending:'대기중', confirmed:'승인', rejected:'거절' };
+      const statusClass = l.status || 'pending';
+      const ts = l.timestamp ? new Date(l.timestamp).toLocaleString('ko-KR') : '-';
+      return `
+        <tr>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);">${ts}</td>
+          <td style="font-size:13px;font-weight:600;">${esc(l.psid||l.userId||'-')}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);">${(l.amount||0).toLocaleString()}원</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);">${esc(l.bankName||'-')} ${esc(l.accountNum||'')}</td>
+          <td><span class="log-status-badge ${statusClass}">${statusMap[statusClass]||statusClass}</span></td>
+          <td>
+            <button class="btn btn-ghost btn-sm" onclick="openChargeDetail('${l._docId}')">상세</button>
+            ${statusClass==='pending' ? `
+              <button class="btn btn-sm" style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);margin-left:4px;" onclick="updateChargeStatus('${l._docId}','confirmed')">승인</button>
+              <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);margin-left:4px;" onclick="updateChargeStatus('${l._docId}','rejected')">거절</button>
+            ` : ''}
+          </td>
+        </tr>`;
+    }).join('');
+
+    const accountCards = chargeAccounts.map(acc => `
+      <div class="account-card">
+        <div class="account-card-icon">🏦</div>
+        <div class="account-card-info">
+          <div class="account-card-bank">${esc(acc.bankName||'-')}</div>
+          <div class="account-card-num">${esc(acc.accountNumber||'-')}</div>
+          <div class="account-card-holder">예금주: ${esc(acc.holder||'-')} ${acc.minAmount ? `&nbsp;·&nbsp;<span class="min-charge-badge">최소 ${Number(acc.minAmount).toLocaleString()}원</span>` : ''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button class="btn btn-ghost btn-sm" onclick="openAccountEdit('${acc.id}')">✏️</button>
+          <button class="btn btn-red-ghost btn-sm" onclick="deleteAccount('${acc.id}')">삭제</button>
+        </div>
+      </div>`).join('');
+
+    const isOn = autoChargeConfig.enabled;
+    const apiKey = autoChargeConfig.pushbulletApiKey || '';
+
+    return `
+      <div class="page-header">
+        <div class="page-title">💳 자동충전</div>
+        <div class="page-sub">// 충전 계좌 관리 · Pushbullet 연동 · 충전 로그 확인</div>
+      </div>
+
+      <!-- 히어로 -->
+      <div class="ac-hero">
+        <div class="ac-hero-row">
+          <div class="ac-hero-icon">💳</div>
+          <div class="ac-hero-info">
+            <div class="ac-hero-label">Auto Charge System</div>
+            <div class="ac-hero-title">자동충전 관리</div>
+            <div class="ac-hero-desc">// Pushbullet SMS 수신 → 자동 잔액 충전 처리</div>
+          </div>
+          <div class="ac-status-badge ${isOn ? 'on' : 'off'}">
+            <div class="ac-status-dot"></div>
+            ${isOn ? 'ACTIVE' : 'INACTIVE'}
+          </div>
+        </div>
+      </div>
+
+      <!-- 통계 카드 -->
+      <div class="ac-grid">
+        <div class="ac-stat-card">
+          <div class="ac-stat-label">📦 누적 충전금액</div>
+          <div class="ac-stat-value">${totalAmount.toLocaleString()}원</div>
+          <div class="ac-stat-sub">승인된 충전 기준 · 총 ${chargeLogs.filter(l=>l.status==='confirmed').length}건</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-label">📅 오늘 충전금액</div>
+          <div class="ac-stat-value">${todayAmount.toLocaleString()}원</div>
+          <div class="ac-stat-sub">대기 중 ${pendingCount}건 남음</div>
+        </div>
+      </div>
+
+      <!-- 탭 -->
+      <div class="tabs" style="margin-bottom:20px;">
+        <div class="tab active" onclick="switchAcTab('logs',this)">📋 충전 로그</div>
+        <div class="tab" onclick="switchAcTab('accounts',this)">🏦 충전 계좌</div>
+        <div class="tab" onclick="switchAcTab('pushbullet',this)">🔔 Pushbullet 설정</div>
+      </div>
+
+      <!-- TAB: 충전 로그 -->
+      <div class="tab-section active" id="ac-tab-logs">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;">
+              📋 충전 로그
+              <span class="tag">${chargeLogs.length}건</span>
+              ${pendingCount > 0 ? `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⏳ 대기 ${pendingCount}건</span>` : ''}
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="refreshChargeData()">🔄 새로고침</button>
+          </div>
+          <div style="overflow-x:auto;">
+            ${chargeLogs.length ? `
+              <table class="charge-log-table">
+                <thead>
+                  <tr>
+                    <th>시간</th>
+                    <th>유저</th>
+                    <th>금액</th>
+                    <th>계좌</th>
+                    <th>상태</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody>${logRows}</tbody>
+              </table>
+            ` : `<div style="padding:40px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px;">📭 충전 기록이 없습니다</div>`}
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: 충전 계좌 -->
+      <div class="tab-section" id="ac-tab-accounts">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏦 충전 계좌 목록 <span class="tag">${chargeAccounts.length}개</span></div>
+            <button class="btn btn-white btn-sm" onclick="openAccountAdd()">+ 계좌 추가</button>
+          </div>
+          ${chargeAccounts.length ? accountCards : emptyState('🏦','등록된 계좌가 없습니다','충전 계좌를 추가해주세요')}
+        </div>
+
+        <div class="card" style="border-color:rgba(96,165,250,0.15);background:rgba(96,165,250,0.03);">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div class="card-title" style="color:var(--accent);">ℹ️ 계좌 운영 안내</div>
+          </div>
+          <div style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:2;">
+            <div>· 여러 계좌를 등록해도 봇이 모두 표시합니다</div>
+            <div>· 최소 충전액 미만 입금 시 자동 거절 처리됩니다</div>
+            <div>· 계좌번호는 하이픈(-) 포함하여 정확히 입력해주세요</div>
+            <div>· 계좌 변경 시 기존 대기 중 요청이 있다면 먼저 처리하세요</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Pushbullet 설정 -->
+      <div class="tab-section" id="ac-tab-pushbullet">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔔 Pushbullet API 설정</div>
+            <span class="tag" id="pbStatusTag" style="${apiKey ? 'color:var(--success);border-color:rgba(74,222,128,0.3);' : ''}">
+              ${apiKey ? '✓ 키 등록됨' : '미설정'}
+            </span>
+          </div>
+
+          <div class="form-field">
+            <label>Pushbullet API Key</label>
+            <div class="api-key-field">
+              <input type="password" id="pbApiKeyInput" value="${esc(apiKey)}" placeholder="o.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" oninput="onPbKeyChange()"/>
+              <button class="api-key-toggle" onclick="togglePbKeyVisibility()" id="pbToggleBtn">👁</button>
+            </div>
+            <div class="api-key-status idle" id="pbKeyStatus">
+              ${apiKey ? '✓ API 키가 등록되어 있습니다' : '// API 키를 입력해주세요'}
+            </div>
+          </div>
+
+          <div class="pb-help">
+            <div class="pb-help-title">📖 Pushbullet API Key 발급 방법</div>
+            <div class="pb-help-steps">
+              1. <span>pushbullet.com</span> 접속 후 로그인<br/>
+              2. 우측 상단 프로필 → <span>Settings</span> 클릭<br/>
+              3. <span>Account</span> 탭 → <span>Access Tokens</span> 섹션<br/>
+              4. <span>Create Access Token</span> 버튼 클릭<br/>
+              5. 생성된 토큰을 위 입력란에 붙여넣기
+            </div>
+          </div>
+
+          <hr class="divider"/>
+
+          <div class="form-field" style="margin-bottom:0;">
+            <label>알림 설정</label>
+            <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:4px 14px;">
+              <div class="toggle-row">
+                <div>
+                  <div class="toggle-label">자동충전 시스템 활성화</div>
+                  <div class="toggle-desc">비활성화 시 SMS 수신 처리를 중단합니다</div>
+                </div>
+                <div class="toggle-switch" id="ts_enabled" onclick="toggleAcSwitch('enabled')" style="background:${autoChargeConfig.enabled ? '#4ade80' : '#333'};">
+                  <div class="toggle-thumb" style="left:${autoChargeConfig.enabled ? '23px' : '3px'};"></div>
+                </div>
+              </div>
+              <div class="toggle-row">
+                <div>
+                  <div class="toggle-label">충전 요청 알림</div>
+                  <div class="toggle-desc">새 충전 요청 시 Discord DM으로 알림</div>
+                </div>
+                <div class="toggle-switch" id="ts_notifyOnCharge" onclick="toggleAcSwitch('notifyOnCharge')" style="background:${autoChargeConfig.notifyOnCharge ? '#4ade80' : '#333'};">
+                  <div class="toggle-thumb" style="left:${autoChargeConfig.notifyOnCharge ? '23px' : '3px'};"></div>
+                </div>
+              </div>
+              <div class="toggle-row">
+                <div>
+                  <div class="toggle-label">자동 승인</div>
+                  <div class="toggle-desc">SMS 수신 즉시 자동으로 잔액 충전 (위험)</div>
+                </div>
+                <div class="toggle-switch" id="ts_autoConfirm" onclick="toggleAcSwitch('autoConfirm')" style="background:${autoChargeConfig.autoConfirm ? '#f87171' : '#333'};">
+                  <div class="toggle-thumb" style="left:${autoChargeConfig.autoConfirm ? '23px' : '3px'};"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="divider"/>
+          <div class="actions-bar">
+            <button class="btn btn-ghost btn-md" onclick="testPbConnection()">🔌 연결 테스트</button>
+            <button class="btn btn-white btn-md" onclick="savePushbulletConfig()">💾 설정 저장</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function switchAcTab(id, el) {
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('[id^="ac-tab-"]').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('ac-tab-' + id).classList.add('active');
+  }
+
+  async function initAutoCharge() {
+    await loadAutoChargeData();
+    // re-render if data changed
+    const mc = document.getElementById('mainContent');
+    if (mc) { mc.innerHTML = buildAutoChargePage(); }
+  }
+
+  async function refreshChargeData() {
+    showToast('🔄 새로고침 중...');
+    await loadAutoChargeData();
+    showPage('autocharge');
+    showToast('✅ 새로고침 완료!');
+  }
+
+  /* 계좌 CRUD */
+  function openAccountAdd() {
+    document.getElementById('accountModalTitle').textContent = '💳 계좌 추가';
+    document.getElementById('editAccountId').value = '';
+    document.getElementById('accountBankSel').value = '';
+    document.getElementById('accountNumberInput').value = '';
+    document.getElementById('accountHolderInput').value = '';
+    document.getElementById('accountMinInput').value = '';
+    openModal('modalAccount');
+  }
+
+  function openAccountEdit(id) {
+    const acc = chargeAccounts.find(a => a.id === id);
+    if (!acc) return;
+    document.getElementById('accountModalTitle').textContent = '✏️ 계좌 편집';
+    document.getElementById('editAccountId').value = id;
+    document.getElementById('accountBankSel').value = acc.bankName || '';
+    document.getElementById('accountNumberInput').value = acc.accountNumber || '';
+    document.getElementById('accountHolderInput').value = acc.holder || '';
+    document.getElementById('accountMinInput').value = acc.minAmount || '';
+    openModal('modalAccount');
+  }
+
+  async function saveAccount() {
+    const id = document.getElementById('editAccountId').value || Date.now().toString();
+    const bankName = document.getElementById('accountBankSel').value;
+    const accountNumber = document.getElementById('accountNumberInput').value.trim();
+    const holder = document.getElementById('accountHolderInput').value.trim();
+    const minAmount = parseInt(document.getElementById('accountMinInput').value) || 0;
+    if (!bankName) { showToast('⚠️ 은행을 선택하세요', true); return; }
+    if (!accountNumber) { showToast('⚠️ 계좌번호를 입력하세요', true); return; }
+    if (!holder) { showToast('⚠️ 예금주를 입력하세요', true); return; }
+    const guildId = currentLicense.guildId;
+    const data = { id, bankName, accountNumber, holder, minAmount, updatedAt: new Date().toISOString() };
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'guilds', guildId, 'chargeAccounts', id), data);
+      const idx = chargeAccounts.findIndex(a => a.id === id);
+      if (idx >= 0) chargeAccounts[idx] = data; else chargeAccounts.push(data);
+      closeModal('modalAccount');
+      showToast('✅ 계좌가 저장되었습니다!');
+      showPage('autocharge');
+      setTimeout(() => {
+        const tabs = document.querySelectorAll('.tabs .tab');
+        if (tabs[1]) tabs[1].click();
+      }, 100);
+    } catch(e) { showToast('❌ 저장 실패', true); }
+  }
+
+  async function deleteAccount(id) {
+    if (!confirm('이 계좌를 삭제할까요?')) return;
+    const guildId = currentLicense.guildId;
+    try {
+      const { doc, deleteDoc } = firestoreOps;
+      await deleteDoc(doc(_dbRef, 'guilds', guildId, 'chargeAccounts', id));
+      chargeAccounts = chargeAccounts.filter(a => a.id !== id);
+      showToast('🗑️ 삭제되었습니다');
+      showPage('autocharge');
+      setTimeout(() => {
+        const tabs = document.querySelectorAll('.tabs .tab');
+        if (tabs[1]) tabs[1].click();
+      }, 100);
+    } catch(e) { showToast('❌ 삭제 실패', true); }
+  }
+
+  /* 충전 로그 상세 */
+  function openChargeDetail(docId) {
+    const l = chargeLogs.find(x => x._docId === docId);
+    if (!l) return;
+    const statusMap = { pending:'⏳ 대기중', confirmed:'✅ 승인', rejected:'❌ 거절' };
+    const ts = l.timestamp ? new Date(l.timestamp).toLocaleString('ko-KR') : '-';
+    document.getElementById('chargeDetailContent').innerHTML = `
+      <div style="display:grid;gap:10px;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">충전 금액</div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent);">${(l.amount||0).toLocaleString()}원</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">유저 Psid</div>
+            <div style="font-size:13px;font-weight:600;">${esc(l.psid||l.userId||'-')}</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">상태</div>
+            <div style="font-size:13px;font-weight:600;">${statusMap[l.status||'pending']||l.status}</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">입금 계좌</div>
+            <div style="font-size:12px;font-family:'JetBrains Mono',monospace;">${esc(l.bankName||'-')}</div>
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${esc(l.accountNum||'-')}</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">시간</div>
+            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;">${ts}</div>
+          </div>
+        </div>
+        ${l.smsText ? `
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">📱 SMS 원문</div>
+            <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2);line-height:1.6;word-break:break-all;">${esc(l.smsText)}</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    const footer = document.getElementById('chargeDetailFooter');
+    footer.innerHTML = `<button class="btn btn-ghost btn-md" onclick="closeModal('modalChargeDetail')">닫기</button>`;
+    if (l.status === 'pending') {
+      footer.innerHTML += `
+        <button class="btn btn-md" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);" onclick="updateChargeStatus('${docId}','rejected');closeModal('modalChargeDetail');">❌ 거절</button>
+        <button class="btn btn-white btn-md" onclick="updateChargeStatus('${docId}','confirmed');closeModal('modalChargeDetail');">✅ 승인</button>
+      `;
+    }
+    openModal('modalChargeDetail');
+  }
+
+  async function updateChargeStatus(docId, status) {
+    const guildId = currentLicense.guildId;
+    const log = chargeLogs.find(l => l._docId === docId);
+    if (!log) return;
+    try {
+      const { doc, setDoc } = firestoreOps;
+      const updated = { ...log, status, updatedAt: new Date().toISOString(), _docId: undefined };
+      await setDoc(doc(_dbRef, 'guilds', guildId, 'chargeLogs', docId), updated);
+      const idx = chargeLogs.findIndex(l => l._docId === docId);
+      if (idx >= 0) chargeLogs[idx].status = status;
+      showToast(status === 'confirmed' ? '✅ 충전이 승인되었습니다!' : '❌ 충전이 거절되었습니다');
+      showPage('autocharge');
+    } catch(e) { showToast('❌ 처리 실패', true); }
+  }
+
+  /* Pushbullet 설정 */
+  function togglePbKeyVisibility() {
+    const input = document.getElementById('pbApiKeyInput');
+    const btn = document.getElementById('pbToggleBtn');
+    if (!input) return;
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁'; }
+  }
+
+  function onPbKeyChange() {
+    const val = document.getElementById('pbApiKeyInput')?.value || '';
+    const st = document.getElementById('pbKeyStatus');
+    if (!st) return;
+    if (!val) { st.className = 'api-key-status idle'; st.textContent = '// API 키를 입력해주세요'; return; }
+    if (val.length < 20) { st.className = 'api-key-status err'; st.textContent = '⚠️ 키가 너무 짧습니다'; return; }
+    st.className = 'api-key-status ok'; st.textContent = '✓ 키 형식이 올바릅니다';
+  }
+
+  function toggleAcSwitch(key) {
+    autoChargeConfig[key] = !autoChargeConfig[key];
+    const sw = document.getElementById('ts_' + key);
+    const thumb = sw?.querySelector('.toggle-thumb');
+    if (!sw || !thumb) return;
+    const isOn = autoChargeConfig[key];
+    const color = key === 'autoConfirm' ? (isOn ? '#f87171' : '#333') : (isOn ? '#4ade80' : '#333');
+    sw.style.background = color;
+    thumb.style.left = isOn ? '23px' : '3px';
+    // Update hero badge
+    if (key === 'enabled') {
+      const badge = document.querySelector('.ac-status-badge');
+      if (badge) {
+        badge.className = 'ac-status-badge ' + (isOn ? 'on' : 'off');
+        badge.innerHTML = `<div class="ac-status-dot"></div>${isOn ? 'ACTIVE' : 'INACTIVE'}`;
+      }
+    }
+  }
+
+  async function testPbConnection() {
+    const key = document.getElementById('pbApiKeyInput')?.value?.trim();
+    if (!key) { showToast('⚠️ API 키를 먼저 입력하세요', true); return; }
+    showToast('🔌 연결 테스트 중...');
+    // Simple validation (actual API call requires CORS)
+    if (key.length >= 20) {
+      setTimeout(() => showToast('✅ API 키 형식이 올바릅니다 (실제 테스트는 봇에서 수행)'), 800);
+    } else {
+      setTimeout(() => showToast('❌ API 키 형식이 올바르지 않습니다', true), 800);
+    }
+  }
+
+  async function savePushbulletConfig() {
+    const key = document.getElementById('pbApiKeyInput')?.value?.trim() || '';
+    autoChargeConfig.pushbulletApiKey = key;
+    const guildId = currentLicense.guildId;
+    try {
+      const { doc, setDoc } = firestoreOps;
+      await setDoc(doc(_dbRef, 'guilds', guildId, 'autoCharge', 'config'), autoChargeConfig);
+      // Update status tag
+      const tag = document.getElementById('pbStatusTag');
+      if (tag) { tag.style.color = 'var(--success)'; tag.style.borderColor = 'rgba(74,222,128,0.3)'; tag.textContent = '✓ 키 등록됨'; }
+      showToast('✅ Pushbullet 설정이 저장되었습니다!');
+    } catch(e) { showToast('❌ 저장 실패', true); }
+  }
+
   /* ── SETTINGS PAGE ── */
   let discordChannels = [];
   let discordRoles = [];
@@ -793,12 +1391,12 @@
     try {
       const { doc, getDoc } = firestoreOps;
       const guildId = currentLicense.guildId;
-      if (!guildId) { console.warn('[Panel] guildId 없음'); return; }
+      if (!guildId) return;
       const chSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'channels'));
       const roSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'roles'));
       const cfSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'config'));
-      if (chSnap.exists()) { discordChannels = chSnap.data().list || []; }
-      if (roSnap.exists()) { discordRoles = roSnap.data().list || []; }
+      if (chSnap.exists()) discordChannels = chSnap.data().list || [];
+      if (roSnap.exists()) discordRoles = roSnap.data().list || [];
       if (cfSnap.exists()) Object.assign(serverConfig, cfSnap.data());
     } catch(e) { console.error('Discord 데이터 로드 오류:', e); }
   }
@@ -818,7 +1416,6 @@
   }
 
   function buildSettingsPage() {
-    // Button list display only — no add/remove buttons
     const btnRows = vendingSettings.buttons.map((b,i) => `
       <div class="btn-edit-row" id="btnrow${i}">
         <input class="btn-edit-emoji" type="text" value="${esc(b.emoji)}" id="be${i}" placeholder="🔘" readonly/>
@@ -836,7 +1433,6 @@
       </div>
       <div class="settings-layout">
         <div>
-
           <div class="card">
             <div class="card-header">
               <div class="card-title">📡 서버 채널 설정 ${syncBadge}</div>
@@ -844,31 +1440,19 @@
             </div>
             <div class="form-field">
               <label>🤖 자판기 메시지 채널</label>
-              <select id="cfg_vendingCh">
-                <option value="">채널 선택</option>
-                ${chOptions(serverConfig.vendingChannelId)}
-              </select>
+              <select id="cfg_vendingCh"><option value="">채널 선택</option>${chOptions(serverConfig.vendingChannelId)}</select>
             </div>
             <div class="form-field">
               <label>📦 입고 알림 채널</label>
-              <select id="cfg_stockCh">
-                <option value="">채널 선택</option>
-                ${chOptions(serverConfig.stockAlertChannelId)}
-              </select>
+              <select id="cfg_stockCh"><option value="">채널 선택</option>${chOptions(serverConfig.stockAlertChannelId)}</select>
             </div>
             <div class="form-field">
               <label>🔔 입고 알림 핑 역할</label>
-              <select id="cfg_stockRole">
-                <option value="">역할 선택 (없음)</option>
-                ${roleOptions(serverConfig.stockAlertRoleId)}
-              </select>
+              <select id="cfg_stockRole"><option value="">역할 선택 (없음)</option>${roleOptions(serverConfig.stockAlertRoleId)}</select>
             </div>
             <div class="form-field">
               <label>🧾 구매 로그 채널</label>
-              <select id="cfg_buyCh">
-                <option value="">채널 선택</option>
-                ${chOptions(serverConfig.buyLogChannelId)}
-              </select>
+              <select id="cfg_buyCh"><option value="">채널 선택</option>${chOptions(serverConfig.buyLogChannelId)}</select>
             </div>
             <hr class="divider"/>
             <div class="actions-bar">
@@ -913,7 +1497,6 @@
               <button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button>
             </div>
           </div>
-
         </div>
         <div class="vending-preview">
           <div class="preview-header">
@@ -962,7 +1545,7 @@
       const { doc, setDoc } = firestoreOps;
       await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'settings', 'vending'), vendingSettings);
       showToast('✅ 자판기 설정이 저장되었습니다!');
-    } catch(e) { console.error(e); showToast('❌ 저장 실패', true); }
+    } catch(e) { showToast('❌ 저장 실패', true); }
   }
 
   async function saveServerConfig() {
@@ -978,7 +1561,7 @@
       const { doc, setDoc } = firestoreOps;
       await setDoc(doc(_dbRef, 'guilds', currentLicense.guildId, 'meta', 'config'), serverConfig);
       showToast('✅ 채널 설정이 저장되었습니다!');
-    } catch(e) { console.error(e); showToast('❌ 저장 실패', true); }
+    } catch(e) { showToast('❌ 저장 실패', true); }
   }
 
   async function refreshDiscordData() {
@@ -1026,7 +1609,6 @@
     openModal('modalStock');
   }
 
-  /* 재고 개수 카운트 */
   function updateStockCount() {
     const ta = document.getElementById('stockItemsInput');
     const badge = document.getElementById('stockCountBadge');
@@ -1104,7 +1686,7 @@
     } catch(e) { showToast('❌ 삭제 실패', true); }
   }
 
-  /* ── STOCK CRUD — 줄바꿈 방식 ── */
+  /* ── STOCK CRUD ── */
   async function saveStock() {
     const prodId = document.getElementById('stockProdSel').value;
     const rawText = document.getElementById('stockItemsInput').value;
@@ -1170,14 +1752,12 @@
         <div class="page-title">🛒 판매 통계</div>
         <div class="page-sub">// 스토어의 판매 현황을 확인합니다</div>
       </div>
-
       <div class="dash-hero">
         <div class="dash-hero-icon">💳</div>
         <div class="dash-hero-label">총 충전금액</div>
         <div class="dash-hero-value" id="d_totalCharge">로드 중...</div>
         <div class="dash-hero-sub" id="d_totalChargeSub">집계 중...</div>
       </div>
-
       <div class="dash-grid">
         <div class="dash-stat blue">
           <div class="dash-stat-label">오늘 매출 <span class="dash-stat-dollar">💲</span></div>
@@ -1195,8 +1775,6 @@
           <div class="dash-stat-change neutral" id="d_monthChange">집계 중...</div>
         </div>
       </div>
-
-      <!-- 실시간 구매로그 -->
       <div class="rt-log-wrap">
         <div class="rt-log-header">
           <div class="rt-log-title">
@@ -1210,17 +1788,14 @@
           <div class="rt-log-empty">구매 로그를 불러오는 중...</div>
         </div>
       </div>
-
       <div class="chart-wrap">
         <div class="chart-label">판매 금액 추이 (최근 7일)</div>
         <div class="chart-box"><canvas id="chartSales"></canvas></div>
       </div>
-
       <div class="chart-wrap">
         <div class="chart-label">판매 개수 추이 (최근 7일)</div>
         <div class="chart-box"><canvas id="chartCount"></canvas></div>
       </div>
-
       <div class="dash-row">
         <div class="card" style="margin-bottom:0">
           <div class="card-header"><div class="card-title">🏆 인기 제품 TOP 5</div></div>
@@ -1237,7 +1812,6 @@
   let _dashChartSales = null;
   let _dashChartCount = null;
 
-  /* 실시간 구매로그 렌더링 */
   function renderRtLog(logs) {
     const el = document.getElementById('rtLogList');
     const statusEl = document.getElementById('rtLogStatus');
@@ -1279,7 +1853,6 @@
     if (_rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe = null; }
     const { collection, onSnapshot, query, orderBy, limit } = firestoreOps;
     if (!onSnapshot) {
-      // fallback: one-time load
       const { getDocs } = firestoreOps;
       getDocs(collection(_dbRef, 'guilds', guildId, 'purchaseLogs')).then(snap => {
         const logs = [];
@@ -1300,7 +1873,6 @@
         snap.forEach(d => logs.push(d.data()));
         renderRtLog(logs);
       }, (err) => {
-        // fallback without orderBy if index not created
         console.warn('onSnapshot 실패, fallback:', err.message);
         const { getDocs } = firestoreOps;
         getDocs(collection(_dbRef, 'guilds', guildId, 'purchaseLogs')).then(snap2 => {
@@ -1312,19 +1884,14 @@
           if (statusEl) statusEl.textContent = '정적 로드됨 · ' + Math.min(logs2.length, 30) + '건';
         }).catch(() => {});
       });
-    } catch(e) {
-      console.error('실시간 로그 오류:', e);
-    }
+    } catch(e) { console.error('실시간 로그 오류:', e); }
   }
 
   async function initDashboard() {
     const guildId = currentLicense?.guildId;
     if (!guildId || !firestoreOps) return;
     const { collection, getDocs } = firestoreOps;
-
-    // 실시간 구매로그 시작
     startRealtimeLogs(guildId);
-
     const now = Date.now();
     const D = 86400000;
     const todayStart  = new Date(new Date().setHours(0,0,0,0)).getTime();
@@ -1355,10 +1922,10 @@
       el.innerHTML = (r.up ? '↗' : '↘') + ' ' + (r.up ? '+' : '') + r.p + '% 전일 대비';
     }
 
-    let chargeLogs = [];
+    let dbChargeLogs = [];
     try {
       const snap = await getDocs(collection(_dbRef, 'guilds', guildId, 'chargeLogs'));
-      snap.forEach(d => chargeLogs.push(d.data()));
+      snap.forEach(d => dbChargeLogs.push(d.data()));
     } catch(e) {}
 
     let purchaseLogs = [];
@@ -1367,7 +1934,7 @@
       snap.forEach(d => purchaseLogs.push(d.data()));
     } catch(e) {}
 
-    const allLogs = [...chargeLogs, ...purchaseLogs];
+    const allLogs = [...dbChargeLogs, ...purchaseLogs];
 
     function sumRange(logs, from, to) {
       return logs.filter(l => { const t = l.timestamp||0; return t >= from && t < to; })
@@ -1377,11 +1944,11 @@
       return logs.filter(l => { const t = l.timestamp||0; return t >= from && t < to; }).length;
     }
 
-    const totalCharge = chargeLogs.reduce((s,l) => s + (l.amount||0), 0);
+    const totalCharge = dbChargeLogs.reduce((s,l) => s + (l.amount||0), 0);
     const el_tc = document.getElementById('d_totalCharge');
     if (el_tc) el_tc.textContent = totalCharge ? totalCharge.toLocaleString() + '원' : '데이터 없음';
     const el_tcs = document.getElementById('d_totalChargeSub');
-    if (el_tcs) el_tcs.textContent = '충전 ' + chargeLogs.length + '건 · 구매 ' + purchaseLogs.length + '건 누적';
+    if (el_tcs) el_tcs.textContent = '충전 ' + dbChargeLogs.length + '건 · 구매 ' + purchaseLogs.length + '건 누적';
 
     const todaySales  = sumRange(allLogs, todayStart, todayStart + D);
     const yestSales   = sumRange(allLogs, yestStart, todayStart);
@@ -1595,8 +2162,8 @@
     _verifyOn = false;
     const tog = document.getElementById('verifyToggle');
     const thumb = document.getElementById('verifyThumb');
-    if (tog) { tog.style.background = '#333'; }
-    if (thumb) { thumb.style.left = '3px'; }
+    if (tog) tog.style.background = '#333';
+    if (thumb) thumb.style.left = '3px';
     document.getElementById('verifyWarning').style.display = 'none';
     document.getElementById('verifyInfoSection').style.display = 'none';
     document.getElementById('editUserId').value = docId;
