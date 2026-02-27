@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0c10;
+      --bg2:      #0f1217;
+      --bg3:      #161b24;
+      --border:   #1e2530;
+      --border2:  #2a3341;
+      --accent:   #5865f2;
+      --accent2:  #7289da;
+      --green:    #3ba55d;
+      --red:      #ed4245;
+      --yellow:   #faa61a;
+      --text:     #e3e5e8;
+      --muted:    #72767d;
+      --dim:      #4f545c;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    /* ── 스크롤바 ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg2); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* ══════════════════════════════════
+       로그인 화면
+    ══════════════════════════════════ */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(88,101,242,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88,101,242,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(88,101,242,.12) 0%, transparent 70%);
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .login-card {
+      position: relative;
+      width: 420px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px 40px;
+      animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-logo {
+      width: 52px; height: 52px;
+      background: var(--accent);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+    }
+
+    .login-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 32px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      letter-spacing: .05em;
+    }
+
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88,101,242,.2);
+    }
+
+    .field-input::placeholder { color: var(--dim); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, transform .1s, box-shadow .2s;
+      letter-spacing: .02em;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      box-shadow: 0 4px 20px rgba(88,101,242,.4);
+    }
+
+    .btn-primary:active { transform: scale(.98); }
+
+    .btn-primary:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .alert.error {
+      background: rgba(237,66,69,.12);
+      border: 1px solid rgba(237,66,69,.3);
+      color: #f87171;
+    }
+
+    .alert.success {
+      background: rgba(59,165,93,.12);
+      border: 1px solid rgba(59,165,93,.3);
+      color: #6ee7b7;
+    }
+
+    /* ══════════════════════════════════
+       대시보드
+    ══════════════════════════════════ */
+    #dashboard {
+      display: none;
+      min-height: 100vh;
+    }
+
+    /* 사이드바 */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 240px; height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .guild-badge {
+      margin: 12px 20px 0;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .guild-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .guild-id {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 8px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--dim);
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      transition: background .15s, color .15s;
+      margin-bottom: 2px;
+      user-select: none;
+    }
+
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+
+    .nav-item.active {
+      background: rgba(88,101,242,.18);
+      color: var(--accent2);
+    }
+
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-logout {
+      width: 100%;
+      padding: 9px;
+      background: none;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(237,66,69,.1);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    /* 메인 콘텐츠 */
+    .main {
+      margin-left: 240px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 60px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .save-status {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-status .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    .save-status.saving .dot { background: var(--yellow); animation: pulse 1s infinite; }
+    .save-status.error .dot  { background: var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .3; }
+    }
+
+    .content {
+      padding: 32px;
+      max-width: 800px;
+    }
+
+    /* 섹션 카드 */
+    .section {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .section.active { display: block; }
+
+    .section-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-icon { font-size: 18px; }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .section-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .section-body { padding: 24px; }
+
+    /* 설정 행 */
+    .setting-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .setting-row:first-child { padding-top: 0; }
+
+    .setting-info { flex: 1; min-width: 0; }
+
+    .setting-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .setting-help {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .setting-control { flex-shrink: 0; }
+
+    /* 토글 스위치 */
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      cursor: pointer;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      transition: background .2s, border-color .2s;
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      width: 18px; height: 18px;
+      background: var(--dim);
+      border-radius: 50%;
+      top: 2px; left: 2px;
+      transition: transform .2s, background .2s;
+    }
+
+    .toggle input:checked ~ .toggle-track {
+      background: rgba(88,101,242,.3);
+      border-color: var(--accent);
+    }
+
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(20px);
+      background: var(--accent);
+    }
+
+    /* 인풋 */
+    .input-sm {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 7px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+      width: 160px;
+    }
+
+    .input-sm:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(88,101,242,.15);
+    }
+
+    .input-full {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 7px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .input-full:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(88,101,242,.15);
+    }
+
+    .select-sm {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 7px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+
+    .select-sm:focus { border-color: var(--accent); }
+
+    /* 태그 입력 */
+    .tag-input-wrap {
+      width: 100%;
+    }
+
+    .tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .tag-remove {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1;
+      transition: color .15s;
+    }
+
+    .tag-remove:hover { color: var(--red); }
+
+    .tag-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-add {
+      padding: 8px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color .2s, color .2s;
+    }
+
+    .btn-add:hover { border-color: var(--accent); color: var(--accent2); }
+
+    /* 저장 버튼 */
+    .btn-save {
+      margin-top: 24px;
+      padding: 11px 28px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s, transform .1s;
+    }
+
+    .btn-save:hover {
+      background: var(--accent2);
+      box-shadow: 0 4px 16px rgba(88,101,242,.4);
+    }
+
+    .btn-save:active { transform: scale(.98); }
+
+    /* ── 오버뷰 카드 ── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform .3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .overview-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     로그인 화면
+══════════════════════════════════ -->
+<div id="login-screen">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="login-card">
+    <div class="login-logo">🤖</div>
+    <h1 class="login-title">Bot Panel</h1>
+    <p class="login-subtitle">라이선스 키를 입력하여 접속하세요</p>
+
+    <div class="field-wrap">
+      <div class="field-label">라이선스 키</div>
+      <input
+        id="license-input"
+        class="field-input"
+        type="text"
+        placeholder="XXXX-XXXX-XXXX-XXXX"
+        maxlength="19"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button id="login-btn" class="btn-primary">접속하기</button>
+
+    <div id="login-alert" class="alert"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     대시보드
+══════════════════════════════════ -->
+<div id="dashboard">
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🤖</div>
+        <span class="sidebar-logo-text">Bot Panel</span>
+      </div>
+    </div>
+    <div class="guild-badge">
+      <div class="guild-name" id="sidebar-guild-name">서버 이름</div>
+      <div class="guild-id" id="sidebar-guild-id">ID: ─────────────</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">메뉴</div>
+      <div class="nav-item active" data-section="overview">
+        <span class="nav-icon">📊</span> 개요
+      </div>
+      <div class="nav-item" data-section="general">
+        <span class="nav-icon">⚙️</span> 기본 설정
+      </div>
+      <div class="nav-item" data-section="welcome">
+        <span class="nav-icon">👋</span> 환영 메시지
+      </div>
+      <div class="nav-item" data-section="moderation">
+        <span class="nav-icon">🛡️</span> 모더레이션
+      </div>
+      <div class="nav-item" data-section="level">
+        <span class="nav-icon">⭐</span> 레벨 시스템
+      </div>
+      <div class="nav-item" data-section="music">
+        <span class="nav-icon">🎵</span> 뮤직
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="logout-btn">🔓 로그아웃</button>
+    </div>
+  </aside>
+
+  <!-- 메인 -->
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title" id="topbar-title">개요</span>
+      <div class="save-status" id="save-status">
+        <span class="dot"></span>
+        <span id="save-status-text">저장됨</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── 개요 ── -->
+      <div class="section active" id="section-overview">
+        <div class="section-header">
+          <span class="section-icon">📊</span>
+          <div>
+            <div class="section-title">서버 개요</div>
+            <div class="section-desc">현재 봇 설정 상태</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="overview-grid">
+            <div class="stat-card">
+              <div class="stat-label">라이선스 상태</div>
+              <div class="stat-value" style="color:var(--green);font-size:18px;">✓ 활성</div>
+              <div class="stat-sub" id="stat-expires">만료일: 영구</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">명령어 접두사</div>
+              <div class="stat-value" id="stat-prefix">!</div>
+              <div class="stat-sub">현재 설정된 접두사</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">활성 기능</div>
+              <div class="stat-value" id="stat-features">0</div>
+              <div class="stat-sub">켜진 기능 수</div>
+            </div>
+          </div>
+          <p style="color:var(--muted);font-size:12px;line-height:1.7;">
+            왼쪽 사이드바에서 설정 항목을 선택하여 봇을 구성하세요.<br>
+            변경사항은 저장 즉시 봇에 반영됩니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- ── 기본 설정 ── -->
+      <div class="section" id="section-general">
+        <div class="section-header">
+          <span class="section-icon">⚙️</span>
+          <div>
+            <div class="section-title">기본 설정</div>
+            <div class="section-desc">봇의 기본 동작을 설정합니다</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">명령어 접두사</div>
+              <div class="setting-help">봇 명령어 앞에 붙는 문자입니다 (예: !, ., /)</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-prefix" class="input-sm" type="text" maxlength="5" placeholder="!" />
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">언어</div>
+              <div class="setting-help">봇 응답 언어를 선택합니다</div>
+            </div>
+            <div class="setting-control">
+              <select id="s-language" class="select-sm">
+                <option value="ko">🇰🇷 한국어</option>
+                <option value="en">🇺🇸 English</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">로그 채널 ID</div>
+              <div class="setting-help">봇 로그를 기록할 채널의 ID를 입력하세요</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-log-channel" class="input-sm" type="text" placeholder="채널 ID" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveSettings()">💾 저장</button>
+        </div>
+      </div>
+
+      <!-- ── 환영 메시지 ── -->
+      <div class="section" id="section-welcome">
+        <div class="section-header">
+          <span class="section-icon">👋</span>
+          <div>
+            <div class="section-title">환영 메시지</div>
+            <div class="section-desc">새 멤버 입장 시 메시지를 전송합니다</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">환영 메시지 사용</div>
+              <div class="setting-help">새 멤버 입장 시 자동으로 메시지를 보냅니다</div>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" id="s-welcome-enabled" />
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">환영 채널 ID</div>
+              <div class="setting-help">환영 메시지를 보낼 채널 ID</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-welcome-channel" class="input-sm" type="text" placeholder="채널 ID" />
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">환영 메시지 내용</div>
+              <div class="setting-help"><code style="background:var(--bg3);padding:1px 5px;border-radius:3px;">{user}</code> = 멘션, <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;">{server}</code> = 서버명</div>
+            </div>
+          </div>
+          <div style="margin-top:-8px;">
+            <input id="s-welcome-msg" class="input-full" type="text" placeholder="{user}님, 서버에 오신 것을 환영합니다!" />
+          </div>
+          <div class="setting-row" style="margin-top:16px;">
+            <div class="setting-info">
+              <div class="setting-name">자동 역할 부여</div>
+              <div class="setting-help">입장 시 자동으로 역할을 부여합니다</div>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" id="s-auto-role-enabled" />
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">자동 부여 역할 ID</div>
+              <div class="setting-help">입장 시 자동으로 부여할 역할의 ID</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-auto-role" class="input-sm" type="text" placeholder="역할 ID" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveSettings()">💾 저장</button>
+        </div>
+      </div>
+
+      <!-- ── 모더레이션 ── -->
+      <div class="section" id="section-moderation">
+        <div class="section-header">
+          <span class="section-icon">🛡️</span>
+          <div>
+            <div class="section-title">모더레이션</div>
+            <div class="section-desc">채팅 필터 및 자동 제재 설정</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">단어 필터 사용</div>
+              <div class="setting-help">금지 단어가 포함된 메시지를 자동 삭제합니다</div>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" id="s-filter-enabled" />
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info" style="width:100%;">
+              <div class="setting-name">금지 단어 목록</div>
+              <div class="setting-help">추가할 단어를 입력하고 Enter 또는 추가 버튼을 누르세요</div>
+              <div class="tag-input-wrap" style="margin-top:12px;">
+                <div class="tags-list" id="filter-tags"></div>
+                <div class="tag-input-row">
+                  <input id="filter-word-input" class="input-full" type="text" placeholder="금지 단어 입력..." />
+                  <button class="btn-add" onclick="addFilterWord()">추가</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveSettings()">💾 저장</button>
+        </div>
+      </div>
+
+      <!-- ── 레벨 시스템 ── -->
+      <div class="section" id="section-level">
+        <div class="section-header">
+          <span class="section-icon">⭐</span>
+          <div>
+            <div class="section-title">레벨 시스템</div>
+            <div class="section-desc">메시지 활동에 따른 경험치 및 레벨 업 기능</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">레벨 시스템 사용</div>
+              <div class="setting-help">메시지를 보낼 때마다 경험치를 획득합니다</div>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" id="s-level-enabled" />
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">레벨업 알림 채널 ID</div>
+              <div class="setting-help">레벨업 메시지를 보낼 채널 ID (비워두면 해당 채널)</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-level-channel" class="input-sm" type="text" placeholder="채널 ID" />
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">메시지당 경험치</div>
+              <div class="setting-help">메시지 1개당 획득하는 경험치량 (1~100)</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-xp" class="input-sm" type="number" min="1" max="100" placeholder="10" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveSettings()">💾 저장</button>
+        </div>
+      </div>
+
+      <!-- ── 뮤직 ── -->
+      <div class="section" id="section-music">
+        <div class="section-header">
+          <span class="section-icon">🎵</span>
+          <div>
+            <div class="section-title">뮤직 설정</div>
+            <div class="section-desc">음악 재생 관련 설정</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">뮤직 기능 사용</div>
+              <div class="setting-help">음악 재생 기능을 활성화합니다</div>
+            </div>
+            <div class="setting-control">
+              <label class="toggle">
+                <input type="checkbox" id="s-music-enabled" />
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">최대 대기열 크기</div>
+              <div class="setting-help">동시에 대기할 수 있는 최대 곡 수 (1~500)</div>
+            </div>
+            <div class="setting-control">
+              <input id="s-queue-size" class="input-sm" type="number" min="1" max="500" placeholder="50" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveSettings()">💾 저장</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════
+//  설정 & 상수
+// ══════════════════════════════════
+const API = '/api';
+let TOKEN = localStorage.getItem('panel_token') || null;
+let GUILD = JSON.parse(localStorage.getItem('panel_guild') || 'null');
+let filterWords = [];
+
+// ══════════════════════════════════
+//  유틸
+// ══════════════════════════════════
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = `alert ${type}`;
+  el.style.display = 'block';
+}
+
+function setSaveStatus(state, text) {
+  const el = document.getElementById('save-status');
+  const t  = document.getElementById('save-status-text');
+  el.className = `save-status ${state}`;
+  t.textContent = text;
+}
+
+function fmtLicenseKey(v) {
+  const raw = v.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 16);
+  return raw.match(/.{1,4}/g)?.join('-') || raw;
+}
+
+// ══════════════════════════════════
+//  초기화
+// ══════════════════════════════════
+async function init() {
+  if (!TOKEN) { showLogin(); return; }
+
+  // 토큰 검증
+  try {
+    const r = await fetch(`${API}/auth/verify`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const d = await r.json();
+    if (!d.success || !d.valid) { logout(); return; }
+    GUILD = d.guild;
+    localStorage.setItem('panel_guild', JSON.stringify(GUILD));
+    showDashboard();
+    loadSettings();
+  } catch {
+    showLogin();
+  }
+}
+
+// ══════════════════════════════════
+//  로그인 / 로그아웃
+// ══════════════════════════════════
+function showLogin() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('sidebar-guild-name').textContent = GUILD?.name || '서버';
+  document.getElementById('sidebar-guild-id').textContent = `ID: ${GUILD?.id || ''}`;
+  if (GUILD?.expiresAt) {
+    document.getElementById('stat-expires').textContent = `만료: ${new Date(GUILD.expiresAt).toLocaleDateString('ko-KR')}`;
+  }
+}
+
+document.getElementById('license-input').addEventListener('input', function() {
+  this.value = fmtLicenseKey(this.value);
+});
+
+document.getElementById('license-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') login();
+});
+
+document.getElementById('login-btn').addEventListener('click', login);
+
+async function login() {
+  const key = document.getElementById('license-input').value.trim();
+  if (!key) return;
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = '확인 중...';
+  document.getElementById('login-alert').style.display = 'none';
+
+  try {
+    const r = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ licenseKey: key })
+    });
+    const d = await r.json();
+
+    if (d.success) {
+      TOKEN = d.token;
+      GUILD = d.guild;
+      localStorage.setItem('panel_token', TOKEN);
+      localStorage.setItem('panel_guild', JSON.stringify(GUILD));
+      showDashboard();
+      loadSettings();
+    } else {
+      showAlert('login-alert', d.message || '로그인 실패', 'error');
+    }
+  } catch {
+    showAlert('login-alert', '서버에 연결할 수 없습니다.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '접속하기';
+  }
+}
+
+function logout() {
+  TOKEN = null;
+  GUILD = null;
+  localStorage.removeItem('panel_token');
+  localStorage.removeItem('panel_guild');
+  showLogin();
+}
+
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+// ══════════════════════════════════
+//  네비게이션
+// ══════════════════════════════════
+const sectionTitles = {
+  overview: '개요', general: '기본 설정',
+  welcome: '환영 메시지', moderation: '모더레이션',
+  level: '레벨 시스템', music: '뮤직'
+};
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const s = item.dataset.section;
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById(`section-${s}`)?.classList.add('active');
+    document.getElementById('topbar-title').textContent = sectionTitles[s] || s;
+  });
+});
+
+// ══════════════════════════════════
+//  설정 로드
+// ══════════════════════════════════
+async function loadSettings() {
+  try {
+    const r = await fetch(`${API}/settings`, {
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const d = await r.json();
+    if (!d.success) return;
+
+    const s = d.settings;
+    setValue('s-prefix',          s.prefix);
+    setValue('s-language',        s.language);
+    setValue('s-log-channel',     s.logChannelId || '');
+    setCheck('s-welcome-enabled', s.welcomeEnabled);
+    setValue('s-welcome-channel', s.welcomeChannelId || '');
+    setValue('s-welcome-msg',     s.welcomeMessage);
+    setCheck('s-auto-role-enabled', s.autoRoleEnabled);
+    setValue('s-auto-role',       s.autoRoleId || '');
+    setCheck('s-filter-enabled',  s.filterEnabled);
+    filterWords = s.filterWords || [];
+    renderTags();
+    setCheck('s-level-enabled',   s.levelEnabled);
+    setValue('s-level-channel',   s.levelChannelId || '');
+    setValue('s-xp',              s.xpPerMessage);
+    setCheck('s-music-enabled',   s.musicEnabled);
+    setValue('s-queue-size',      s.maxQueueSize);
+
+    // 개요 업데이트
+    document.getElementById('stat-prefix').textContent = s.prefix;
+    const activeCount = [s.welcomeEnabled, s.autoRoleEnabled, s.filterEnabled, s.levelEnabled, s.musicEnabled]
+      .filter(Boolean).length;
+    document.getElementById('stat-features').textContent = activeCount;
+
+    setSaveStatus('', '저장됨');
+  } catch (e) {
+    setSaveStatus('error', '불러오기 실패');
+  }
+}
+
+function setValue(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val ?? '';
+}
+
+function setCheck(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.checked = !!val;
+}
+
+// ══════════════════════════════════
+//  설정 저장
+// ══════════════════════════════════
+async function saveSettings() {
+  setSaveStatus('saving', '저장 중...');
+
+  const body = {
+    prefix:           document.getElementById('s-prefix').value,
+    language:         document.getElementById('s-language').value,
+    logChannelId:     document.getElementById('s-log-channel').value || null,
+    welcomeEnabled:   document.getElementById('s-welcome-enabled').checked,
+    welcomeChannelId: document.getElementById('s-welcome-channel').value || null,
+    welcomeMessage:   document.getElementById('s-welcome-msg').value,
+    autoRoleEnabled:  document.getElementById('s-auto-role-enabled').checked,
+    autoRoleId:       document.getElementById('s-auto-role').value || null,
+    filterEnabled:    document.getElementById('s-filter-enabled').checked,
+    filterWords,
+    levelEnabled:     document.getElementById('s-level-enabled').checked,
+    levelChannelId:   document.getElementById('s-level-channel').value || null,
+    xpPerMessage:     Number(document.getElementById('s-xp').value) || 10,
+    musicEnabled:     document.getElementById('s-music-enabled').checked,
+    maxQueueSize:     Number(document.getElementById('s-queue-size').value) || 50,
+  };
+
+  try {
+    const r = await fetch(`${API}/settings`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${TOKEN}`
+      },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+
+    if (d.success) {
+      setSaveStatus('', '저장됨');
+      // 개요 업데이트
+      document.getElementById('stat-prefix').textContent = body.prefix;
+      const ac = [body.welcomeEnabled, body.autoRoleEnabled, body.filterEnabled, body.levelEnabled, body.musicEnabled]
+        .filter(Boolean).length;
+      document.getElementById('stat-features').textContent = ac;
+    } else {
+      setSaveStatus('error', '저장 실패: ' + d.message);
+    }
+  } catch {
+    setSaveStatus('error', '서버 오류');
+  }
+}
+
+// ══════════════════════════════════
+//  단어 필터 태그
+// ══════════════════════════════════
+function renderTags() {
+  const list = document.getElementById('filter-tags');
+  list.innerHTML = filterWords.map((w, i) => `
+    <span class="tag">
+      ${escHtml(w)}
+      <span class="tag-remove" onclick="removeTag(${i})">×</span>
+    </span>
+  `).join('');
+}
+
+function addFilterWord() {
+  const input = document.getElementById('filter-word-input');
+  const word = input.value.trim();
+  if (!word || filterWords.includes(word)) { input.value = ''; return; }
+  filterWords.push(word);
+  input.value = '';
+  renderTags();
+}
+
+function removeTag(i) {
+  filterWords.splice(i, 1);
+  renderTags();
+}
+
+document.getElementById('filter-word-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addFilterWord();
+});
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ══════════════════════════════════
+//  시작
+// ══════════════════════════════════
+init();
+</script>
+</body>
+</html>
