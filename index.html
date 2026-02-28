@@ -554,40 +554,29 @@
   </div>
 </div>
 
-<!-- MODAL: 유저 편집 -->
+<!-- MODAL: 유저 관리 -->
 <div class="modal-overlay" id="modalUserEdit">
-  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto;">
-    <div class="modal-title">✏️ 유저 편집</div>
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-title">⚙️ 유저 관리</div>
     <input type="hidden" id="editUserId"/>
-    <div class="form-field">
-      <label>Psid</label>
-      <input type="text" id="editUserPsid" placeholder="Psid"/>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:18px;">
+      <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">유저 ID</div>
+      <div style="font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;" id="editUserIdDisplay">-</div>
     </div>
     <div class="form-field">
-      <label>디스코드 아이디</label>
-      <input type="text" id="editUserDiscordId" readonly style="opacity:0.5;cursor:not-allowed;"/>
+      <label>💰 보유금액 (현재잔액)</label>
+      <input type="number" id="editUserPoints" placeholder="보유금액을 입력하세요" min="0"/>
+      <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;" id="editUserPointsHint"></div>
     </div>
-    <div class="form-field">
-      <label>잔액</label>
-      <input type="number" id="editUserPoints" placeholder="잔액을 입력해주세요."/>
-    </div>
-    <div class="form-field">
-      <label>관리자 여부</label>
-      <select id="editUserAdmin">
-        <option value="">관리자 여부를 선택해주세요.</option>
-        <option value="true">관리자</option>
-        <option value="false">일반 유저</option>
-      </select>
-    </div>
-    <div class="form-field">
-      <label>등급</label>
+    <div class="form-field" style="margin-bottom:0;">
+      <label>🏅 등급</label>
       <select id="editUserGrade">
-        <option value="">유저 등급 선택해주세요.</option>
+        <option value="">등급 없음</option>
       </select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalUserEdit')">취소</button>
-      <button class="btn btn-white btn-md" onclick="saveUserEdit()">저장</button>
+      <button class="btn btn-white btn-md" onclick="saveUserManage()">💾 저장</button>
     </div>
   </div>
 </div>
@@ -2227,19 +2216,30 @@ async function initUsersPage() {
   try {
     const { data: pl } = await _sb.from('purchase_logs').select('user_id,product_name,price,created_at').eq('guild_id', guildId);
     const { data: cl } = await _sb.from('charge_logs').select('user_id,psid,amount,status,created_at').eq('guild_id', guildId);
+    const { data: ul } = await _sb.from('users').select('user_id,points,grade_id').eq('guild_id', guildId);
     const purchaseLogs = pl || [];
     const chargeLogs   = cl || [];
+    const userRows     = ul || [];
 
     const userMap = {};
     purchaseLogs.forEach(l => {
-      if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0 };
+      if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: null, grade_id: null };
       userMap[l.user_id].totalPurchase += (l.price||0);
       userMap[l.user_id].purchaseCount++;
     });
     chargeLogs.forEach(l => {
-      if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: l.psid||'', totalPurchase: 0, purchaseCount: 0, totalCharged: 0 };
+      if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: l.psid||'', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: null, grade_id: null };
       if (l.psid) userMap[l.user_id].psid = l.psid;
       if (l.status === 'confirmed') userMap[l.user_id].totalCharged += (l.amount||0);
+    });
+    // users 테이블에서 현재 보유금액 및 등급 반영
+    userRows.forEach(u => {
+      if (userMap[u.user_id]) {
+        userMap[u.user_id].points   = u.points ?? null;
+        userMap[u.user_id].grade_id = u.grade_id || null;
+      } else {
+        userMap[u.user_id] = { user_id: u.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
+      }
     });
     allUsers = Object.values(userMap);
   } catch(e) { console.error(e); allUsers = []; }
@@ -2250,19 +2250,31 @@ function renderUserTable(users) {
   const tbody = document.getElementById('userTableBody');
   if (!tbody) return;
   if (!users.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">유저 데이터가 없습니다</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">유저 데이터가 없습니다</td></tr>';
     return;
   }
-  tbody.innerHTML = users.map(u => `
+  tbody.innerHTML = users.map(u => {
+    const grade = grades.find(g => g.id === u.grade_id);
+    const gradeHtml = grade
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:11px;background:${grade.color}22;border:1px solid ${grade.color}55;color:${grade.color};font-family:'JetBrains Mono',monospace;">${esc(grade.name)}</span>`
+      : `<span style="color:var(--text3);font-size:11px;font-family:'JetBrains Mono',monospace;">-</span>`;
+    const pointsHtml = u.points !== null
+      ? `<span style="color:#fbbf24;font-weight:600;">${Number(u.points).toLocaleString()}원</span>`
+      : `<span style="color:var(--text3);">-</span>`;
+    return \`
     <tr style="border-bottom:1px solid var(--border);">
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${esc(u.user_id)}</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2);">${esc(u.psid||'-')}</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);">${(u.totalCharged||0).toLocaleString()}원</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--success);">${(u.totalPurchase||0).toLocaleString()}원 (${u.purchaseCount||0}건)</td>
-      <td style="padding:12px 16px;white-space:nowrap;">
-        <button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('${esc(u.user_id)}')">🛒 구매기록</button>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">\${esc(u.user_id)}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2);">\${esc(u.psid||'-')}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">\${pointsHtml}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);">\${(u.totalCharged||0).toLocaleString()}원</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--success);">\${(u.totalPurchase||0).toLocaleString()}원 (\${u.purchaseCount||0}건)</td>
+      <td style="padding:12px 16px;">\${gradeHtml}</td>
+      <td style="padding:12px 16px;white-space:nowrap;display:flex;gap:6px;">
+        <button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('\${esc(u.user_id)}')">🛒 구매기록</button>
+        <button class="btn btn-sm" style="background:#1a1f2a;color:#60a5fa;border:1px solid #2a3a50;" onclick="openUserManage('\${esc(u.user_id)}')">⚙️ 관리</button>
       </td>
-    </tr>`).join('');
+    </tr>\`;
+  }).join('');
 }
 
 function filterUsers(q) {
@@ -2292,8 +2304,10 @@ function buildUsersPage() {
             <tr style="border-bottom:1px solid var(--border2);">
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">유저 ID</th>
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">Psid</th>
+              <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">💰 보유금액</th>
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">누적 충전</th>
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">누적 구매</th>
+              <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">🏅 등급</th>
               <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:700;color:var(--text2);">관리</th>
             </tr>
           </thead>
@@ -2306,6 +2320,52 @@ function buildUsersPage() {
 }
 
 function saveUserEdit() { /* 사용 안 함 */ }
+
+function openUserManage(userId) {
+  const u = allUsers.find(x => x.user_id === userId);
+  if (!u) return;
+  document.getElementById('editUserId').value = userId;
+  document.getElementById('editUserIdDisplay').textContent = userId;
+  document.getElementById('editUserPoints').value = u.points !== null ? u.points : '';
+  const hint = document.getElementById('editUserPointsHint');
+  if (hint) hint.textContent = u.points !== null ? `현재: ${Number(u.points).toLocaleString()}원` : '현재 데이터 없음 (users 테이블에 행이 없을 수 있음)';
+  // 등급 select 채우기
+  const sel = document.getElementById('editUserGrade');
+  sel.innerHTML = '<option value="">등급 없음</option>' +
+    grades.map(g => `<option value="${g.id}" ${g.id === u.grade_id ? 'selected' : ''} style="color:#fff;">${esc(g.name)}</option>`).join('');
+  openModal('modalUserEdit');
+}
+
+async function saveUserManage() {
+  const userId  = document.getElementById('editUserId').value;
+  const points  = document.getElementById('editUserPoints').value;
+  const gradeId = document.getElementById('editUserGrade').value;
+  if (!userId) return;
+  if (points === '') { showToast('⚠️ 보유금액을 입력하세요', true); return; }
+  const pointsNum = parseInt(points);
+  if (isNaN(pointsNum) || pointsNum < 0) { showToast('⚠️ 보유금액은 0 이상의 숫자여야 합니다', true); return; }
+  try {
+    // users 테이블 upsert
+    await _sb.from('users').upsert({
+      guild_id: currentLicense.guildId,
+      user_id:  userId,
+      points:   pointsNum,
+      grade_id: gradeId || null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'guild_id,user_id' });
+    // 로컬 allUsers 업데이트
+    const idx = allUsers.findIndex(u => u.user_id === userId);
+    if (idx >= 0) {
+      allUsers[idx].points   = pointsNum;
+      allUsers[idx].grade_id = gradeId || null;
+    }
+    closeModal('modalUserEdit');
+    showToast('✅ 유저 정보가 저장되었습니다!');
+    renderUserTable(allUsers);
+  } catch(e) {
+    showToast('❌ 저장 실패: ' + e.message, true);
+  }
+}
 
 async function openPurchaseLog(userId) {
   const el = document.getElementById('purchaseLogContent');
