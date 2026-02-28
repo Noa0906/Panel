@@ -122,16 +122,18 @@
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.78);
-      backdrop-filter: blur(4px);
-      z-index: 997;
-      animation: fadeIn 0.2s ease;
-      pointer-events: none;     /* 기본값 */
+      backdrop-filter: blur(6px);
+      z-index: 998;
+      animation: fadeIn 0.25s ease;
+      pointer-events: none;
+      touch-action: none;           /* 모바일 터치 지연 방지 */
     }
 
     .sidebar-overlay.open {
       display: block;
-      pointer-events: auto;     /* ← 이 줄이 핵심!!! */
-      z-index: 997;
+      pointer-events: auto;
+      touch-action: manipulation;   /* 터치 즉시 반응 */
+      z-index: 998;
     }
 
     /* 사이드바 외부 클릭 캐처 - 사이드바 오른쪽 영역만 */
@@ -399,16 +401,18 @@
     /* ── RESPONSIVE ── */
     @media (max-width:780px) {
       .sidebar {
-        position:fixed;
-        top:0; left:0;
-        height:100vh;
-        z-index:1002;
-        transform:translateX(-100%);
-        transition:transform 0.3s ease;
-        box-shadow:4px 0 30px rgba(0,0,0,0.5);
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        width: 280px;                 /* 조금 더 넓게 (선택) */
+        z-index: 1000;                /* overlay(998)보다 확실히 위 */
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+        box-shadow: 8px 0 40px rgba(0,0,0,0.65);
+        touch-action: none;
       }
       .sidebar.open {
-        transform:translateX(0);
+        transform: translateX(0);
       }
       .main-inner { padding:20px 16px; padding-top:70px; }
       .dash-grid { grid-template-columns:1fr 1fr; }
@@ -2480,18 +2484,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('hamburgerBtn');
   if (btn) btn.style.display = 'none';
 
+  // overlay 클릭/터치로 닫기 (모바일 완전 해결)
   const overlay = document.getElementById('sidebarOverlay');
-if (overlay) {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeSidebar();
-  });
-}
+  if (overlay) {
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeSidebar(); });
+    overlay.addEventListener('touchstart', e => { 
+      if (e.target === overlay) { e.preventDefault(); closeSidebar(); }
+    }, { passive: false });
+  }
 
-  // click-catcher 클릭 시 사이드바 닫기
+  // click-catcher
   const catcher = document.getElementById('sidebarClickCatcher');
   if (catcher) {
     catcher.addEventListener('click', () => closeSidebar());
     catcher.addEventListener('touchstart', () => closeSidebar());
+  }
+
+  // 햄버거 버튼 터치 강화 (더블탭/줌 방지)
+  const hamburger = document.getElementById('hamburgerBtn');
+  if (hamburger) {
+    hamburger.addEventListener('touchstart', e => {
+      e.preventDefault();
+      toggleSidebar();
+    }, { passive: false });
   }
 });
 </script>
