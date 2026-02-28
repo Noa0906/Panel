@@ -534,19 +534,22 @@
 <!-- MODAL: Stock -->
 <div class="modal-overlay" id="modalStock">
   <div class="modal">
-    <div class="modal-title">재고 추가</div>
+    <div class="modal-title" id="stockModalTitle">재고 설정</div>
+    <input type="hidden" id="stockTargetProdId"/>
     <div class="form-field">
-      <label>제품 선택</label>
-      <select id="stockProdSel"></select>
+      <label>재고 내용 <span style="color:var(--text3);font-size:11px;">(구매자에게 전달)</span></label>
+      <textarea id="stockItemsInput" placeholder="예) 라이선스 키: XXXX-XXXX-XXXX" style="min-height:110px;"></textarea>
     </div>
-    <div class="form-field">
-      <label>재고 목록 (줄바꿈으로 구분)</label>
-      <textarea id="stockItemsInput" placeholder="재고1&#10;재고2&#10;재고3" style="min-height:160px;" oninput="updateStockCount()"></textarea>
-      <div class="stock-count-badge" id="stockCountBadge">0개 재고 입력됨</div>
+    <div onclick="toggleUnlimited()" id="unlimitedRow" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;margin-bottom:16px;user-select:none;">
+      <div id="unlimitedCheckbox" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;"></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;">무제한 재고</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">체크하면 재고 내용을 계속 반복해서 판매합니다</div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalStock')">취소</button>
-      <button class="btn btn-white btn-md" onclick="saveStock()">추가하기</button>
+      <button class="btn btn-white btn-md" onclick="saveStock()">저장</button>
     </div>
   </div>
 </div>
@@ -1060,11 +1063,9 @@ function buildInventoryPage() {
     <div class="tabs">
       <div class="tab active" onclick="switchTab('cat',this)">📂 카테고리</div>
       <div class="tab" onclick="switchTab('prod',this)">📦 제품</div>
-      <div class="tab" onclick="switchTab('stock',this)">📋 재고</div>
     </div>
     <div class="tab-section active" id="tab-cat">${buildCatSection()}</div>
     <div class="tab-section" id="tab-prod">${buildProdSection()}</div>
-    <div class="tab-section" id="tab-stock">${buildStockSection()}</div>
   `;
 }
 
@@ -1097,15 +1098,23 @@ function buildProdSection() {
   if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
   const items = products.map(p => {
     const cat = categories.find(c => c.id === p.category_id);
+    const st  = stockItems.find(s => s.product_id === p.id);
+    let badge;
+    if (p.unlimited) {
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);">♾ 무제한</span>`;
+    } else if (st) {
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);">재고 있음</span>`;
+    } else {
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.25);">품절</span>`;
+    }
     return `
       <div class="list-item">
-        <span style="font-size:16px">📦</span>
-        <div style="flex:1">
+        <div style="flex:1;min-width:0;">
           <div class="item-name">${esc(p.name)}</div>
-          <div class="item-meta" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);">KEY: ${esc(p.product_key||'-')}</div>
+          <div class="item-meta" style="margin-top:2px;">${esc(cat?.name||'-')}${p.price ? ` · ${Number(p.price).toLocaleString()}원` : ''}</div>
         </div>
-        <div class="item-meta">${esc(cat?.name||'-')}</div>
-        ${p.price ? `<div class="item-qty">${Number(p.price).toLocaleString()}원</div>` : ''}
+        ${badge}
+        <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id})">✏️ 재고</button>
         <button class="btn btn-red-ghost btn-sm" onclick="deleteProduct(${p.id})">삭제</button>
       </div>`;
   }).join('');
@@ -1119,32 +1128,6 @@ function buildProdSection() {
     </div>`;
 }
 
-function buildStockSection() {
-  if (!products.length) return `<div class="card">${emptyState('⚠️','제품을 먼저 추가해주세요','제품 탭에서 추가하세요')}</div>`;
-  const items = stockItems.map(item => {
-    const prod = products.find(p => p.id === item.product_id);
-    const cat  = prod ? categories.find(c => c.id === prod.category_id) : null;
-    return `
-      <div class="list-item">
-        <span style="font-size:16px">📋</span>
-        <div style="flex:1">
-          <div class="item-name">${esc(prod?.name||'알 수 없음')}</div>
-          ${item.note ? `<div class="item-meta">📦 ${esc(item.note)}</div>` : ''}
-        </div>
-        <div class="item-meta">${esc(cat?.name||'-')}</div>
-        <button class="btn btn-red-ghost btn-sm" onclick="deleteStock(${item.id})">삭제</button>
-      </div>`;
-  }).join('');
-  return `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">📋 재고 <span class="tag">${stockItems.length}개</span></div>
-        <button class="btn btn-white btn-sm" onclick="openModalStock()">+ 추가</button>
-      </div>
-      ${stockItems.length ? items : emptyState('📭','재고가 없습니다','재고를 추가해주세요')}
-      ${stockItems.length ? `<hr class="divider"/><div class="actions-bar"><button class="btn btn-ghost btn-md" onclick="clearAllStock()">전체 초기화</button></div>` : ''}
-    </div>`;
-}
 
 function emptyState(icon, title, desc) {
   return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`;
@@ -1768,25 +1751,48 @@ function openModalProd() {
   openModal('modalProd');
 }
 
-function openModalStock() {
-  if (!products.length) { showToast('⚠️ 제품을 먼저 추가해주세요!', true); return; }
-  const sel = document.getElementById('stockProdSel');
-  sel.innerHTML = products.map(p => {
-    const cat = categories.find(c => c.id === p.category_id);
-    return `<option value="${p.id}">[${esc(cat?.name||'-')}] ${esc(p.name)}</option>`;
-  }).join('');
-  document.getElementById('stockItemsInput').value = '';
-  document.getElementById('stockCountBadge').textContent = '0개 재고 입력됨';
+let _stockUnlimited = false;
+
+function toggleUnlimited() {
+  _stockUnlimited = !_stockUnlimited;
+  const cb = document.getElementById('unlimitedCheckbox');
+  if (!cb) return;
+  if (_stockUnlimited) {
+    cb.style.background = 'var(--accent,#60a5fa)';
+    cb.style.borderColor = 'var(--accent,#60a5fa)';
+    cb.innerHTML = '<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  } else {
+    cb.style.background = 'transparent';
+    cb.style.borderColor = 'var(--border2)';
+    cb.innerHTML = '';
+  }
+}
+
+function openStockModal(prodId) {
+  const prod = products.find(p => p.id == prodId);
+  if (!prod) return;
+  document.getElementById('stockModalTitle').textContent = `📦 ${prod.name} — 재고 설정`;
+  document.getElementById('stockTargetProdId').value = prodId;
+  const existing = stockItems.find(s => s.product_id == prodId);
+  document.getElementById('stockItemsInput').value = existing?.note || '';
+  _stockUnlimited = !!prod.unlimited;
+  const cb = document.getElementById('unlimitedCheckbox');
+  if (cb) {
+    if (_stockUnlimited) {
+      cb.style.background = 'var(--accent,#60a5fa)';
+      cb.style.borderColor = 'var(--accent,#60a5fa)';
+      cb.innerHTML = '<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      cb.style.background = 'transparent';
+      cb.style.borderColor = 'var(--border2)';
+      cb.innerHTML = '';
+    }
+  }
   openModal('modalStock');
 }
 
-function updateStockCount() {
-  const ta = document.getElementById('stockItemsInput');
-  const badge = document.getElementById('stockCountBadge');
-  if (!ta || !badge) return;
-  const lines = ta.value.split('\n').filter(l => l.trim() !== '');
-  badge.textContent = lines.length + '개 재고 입력됨';
-}
+function updateStockCount() {}
+function openModalStock() {}
 
 /* ══════════════════════════════════════════════
    CATEGORY CRUD
@@ -1862,25 +1868,30 @@ async function deleteProduct(id) {
    STOCK CRUD
 ══════════════════════════════════════════════ */
 async function saveStock() {
-  const product_id = parseInt(document.getElementById('stockProdSel').value);
-  const rawText    = document.getElementById('stockItemsInput').value;
-  const lines      = rawText.split('\n').map(l => l.trim()).filter(l => l !== '');
-  if (!lines.length) { showToast('⚠️ 재고를 한 줄 이상 입력하세요', true); return; }
-  let savedCount = 0;
+  const product_id = parseInt(document.getElementById('stockTargetProdId').value);
+  const note       = document.getElementById('stockItemsInput').value.trim();
+  const unlimited  = _stockUnlimited;
+  if (!unlimited && !note) { showToast('⚠️ 재고 내용을 입력하거나 무제한을 체크하세요', true); return; }
   try {
-    for (const note of lines) {
+    // 제품에 unlimited 플래그 저장
+    await _sb.from('inventory_products').update({ unlimited }).eq('id', product_id);
+    const pi = products.findIndex(p => p.id == product_id);
+    if (pi >= 0) products[pi].unlimited = unlimited;
+    // 기존 재고 삭제 후 새 재고 1개 저장
+    await _sb.from('inventory_stock').delete().eq('product_id', product_id);
+    stockItems = stockItems.filter(s => s.product_id != product_id);
+    if (note) {
       const result = await sbInsert('inventory_stock', {
-        guild_id:   currentLicense.guildId,
+        guild_id: currentLicense.guildId,
         product_id,
         note,
       });
       stockItems.push(result);
-      savedCount++;
     }
     closeModal('modalStock');
-    showToast(`✅ ${savedCount}개 재고가 추가되었습니다!`);
+    showToast(unlimited ? '✅ 무제한 재고로 설정되었습니다!' : '✅ 재고가 저장되었습니다!');
     showPage('inventory');
-    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); }, 80);
+    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
 
@@ -1890,7 +1901,7 @@ async function deleteStock(id) {
     stockItems = stockItems.filter(s => s.id != id);
     showToast('🗑️ 삭제되었습니다');
     showPage('inventory');
-    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); }, 80);
+    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
