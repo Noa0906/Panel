@@ -125,6 +125,7 @@
     .hamburger-btn.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
     .hamburger-btn.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
     .hamburger-btn.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .sidebar { display:flex; flex-direction:column; height:100%; width:var(--sidebar-w); background:var(--surface); padding:20px 0 16px; overflow-y:auto; flex-shrink:0; }
     .sidebar-brand { display:flex; align-items:center; gap:10px; padding:0 16px 18px; border-bottom:1px solid var(--border); margin-bottom:10px; }
     .sidebar-brand-icon { width:30px; height:30px; border-radius:7px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
     .sidebar-brand-icon img { width:100%; height:100%; object-fit:cover; }
@@ -363,6 +364,7 @@
     .sidebar {
       position: fixed;
       top: 0; left: 0;
+      width: 220px;
       height: 100%;
       z-index: 400;
       transform: translateX(-100%);
@@ -1715,31 +1717,18 @@ async function saveServerConfig() {
   if (b) vendingSettings.buyLogChannelId     = b.value;
   try {
     await sbUpsert('vending_settings', {
-      guild_id:               currentLicense.guildId,
-      vending_channel_id:     vendingSettings.vendingChannelId,
+      guild_id:              currentLicense.guildId,
+      vending_channel_id:    vendingSettings.vendingChannelId,
       stock_alert_channel_id: vendingSettings.stockAlertChannelId,
-      stock_alert_role_id:    vendingSettings.stockAlertRoleId,
-      buy_log_channel_id:     vendingSettings.buyLogChannelId,
-      updated_at:             new Date().toISOString(),
+      stock_alert_role_id:   vendingSettings.stockAlertRoleId,
+      buy_log_channel_id:    vendingSettings.buyLogChannelId,
+      updated_at:            new Date().toISOString(),
     });
-
-    if (vendingSettings.stockAlertChannelId || vendingSettings.stockAlertRoleId) {
-      await sbInsert('panel_tasks', {
-        guild_id:  currentLicense.guildId,
-        task_type: 'setRestockConfig',
-        payload: {
-          channelId: vendingSettings.stockAlertChannelId || null,
-          roleId:    vendingSettings.stockAlertRoleId    || null,
-        },
-        done: false,
-      });
-    }
-
     Object.assign(serverConfig, {
-      vendingChannelId:     vendingSettings.vendingChannelId,
-      stockAlertChannelId:  vendingSettings.stockAlertChannelId,
-      stockAlertRoleId:     vendingSettings.stockAlertRoleId,
-      buyLogChannelId:      vendingSettings.buyLogChannelId,
+      vendingChannelId:    vendingSettings.vendingChannelId,
+      stockAlertChannelId: vendingSettings.stockAlertChannelId,
+      stockAlertRoleId:    vendingSettings.stockAlertRoleId,
+      buyLogChannelId:     vendingSettings.buyLogChannelId,
     });
     showToast('✅ 채널 설정이 저장되었습니다!');
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
