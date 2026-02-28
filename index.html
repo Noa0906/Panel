@@ -397,6 +397,7 @@
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 <body>
 
@@ -417,6 +418,15 @@
     <div class="field">
       <label>비밀번호</label>
       <input type="password" id="inputPassword" placeholder="웹패널 비밀번호 입력" autocomplete="off"/>
+    </div>
+    <!-- CAPTCHA (hCaptcha) -->
+    <div id="captchaField" style="margin-bottom:6px;">
+      <div id="hcaptcha-container" class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-000000000001" data-theme="dark" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
+    </div>
+    <!-- REMEMBER ME -->
+    <div onclick="toggleRememberMe()" id="rememberMeRow" style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;user-select:none;margin-bottom:2px;">
+      <div id="rememberCheckbox" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;background:transparent;"></div>
+      <div style="font-size:12px;color:var(--text2);">로그인 상태 유지</div>
     </div>
     <button type="button" class="btn-login" id="loginBtn" onclick="doLogin()">
       <span id="loginBtnText">로그인</span>
@@ -775,6 +785,7 @@ let vendingSettings = {
   stockAlertChannelId: '',
   stockAlertRoleId: '',
   buyLogChannelId: '',
+  chargeLogChannelId: '',
 };
 
 let _rtChannel = null;
@@ -883,6 +894,66 @@ async function sbDeleteByGuild(table, guildId) {
 }
 
 /* ══════════════════════════════════════════════
+   CAPTCHA (hCaptcha)
+══════════════════════════════════════════════ */
+let _captchaToken = null;
+let _rememberMe = false;
+
+function onCaptchaSuccess(token) {
+  _captchaToken = token;
+}
+
+function onCaptchaExpired() {
+  _captchaToken = null;
+}
+
+function resetCaptcha() {
+  _captchaToken = null;
+  try { if (window.hcaptcha) window.hcaptcha.reset(); } catch(e) {}
+}
+
+function refreshCaptcha() {
+  resetCaptcha();
+}
+
+function toggleRememberMe() {
+  _rememberMe = !_rememberMe;
+  const cb = document.getElementById('rememberCheckbox');
+  if (cb) {
+    cb.style.background = _rememberMe ? 'var(--accent)' : 'transparent';
+    cb.style.borderColor = _rememberMe ? 'var(--accent)' : 'var(--border2)';
+    cb.innerHTML = _rememberMe ? '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L4 7L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '';
+  }
+}
+
+function saveLoginSession(license) {
+  try {
+    localStorage.setItem('cwp_session', JSON.stringify({
+      guildId:   license.guildId,
+      guildName: license.guildName,
+      panelId:   license.panelId,
+      expiresAt: license.expiresAt,
+      savedAt:   Date.now(),
+    }));
+  } catch(e) {}
+}
+
+function loadLoginSession() {
+  try {
+    const raw = localStorage.getItem('cwp_session');
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    // 세션은 7일간 유지
+    if (Date.now() - s.savedAt > 7 * 86400000) { localStorage.removeItem('cwp_session'); return null; }
+    return s;
+  } catch(e) { return null; }
+}
+
+function clearLoginSession() {
+  try { localStorage.removeItem('cwp_session'); } catch(e) {}
+}
+
+/* ══════════════════════════════════════════════
    LOGIN
 ══════════════════════════════════════════════ */
 document.addEventListener('keydown', e => {
@@ -906,6 +977,13 @@ async function doLogin() {
 
   if (!panelId)  { errEl.textContent = '❌ 아이디를 입력하세요.';   errEl.style.display = 'block'; return; }
   if (!password) { errEl.textContent = '❌ 비밀번호를 입력하세요.'; errEl.style.display = 'block'; return; }
+
+  // hCaptcha 검증
+  if (!_captchaToken) {
+    errEl.textContent = '❌ 보안 인증을 완료해주세요.';
+    errEl.style.display = 'block';
+    return;
+  }
 
   if (!_sb) {
     if (window._sbLoadFailed) {
@@ -964,10 +1042,13 @@ async function doLogin() {
       expiresAt: found.expires_at,
     };
 
+    if (_rememberMe) saveLoginSession(currentLicense);
+
     await loadAllData(currentLicense.guildId);
 
     // 로그인 IP 기록 (loadAllData 이후 - _sb 연결 보장 후)
     recordLoginLog(found.panel_id, found.guild_id);
+    resetCaptcha();
     enterDashboard(currentLicense);
     // 로그인 성공 시 버튼 상태는 대시보드 전환으로 가려지므로 복원 불필요
     return;
@@ -1216,6 +1297,7 @@ function doLogout() {
   categories = []; products = []; stockItems = [];
   chargeAccounts = []; chargeLogs = [];
   discordChannels = []; discordRoles = []; grades = [];
+  clearLoginSession();
   document.getElementById('dashScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
   closeSidebar();
@@ -1224,6 +1306,11 @@ function doLogout() {
   document.getElementById('inputPassword').value = '';
   document.getElementById('loginError').style.display = 'none';
   document.getElementById('loginWarn').style.display = 'none';
+  resetCaptcha();
+  // 로그인 유지 체크 초기화
+  _rememberMe = false;
+  const cb = document.getElementById('rememberCheckbox');
+  if (cb) { cb.style.background = 'transparent'; cb.style.borderColor = 'var(--border2)'; cb.innerHTML = ''; }
 }
 
 /* ══════════════════════════════════════════════
@@ -1780,6 +1867,7 @@ async function loadDiscordData(guildId) {
       serverConfig.stockAlertChannelId = cfRow.stock_alert_channel_id || '';
       serverConfig.stockAlertRoleId    = cfRow.stock_alert_role_id    || '';
       serverConfig.buyLogChannelId     = cfRow.buy_log_channel_id     || '';
+      serverConfig.chargeLogChannelId  = cfRow.charge_log_channel_id  || '';
       Object.assign(vendingSettings, serverConfig);
     }
   } catch(e) { console.error('Discord 데이터 로드 오류:', e); }
@@ -1837,6 +1925,10 @@ function buildSettingsPage() {
           <div class="form-field">
             <label>🧾 구매 로그 채널</label>
             <select id="cfg_buyCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.buyLogChannelId)}</select>
+          </div>
+          <div class="form-field">
+            <label>💳 충전 로그 채널</label>
+            <select id="cfg_chargeLogCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.chargeLogChannelId)}</select>
           </div>
           <hr class="divider"/>
           <div class="actions-bar">
@@ -1950,10 +2042,12 @@ async function saveServerConfig() {
   const s = document.getElementById('cfg_stockCh');
   const r = document.getElementById('cfg_stockRole');
   const b = document.getElementById('cfg_buyCh');
+  const c = document.getElementById('cfg_chargeLogCh');
   if (v) vendingSettings.vendingChannelId    = v.value || '';
   if (s) vendingSettings.stockAlertChannelId = s.value || '';
   if (r) vendingSettings.stockAlertRoleId    = r.value || '';
   if (b) vendingSettings.buyLogChannelId     = b.value || '';
+  if (c) vendingSettings.chargeLogChannelId  = c.value || '';
   try {
     await sbUpsert('vending_settings', {
       guild_id:              currentLicense.guildId,
@@ -1961,6 +2055,7 @@ async function saveServerConfig() {
       stock_alert_channel_id: vendingSettings.stockAlertChannelId || null,
       stock_alert_role_id:   vendingSettings.stockAlertRoleId    || null,
       buy_log_channel_id:    vendingSettings.buyLogChannelId     || null,
+      charge_log_channel_id: vendingSettings.chargeLogChannelId  || null,
       updated_at:            new Date().toISOString(),
     });
     Object.assign(serverConfig, {
@@ -1968,6 +2063,7 @@ async function saveServerConfig() {
       stockAlertChannelId: vendingSettings.stockAlertChannelId,
       stockAlertRoleId:    vendingSettings.stockAlertRoleId,
       buyLogChannelId:     vendingSettings.buyLogChannelId,
+      chargeLogChannelId:  vendingSettings.chargeLogChannelId,
     });
     showToast('✅ 채널 설정이 저장되었습니다!');
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
@@ -2779,12 +2875,40 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('hamburgerBtn');
   if (btn) btn.style.display = 'none';
+
 });
 
 // Supabase CDN 로드 완료 후 초기화 (스크립트 로드 타이밍 문제 방지)
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   if (SUPABASE_URL && SUPABASE_KEY) {
     initSupabase(SUPABASE_URL, SUPABASE_KEY);
+  }
+
+  // 저장된 세션으로 자동 로그인 시도
+  const session = loadLoginSession();
+  if (session && _sb) {
+    try {
+      // 라이선스 유효성 재확인
+      const rows = await sbSelect('licenses', { panel_id: session.panelId });
+      if (rows.length) {
+        const found = rows[0];
+        if (found.is_active && (!found.expires_at || new Date(found.expires_at) > new Date())) {
+          currentLicense = {
+            guildId:   found.guild_id,
+            guildName: found.guild_name,
+            panelId:   found.panel_id,
+            expiresAt: found.expires_at,
+          };
+          await loadAllData(currentLicense.guildId);
+          enterDashboard(currentLicense);
+          return;
+        }
+      }
+      // 유효하지 않으면 세션 삭제
+      clearLoginSession();
+    } catch(e) {
+      clearLoginSession();
+    }
   }
 });
 </script>
