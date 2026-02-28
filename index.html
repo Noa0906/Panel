@@ -461,6 +461,9 @@
       <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge">
         <span class="nav-icon">💳</span> 자동충전
       </div>
+      <div class="nav-item" onclick="showPage('loginlog')" id="nav-loginlog">
+        <span class="nav-icon">🔐</span> 로그인 로그
+      </div>
       <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
         <span class="nav-icon">⚙️</span> 설정
       </div>
@@ -959,6 +962,9 @@ async function doLogin() {
       expiresAt: found.expires_at,
     };
 
+    // 로그인 IP 기록
+    recordLoginLog(found.panel_id, found.guild_id);
+
     await loadAllData(currentLicense.guildId);
     enterDashboard(currentLicense);
     // 로그인 성공 시 버튼 상태는 대시보드 전환으로 가려지므로 복원 불필요
@@ -987,6 +993,164 @@ function enterDashboard(license) {
   // 대시보드 진입 후 햄버거 버튼 가시성 업데이트
   updateHamburgerVisibility();
   showPage('dashboard');
+}
+
+/* ══════════════════════════════════════════════
+   LOGIN LOG
+══════════════════════════════════════════════ */
+async function getClientIP() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    return data.ip || '알 수 없음';
+  } catch(e) {
+    try {
+      const res2 = await fetch('https://ipapi.co/json/');
+      const data2 = await res2.json();
+      return data2.ip || '알 수 없음';
+    } catch(e2) {
+      return '조회 실패';
+    }
+  }
+}
+
+async function recordLoginLog(panelId, guildId) {
+  try {
+    const ip = await getClientIP();
+    const log = {
+      panel_id: panelId,
+      guild_id: guildId,
+      ip_address: ip,
+      user_agent: navigator.userAgent,
+      logged_at: new Date().toISOString(),
+    };
+    await sbInsert('login_logs', log);
+  } catch(e) {
+    // login_logs 테이블이 없어도 조용히 실패
+    console.warn('로그인 로그 기록 실패:', e);
+  }
+}
+
+function buildLoginLogPage() {
+  return `
+    <div class="page-header">
+      <div class="page-title">🔐 로그인 로그</div>
+      <div class="page-sub">// 이 패널에 로그인한 기록과 IP 주소를 확인합니다</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔐 로그인 기록 <span class="tag" id="loginLogCount">로드 중...</span></div>
+        <button class="btn btn-red-ghost btn-sm" onclick="clearLoginLogs()">🗑️ 전체 삭제</button>
+      </div>
+      <div id="loginLogTableWrap">
+        <div style="text-align:center;padding:32px;color:var(--text3);font-family:'JetBrains Mono',monospace;">로딩 중...</div>
+      </div>
+    </div>
+  `;
+}
+
+async function initLoginLogPage() {
+  const wrap = document.getElementById('loginLogTableWrap');
+  const countEl = document.getElementById('loginLogCount');
+  if (!wrap || !_sb) return;
+  try {
+    const { data: logs, error } = await _sb
+      .from('login_logs')
+      .select('*')
+      .eq('guild_id', currentLicense.guildId)
+      .order('logged_at', { ascending: false })
+      .limit(200);
+
+    if (error) throw error;
+
+    if (!logs || !logs.length) {
+      countEl.textContent = '0건';
+      wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-family:\'JetBrains Mono\',monospace;">로그인 기록이 없습니다<br/><span style="font-size:11px;margin-top:6px;display:block;">다음 로그인부터 자동으로 기록됩니다</span></div>';
+      return;
+    }
+
+    countEl.textContent = logs.length + '건';
+
+    const rows = logs.map((l, i) => {
+      const dt = l.logged_at ? new Date(l.logged_at).toLocaleString('ko-KR') : '-';
+      const ua = l.user_agent || '';
+      // 간단한 브라우저/OS 파싱
+      let browser = '알 수 없음';
+      if (ua.includes('Edg/')) browser = 'Edge';
+      else if (ua.includes('Chrome/')) browser = 'Chrome';
+      else if (ua.includes('Firefox/')) browser = 'Firefox';
+      else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
+      let os = '알 수 없음';
+      if (ua.includes('Windows')) os = 'Windows';
+      else if (ua.includes('Mac OS')) os = 'macOS';
+      else if (ua.includes('Android')) os = 'Android';
+      else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+      else if (ua.includes('Linux')) os = 'Linux';
+
+      const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent';
+      return `
+        <tr style="background:${rowBg};">
+          <td style="padding:11px 14px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text3);">${i+1}</td>
+          <td style="padding:11px 14px;">
+            <div style="font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);">${esc(l.ip_address||'알 수 없음')}</div>
+          </td>
+          <td style="padding:11px 14px;">
+            <div style="font-size:12px;font-weight:600;">${dt}</div>
+          </td>
+          <td style="padding:11px 14px;">
+            <div style="font-size:12px;color:var(--text2);">${browser} / ${os}</div>
+          </td>
+          <td style="padding:11px 14px;">
+            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text3);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(ua)}">${esc(l.panel_id||'-')}</div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border2);">
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;">#</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;">IP 주소</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;">로그인 시간</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;">브라우저 / OS</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;">패널 ID</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    countEl.textContent = '오류';
+    wrap.innerHTML = `
+      <div style="text-align:center;padding:32px;color:var(--danger);font-family:'JetBrains Mono',monospace;">
+        ⚠️ 로드 실패: ${esc(e.message)}<br/>
+        <div style="margin-top:12px;font-size:11px;color:var(--text3);">
+          Supabase에 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;">login_logs</code> 테이블이 필요합니다.<br/>
+          아래 SQL로 테이블을 생성해주세요:
+        </div>
+        <div style="margin-top:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;text-align:left;font-size:11px;line-height:1.8;">
+          CREATE TABLE login_logs (<br/>
+          &nbsp;&nbsp;id bigserial PRIMARY KEY,<br/>
+          &nbsp;&nbsp;panel_id text,<br/>
+          &nbsp;&nbsp;guild_id text,<br/>
+          &nbsp;&nbsp;ip_address text,<br/>
+          &nbsp;&nbsp;user_agent text,<br/>
+          &nbsp;&nbsp;logged_at timestamptz DEFAULT now()<br/>
+          );
+        </div>
+      </div>`;
+  }
+}
+
+async function clearLoginLogs() {
+  if (!confirm('모든 로그인 기록을 삭제할까요?')) return;
+  try {
+    await _sb.from('login_logs').delete().eq('guild_id', currentLicense.guildId);
+    showToast('🗑️ 로그인 기록이 삭제되었습니다');
+    showPage('loginlog');
+  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
 function doLogout() {
@@ -1049,6 +1213,7 @@ function showPage(page) {
   if (page === 'users')      { mc.innerHTML = buildUsersPage(); initUsersPage(); }
   if (page === 'grades')     mc.innerHTML = buildGradesPage();
   if (page === 'autocharge') { mc.innerHTML = buildAutoChargePage(); initAutoCharge(); }
+  if (page === 'loginlog')   { mc.innerHTML = buildLoginLogPage(); initLoginLogPage(); }
   const main = document.querySelector('.main');
   if (main) main.scrollTop = 0;
 }
