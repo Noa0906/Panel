@@ -118,18 +118,20 @@
 
     /* SIDEBAR OVERLAY (mobile) - 시각적 효과만, 클릭 이벤트 없음 */
     .sidebar-overlay {
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.6);
-      backdrop-filter:blur(2px);
-      z-index:998;
-      animation:fadeIn 0.2s ease;
-      pointer-events:none; /* 절대 클릭 이벤트 받지 않음 */
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(4px);
+      z-index: 997;
+      animation: fadeIn 0.2s ease;
+      pointer-events: none;     /* 기본값 */
     }
+
     .sidebar-overlay.open {
-      display:block;
-      pointer-events:none; /* open 상태에서도 클릭 이벤트 없음 */
+      display: block;
+      pointer-events: auto;     /* ← 이 줄이 핵심!!! */
+      z-index: 997;
     }
 
     /* 사이드바 외부 클릭 캐처 - 사이드바 오른쪽 영역만 */
@@ -400,7 +402,7 @@
         position:fixed;
         top:0; left:0;
         height:100vh;
-        z-index:1000;
+        z-index:1002;
         transform:translateX(-100%);
         transition:transform 0.3s ease;
         box-shadow:4px 0 30px rgba(0,0,0,0.5);
@@ -840,30 +842,33 @@ function updateHamburgerVisibility() {
 }
 
 function toggleSidebar() {
-  if (!isMobile()) return;
-  const sidebar  = document.getElementById('mainSidebar');
-  const overlay  = document.getElementById('sidebarOverlay');
-  const catcher  = document.getElementById('sidebarClickCatcher');
-  const btn      = document.getElementById('hamburgerBtn');
-  const isOpen   = sidebar.classList.contains('open');
-  if (isOpen) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-    catcher.classList.remove('open');
-    btn.classList.remove('open');
-  } else {
-    sidebar.classList.add('open');
-    overlay.classList.add('open');
-    catcher.classList.add('open');
-    btn.classList.add('open');
-  }
+  const sidebar = document.getElementById('mainSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const catcher = document.getElementById('sidebarClickCatcher');
+  const btn = document.getElementById('hamburgerBtn');
+
+  const willOpen = !sidebar.classList.contains('open');
+
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (catcher) catcher.classList.toggle('open');
+  btn.classList.toggle('open');
+
+  // 배경 스크롤 막기
+  document.body.style.overflow = willOpen ? 'hidden' : '';
 }
 
 function closeSidebar() {
-  document.getElementById('mainSidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-  document.getElementById('sidebarClickCatcher').classList.remove('open');
-  document.getElementById('hamburgerBtn').classList.remove('open');
+  const sidebar = document.getElementById('mainSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const catcher = document.getElementById('sidebarClickCatcher');
+  const btn = document.getElementById('hamburgerBtn');
+
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  if (catcher) catcher.classList.remove('open');
+  btn.classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 window.addEventListener('resize', () => {
@@ -2474,6 +2479,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (SUPABASE_URL && SUPABASE_KEY) initSupabase(SUPABASE_URL, SUPABASE_KEY);
   const btn = document.getElementById('hamburgerBtn');
   if (btn) btn.style.display = 'none';
+
+  const overlay = document.getElementById('sidebarOverlay');
+if (overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeSidebar();
+  });
+}
 
   // click-catcher 클릭 시 사이드바 닫기
   const catcher = document.getElementById('sidebarClickCatcher');
