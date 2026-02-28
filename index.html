@@ -40,13 +40,11 @@
     @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
     @keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
     @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-    @keyframes slideInLeft { from { transform:translateX(-100%); } to { transform:translateX(0); } }
-    @keyframes slideOutLeft { from { transform:translateX(0); } to { transform:translateX(-100%); } }
 
     .screen { display:none; }
     .screen.active { display:flex; width:100%; height:100%; position:fixed; top:0; left:0; right:0; bottom:0; }
 
-    /* LOGIN */
+    /* ── LOGIN ── */
     #loginScreen { align-items:center; justify-content:center; position:relative; background: url('logo.gif') center/cover no-repeat fixed; }
     #loginScreen::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(3px); }
     .login-card {
@@ -74,7 +72,7 @@
     .alert-warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.25); color:var(--warning); }
     .spinner { width:15px; height:15px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.6s linear infinite; }
 
-    /* DASH LAYOUT */
+    /* ── DASH LAYOUT ── */
     #dashScreen { flex-direction:column; overflow:hidden; }
 
     /* ── 모바일 상단 헤더 ── */
@@ -92,8 +90,7 @@
     .hamburger {
       width:36px; height:36px; border-radius:8px; background:var(--surface2);
       border:1px solid var(--border2); display:flex; flex-direction:column;
-      align-items:center; justify-content:center; gap:4px; cursor:pointer;
-      transition:background 0.15s;
+      align-items:center; justify-content:center; gap:4px; cursor:pointer; transition:background 0.15s;
     }
     .hamburger:hover { background:var(--surface3); }
     .hamburger span { display:block; width:16px; height:2px; background:var(--text2); border-radius:1px; transition:all 0.25s; }
@@ -108,13 +105,12 @@
     }
     .drawer-overlay.open { display:block; }
 
-    /* ── SIDEBAR (데스크탑 + 드로어) ── */
+    /* ── SIDEBAR ── */
     .sidebar {
       width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border);
       display:flex; flex-direction:column; padding:20px 0; animation:fadeIn 0.35s ease;
       overflow-y:auto; height:100%;
     }
-    /* 모바일 드로어 모드 */
     .sidebar.drawer-mode {
       position:fixed; top:0; left:0; height:100%; z-index:400;
       transform:translateX(-100%); transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
@@ -145,7 +141,7 @@
     .btn-logout { width:100%; padding:8px; background:transparent; border:1px solid var(--border); border-radius:7px; color:var(--text3); font-family:'Outfit',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
     .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
-    /* DASH BODY */
+    /* ── DASH BODY ── */
     .dash-body { display:flex; flex:1; overflow:hidden; }
     .main { flex:1; overflow-y:auto; background:#181818; height:100%; }
     .main-inner { padding:30px 34px; max-width:960px; }
@@ -153,13 +149,13 @@
     .page-title { font-size:21px; font-weight:700; letter-spacing:-0.02em; }
     .page-sub { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:4px; }
 
-    /* CARDS */
+    /* ── CARDS ── */
     .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
     .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
     .card-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
     .tag { font-size:10px; padding:2px 7px; border-radius:99px; font-family:'JetBrains Mono',monospace; font-weight:400; background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
 
-    /* FORMS */
+    /* ── FORMS ── */
     .form-field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
     .form-field label { font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--text3); }
     .form-field input,.form-field select,.form-field textarea { background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:border-color 0.15s; }
@@ -168,7 +164,7 @@
     .form-field input::placeholder,.form-field textarea::placeholder { color:var(--text3); }
     .form-field textarea { resize:vertical; min-height:80px; }
 
-    /* BUTTONS */
+    /* ── BUTTONS ── */
     .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:8px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; transition:all 0.15s; }
     .btn:disabled { opacity:0.4; cursor:not-allowed; }
     .btn-sm { padding:6px 13px; font-size:12px; }
@@ -180,7 +176,7 @@
     .btn-red-ghost { background:transparent; color:var(--text3); border:1px solid var(--border); }
     .btn-red-ghost:hover:not(:disabled) { border-color:var(--danger); color:var(--danger); }
 
-    /* LIST */
+    /* ── LIST ── */
     .list-item { display:flex; align-items:center; gap:12px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:11px 14px; margin-bottom:7px; transition:border-color 0.15s; }
     .list-item:last-child { margin-bottom:0; }
     .list-item:hover { border-color:var(--border2); }
@@ -194,7 +190,7 @@
     .divider { border:none; border-top:1px solid var(--border); margin:18px 0; }
     .actions-bar { display:flex; gap:10px; justify-content:flex-end; }
 
-    /* TABS */
+    /* ── TABS ── */
     .tabs { display:flex; gap:2px; margin-bottom:20px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:3px; }
     .tab { flex:1; padding:8px 10px; border-radius:7px; font-size:12px; font-weight:600; text-align:center; cursor:pointer; transition:all 0.15s; color:var(--text3); }
     .tab:hover { color:var(--text2); }
@@ -202,7 +198,7 @@
     .tab-section { display:none; }
     .tab-section.active { display:block; animation:fadeUp 0.25s ease; }
 
-    /* SETTINGS LAYOUT */
+    /* ── SETTINGS ── */
     .settings-layout { display:grid; grid-template-columns:1fr 340px; gap:18px; align-items:start; }
     .vending-preview { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; position:sticky; top:30px; }
     .preview-header { padding:11px 14px; border-bottom:1px solid var(--border); font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; display:flex; align-items:center; gap:7px; }
@@ -218,24 +214,22 @@
     .discord-embed-desc { font-size:13px; color:#dbdee1; line-height:1.5; margin-bottom:10px; white-space:pre-wrap; word-break:break-word; }
     .discord-buttons { display:flex; flex-wrap:wrap; gap:6px; }
     .discord-btn { display:flex; align-items:center; gap:4px; background:#4e5058; border-radius:4px; padding:5px 12px; font-size:13px; color:#dbdee1; font-weight:500; }
-
-    /* BUTTON EDITOR ROW */
     .btn-edit-row { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
     .btn-edit-emoji { width:46px; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px; color:var(--text); font-size:13px; outline:none; text-align:center; opacity:0.7; }
     .btn-edit-label { flex:1; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px 10px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; opacity:0.7; }
 
-    /* MODAL */
+    /* ── MODAL ── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
     .modal-overlay.open { display:flex; animation:fadeIn 0.2s ease; }
     .modal { background:var(--surface); border:1px solid var(--border2); border-radius:14px; padding:26px; width:100%; max-width:420px; animation:fadeUp 0.22s ease; box-shadow:0 24px 60px rgba(0,0,0,0.6); }
     .modal-title { font-size:15px; font-weight:700; margin-bottom:18px; }
     .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
 
-    /* TOAST */
+    /* ── TOAST ── */
     .toast { position:fixed; bottom:26px; right:26px; background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:11px 17px; font-size:13px; font-weight:500; box-shadow:0 8px 30px rgba(0,0,0,0.5); opacity:0; transform:translateY(8px); transition:all 0.25s ease; pointer-events:none; z-index:9999; }
     .toast.show { opacity:1; transform:translateY(0); }
 
-    /* DASHBOARD */
+    /* ── DASHBOARD ── */
     .dash-hero { border-radius:14px; padding:28px; background:linear-gradient(135deg,#071a0d 0%,#0a1a10 60%,#0d0d0d 100%); border:1px solid #1e3d26; position:relative; overflow:hidden; margin-bottom:16px; }
     .dash-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:200px; height:200px; background:radial-gradient(circle,rgba(74,222,128,0.08) 0%,transparent 70%); pointer-events:none; }
     .dash-hero-icon { width:44px; height:44px; border-radius:12px; background:rgba(74,222,128,0.18); border:1px solid rgba(74,222,128,0.3); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; }
@@ -266,7 +260,7 @@
     .dash-rank-val { font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text2); }
     .dash-empty { text-align:center; padding:24px; color:var(--text3); font-size:12px; font-family:'JetBrains Mono',monospace; }
 
-    /* REALTIME LOG */
+    /* ── REALTIME LOG ── */
     .rt-log-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
     .rt-log-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
     .rt-log-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
@@ -283,7 +277,7 @@
     .rt-log-empty { text-align:center; padding:32px; color:var(--text3); font-size:12px; font-family:'JetBrains Mono',monospace; }
     .stock-count-badge { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:4px; }
 
-    /* AUTO CHARGE */
+    /* ── AUTO CHARGE ── */
     .ac-hero { border-radius:14px; padding:26px 28px; background:linear-gradient(135deg,#050e1f 0%,#071020 60%,#0d0d0d 100%); border:1px solid #1a2a50; position:relative; overflow:hidden; margin-bottom:18px; }
     .ac-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%); pointer-events:none; }
     .ac-hero-row { display:flex; align-items:center; gap:16px; }
@@ -341,7 +335,6 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width:780px) {
-      /* 데스크탑 사이드바 숨기고 모바일 헤더 표시 */
       .sidebar:not(.drawer-mode) { display:none; }
       .sidebar.drawer-mode { display:flex; }
       .mobile-header { display:flex; }
@@ -353,7 +346,6 @@
       .ac-hero-row { flex-wrap:wrap; }
       .ac-status-badge { margin-top:8px; }
       .toast { left:16px; right:16px; bottom:16px; text-align:center; }
-      /* 모달 모바일 최적화 */
       .modal { margin:16px; max-width:calc(100vw - 32px); }
     }
     @media (min-width:781px) {
@@ -412,7 +404,7 @@
 
   <!-- DASH BODY -->
   <div class="dash-body">
-    <!-- SIDEBAR (데스크탑: static, 모바일: drawer) -->
+    <!-- SIDEBAR -->
     <div class="sidebar drawer-mode" id="sidebar">
       <div class="sidebar-brand">
         <div class="sidebar-brand-icon"><img src="logo.gif" onerror="this.parentElement.textContent='⚙️'"/></div>
@@ -425,12 +417,12 @@
       </div>
       <div class="nav-section">
         <div class="nav-section-label">메뉴</div>
-        <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span> 대시보드</div>
-        <div class="nav-item" onclick="showPage('inventory')" id="nav-inventory"><span class="nav-icon">📦</span> 재고 관리</div>
-        <div class="nav-item" onclick="showPage('users')" id="nav-users"><span class="nav-icon">👥</span> 유저 목록</div>
-        <div class="nav-item" onclick="showPage('grades')" id="nav-grades"><span class="nav-icon">🏅</span> 등급 관리</div>
-        <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge"><span class="nav-icon">💳</span> 자동충전</div>
-        <div class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="nav-icon">⚙️</span> 설정</div>
+        <div class="nav-item active" onclick="navClick('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span> 대시보드</div>
+        <div class="nav-item" onclick="navClick('inventory')" id="nav-inventory"><span class="nav-icon">📦</span> 재고 관리</div>
+        <div class="nav-item" onclick="navClick('users')" id="nav-users"><span class="nav-icon">👥</span> 유저 목록</div>
+        <div class="nav-item" onclick="navClick('grades')" id="nav-grades"><span class="nav-icon">🏅</span> 등급 관리</div>
+        <div class="nav-item" onclick="navClick('autocharge')" id="nav-autocharge"><span class="nav-icon">💳</span> 자동충전</div>
+        <div class="nav-item" onclick="navClick('settings')" id="nav-settings"><span class="nav-icon">⚙️</span> 설정</div>
       </div>
       <div class="sidebar-footer">
         <div class="user-row">
@@ -607,13 +599,12 @@
 </div>
 
 <script>
-  /* ── DRAWER (모바일 사이드바) ── */
+  /* ── DRAWER (모바일) ── */
   function toggleDrawer() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('drawerOverlay');
     const btn = document.getElementById('hamburgerBtn');
-    const isOpen = sidebar.classList.contains('open');
-    if (isOpen) closeDrawer();
+    if (sidebar.classList.contains('open')) closeDrawer();
     else {
       sidebar.classList.add('open');
       overlay.classList.add('open');
@@ -630,23 +621,12 @@
     btn.classList.remove('open');
     document.body.style.overflow = '';
   }
-  // 모바일에서 nav 클릭 시 드로어 닫기
   function navClick(page) {
     showPage(page);
     if (window.innerWidth <= 780) closeDrawer();
   }
-  // nav-item onclick을 navClick으로 교체
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.nav-item').forEach(el => {
-      const orig = el.getAttribute('onclick');
-      if (orig) {
-        const page = orig.match(/showPage\('(\w+)'\)/)?.[1];
-        if (page) el.setAttribute('onclick', `navClick('${page}')`);
-      }
-    });
-  });
 
-  /* STATE */
+  /* ── STATE ── */
   let currentLicense = null;
   let _dbRef = null;
   let firestoreOps = null;
@@ -769,6 +749,7 @@
     if (main) main.scrollTop = 0;
   }
 
+  /* ── INVENTORY ── */
   function buildInventoryPage() {
     return `<div class="page-header"><div class="page-title">재고 관리</div><div class="page-sub">// 카테고리 → 제품 → 재고 순서로 추가하세요</div></div>
       <div class="tabs">
@@ -802,6 +783,7 @@
   }
   function emptyState(icon, title, desc) { return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`; }
 
+  /* ── AUTO CHARGE ── */
   async function loadAutoChargeData() {
     const guildId = currentLicense?.guildId;
     if (!guildId || !firestoreOps) return;
@@ -916,7 +898,7 @@
   async function testPbConnection() { const key=document.getElementById('pbApiKeyInput')?.value?.trim(); if (!key) { showToast('⚠️ API 키를 먼저 입력하세요', true); return; } showToast('🔌 연결 테스트 중...'); if (key.length>=20) setTimeout(()=>showToast('✅ API 키 형식이 올바릅니다 (실제 테스트는 봇에서 수행)'),800); else setTimeout(()=>showToast('❌ API 키 형식이 올바르지 않습니다',true),800); }
   async function savePushbulletConfig() { const key=document.getElementById('pbApiKeyInput')?.value?.trim()||''; autoChargeConfig.pushbulletApiKey=key; const guildId=currentLicense.guildId; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'guilds',guildId,'autoCharge','config'),autoChargeConfig); const tag=document.getElementById('pbStatusTag'); if (tag) { tag.style.color='var(--success)'; tag.style.borderColor='rgba(74,222,128,0.3)'; tag.textContent='✓ 키 등록됨'; } showToast('✅ Pushbullet 설정이 저장되었습니다!'); } catch(e) { showToast('❌ 저장 실패', true); } }
 
-  /* SETTINGS */
+  /* ── SETTINGS ── */
   let discordChannels = [];
   let discordRoles = [];
   let serverConfig = { vendingChannelId:'', vendingChannelName:'', stockAlertChannelId:'', stockAlertChannelName:'', stockAlertRoleId:'', stockAlertRoleName:'', buyLogChannelId:'', buyLogChannelName:'' };
@@ -956,30 +938,30 @@
   async function refreshDiscordData() { showToast('🔄 새로고침 중...'); await loadDiscordData(); showPage('settings'); showToast('✅ 새로고침 완료!'); }
   async function sendVending() { if (!serverConfig.vendingChannelId) { showToast('⚠️ 자판기 채널을 먼저 설정해주세요', true); return; } try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'guilds',currentLicense.guildId,'tasks','sendVending'),{type:'sendVending',channelId:serverConfig.vendingChannelId,settings:vendingSettings,requestedAt:new Date().toISOString(),done:false}); showToast('📤 봇에 전송 요청을 보냈습니다!'); } catch(e) { showToast('❌ 전송 요청 실패', true); } }
 
-  /* MODALS */
+  /* ── MODALS ── */
   function openModal(id) { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
   function openModalProd() { if (!categories.length) { showToast('⚠️ 카테고리를 먼저 추가해주세요!', true); return; } const sel=document.getElementById('prodCatSel'); sel.innerHTML=categories.map(c=>`<option value="${c.id}">${c.emoji||''} ${esc(c.name)}</option>`).join(''); document.getElementById('prodNameInput').value=''; document.getElementById('prodDescInput').value=''; document.getElementById('prodPriceInput').value=''; openModal('modalProd'); }
   function openModalStock() { if (!products.length) { showToast('⚠️ 제품을 먼저 추가해주세요!', true); return; } const sel=document.getElementById('stockProdSel'); sel.innerHTML=products.map(p=>{ const cat=categories.find(c=>c.id===p.catId); return `<option value="${p.id}">[${esc(cat?.name||'-')}] ${esc(p.name)}</option>`; }).join(''); document.getElementById('stockItemsInput').value=''; document.getElementById('stockCountBadge').textContent='0개 재고 입력됨'; openModal('modalStock'); }
   function updateStockCount() { const ta=document.getElementById('stockItemsInput'); const badge=document.getElementById('stockCountBadge'); if (!ta||!badge) return; const lines=ta.value.split('\n').filter(l=>l.trim()!==''); badge.textContent=lines.length+'개 재고 입력됨'; }
 
-  /* CATEGORY CRUD */
+  /* ── CATEGORY CRUD ── */
   async function saveCategory() { const name=document.getElementById('catNameInput').value.trim(); const emoji=document.getElementById('catEmojiInput').value.trim(); if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; } const id=Date.now().toString(); const cat={id,name,emoji:emoji||'📁'}; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'inventory',currentLicense.guildId,'categories',id),cat); categories.push(cat); closeModal('modalCat'); document.getElementById('catNameInput').value=''; document.getElementById('catEmojiInput').value=''; showToast('✅ 카테고리가 추가되었습니다!'); showPage('inventory'); } catch(e) { showToast('❌ 저장 실패', true); } }
   async function deleteCategory(id) { if (!confirm('이 카테고리를 삭제할까요? 포함된 제품도 삭제됩니다.')) return; try { const{doc,deleteDoc}=firestoreOps; await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'categories',id)); const relProds=products.filter(p=>p.catId===id); for (const p of relProds) { await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'products',p.id)); stockItems=stockItems.filter(s=>s.prodId!==p.id); } categories=categories.filter(c=>c.id!==id); products=products.filter(p=>p.catId!==id); showToast('🗑️ 삭제되었습니다'); showPage('inventory'); } catch(e) { showToast('❌ 삭제 실패', true); } }
 
-  /* PRODUCT CRUD */
+  /* ── PRODUCT CRUD ── */
   async function saveProduct() { const catId=document.getElementById('prodCatSel').value; const name=document.getElementById('prodNameInput').value.trim(); const desc=document.getElementById('prodDescInput').value.trim(); const price=parseInt(document.getElementById('prodPriceInput').value)||0; if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; } const id=Date.now().toString(); const prod={id,catId,name,desc,price}; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'inventory',currentLicense.guildId,'products',id),prod); products.push(prod); closeModal('modalProd'); showToast('✅ 제품이 추가되었습니다!'); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); },80); } catch(e) { showToast('❌ 저장 실패', true); } }
   async function deleteProduct(id) { if (!confirm('이 제품을 삭제할까요?')) return; try { const{doc,deleteDoc}=firestoreOps; await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'products',id)); stockItems=stockItems.filter(s=>s.prodId!==id); products=products.filter(p=>p.id!==id); showToast('🗑️ 삭제되었습니다'); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); },80); } catch(e) { showToast('❌ 삭제 실패', true); } }
 
-  /* STOCK CRUD */
+  /* ── STOCK CRUD ── */
   async function saveStock() { const prodId=document.getElementById('stockProdSel').value; const rawText=document.getElementById('stockItemsInput').value; const lines=rawText.split('\n').map(l=>l.trim()).filter(l=>l!==''); if (!lines.length) { showToast('⚠️ 재고를 한 줄 이상 입력하세요', true); return; } const{doc,setDoc}=firestoreOps; const guildId=currentLicense.guildId; let savedCount=0; try { for (const line of lines) { const id=Date.now().toString()+'_'+Math.random().toString(36).slice(2,7); const item={id,prodId,qty:1,note:line,addedAt:new Date().toISOString()}; await setDoc(doc(_dbRef,'inventory',guildId,'stock',id),item); stockItems.push(item); savedCount++; } closeModal('modalStock'); showToast(`✅ ${savedCount}개 재고가 추가되었습니다!`); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); },80); } catch(e) { showToast('❌ 저장 실패', true); } }
   async function deleteStock(id) { try { const{doc,deleteDoc}=firestoreOps; await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'stock',id)); stockItems=stockItems.filter(s=>s.id!==id); showToast('🗑️ 삭제되었습니다'); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); },80); } catch(e) { showToast('❌ 삭제 실패', true); } }
   async function clearAllStock() { if (!confirm('재고를 전부 삭제할까요?')) return; try { const{doc,deleteDoc}=firestoreOps; for (const item of stockItems) { await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'stock',item.id)); } stockItems=[]; showToast('🗑️ 재고가 초기화되었습니다'); showPage('inventory'); } catch(e) { showToast('❌ 실패', true); } }
 
-  /* TOAST */
+  /* ── TOAST ── */
   function showToast(msg, warn=false) { const t=document.getElementById('toast'); t.textContent=msg; t.style.color=warn?'var(--danger)':'var(--success)'; t.style.borderColor=warn?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.2)'; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3000); }
 
-  /* DASHBOARD */
+  /* ── DASHBOARD ── */
   function buildDashboardPage() {
     return `<div class="page-header"><div class="page-title">🛒 판매 통계</div><div class="page-sub">// 스토어의 판매 현황을 확인합니다</div></div>
       <div class="dash-hero"><div class="dash-hero-icon">💳</div><div class="dash-hero-label">총 충전금액</div><div class="dash-hero-value" id="d_totalCharge">로드 중...</div><div class="dash-hero-sub" id="d_totalChargeSub">집계 중...</div></div>
@@ -996,7 +978,9 @@
         <div class="card" style="margin-bottom:0"><div class="card-header"><div class="card-title">📦 현재 재고 현황</div></div><div id="d_stockList"><div class="dash-empty">집계 중...</div></div></div>
       </div>`;
   }
+
   let _dashChartSales = null, _dashChartCount = null;
+
   function renderRtLog(logs) {
     const el=document.getElementById('rtLogList'); const statusEl=document.getElementById('rtLogStatus'); if (!el) return;
     if (!logs.length) { el.innerHTML='<div class="rt-log-empty">아직 구매 기록이 없습니다</div>'; if (statusEl) statusEl.textContent='대기 중...'; return; }
@@ -1004,12 +988,14 @@
     el.innerHTML = logs.map(l => { const ts=l.timestamp?new Date(l.timestamp):null; const timeStr=ts?formatRelativeTime(ts):'-'; return `<div class="rt-log-item"><div class="rt-log-emoji">🛒</div><div class="rt-log-info"><div class="rt-log-prod">${esc(l.productName||'알 수 없음')}</div><div class="rt-log-user">${esc(l.psid||l.userId||l.discordId||'알 수 없음')}</div></div><div class="rt-log-price">${(l.price||0).toLocaleString()}원</div><div class="rt-log-time">${timeStr}</div></div>`; }).join('');
   }
   function formatRelativeTime(date) { const diff=Date.now()-date.getTime(); const sec=Math.floor(diff/1000); if (sec<60) return sec+'초 전'; const min=Math.floor(sec/60); if (min<60) return min+'분 전'; const hr=Math.floor(min/60); if (hr<24) return hr+'시간 전'; return date.toLocaleDateString('ko-KR'); }
+
   function startRealtimeLogs(guildId) {
     if (_rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe=null; }
     const{collection,onSnapshot,query,orderBy,limit}=firestoreOps;
     if (!onSnapshot) { const{getDocs}=firestoreOps; getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')).then(snap=>{ const logs=[]; snap.forEach(d=>logs.push(d.data())); logs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); renderRtLog(logs.slice(0,30)); }).catch(()=>{}); return; }
     try { const q=query(collection(_dbRef,'guilds',guildId,'purchaseLogs'),orderBy('timestamp','desc'),limit(30)); _rtUnsubscribe=onSnapshot(q,(snap)=>{ const logs=[]; snap.forEach(d=>logs.push(d.data())); renderRtLog(logs); },(err)=>{ console.warn('onSnapshot 실패, fallback:', err.message); const{getDocs}=firestoreOps; getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')).then(snap2=>{ const logs2=[]; snap2.forEach(d=>logs2.push(d.data())); logs2.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); renderRtLog(logs2.slice(0,30)); const statusEl=document.getElementById('rtLogStatus'); if (statusEl) statusEl.textContent='정적 로드됨 · '+Math.min(logs2.length,30)+'건'; }).catch(()=>{}); }); } catch(e) { console.error('실시간 로그 오류:', e); }
   }
+
   async function initDashboard() {
     const guildId=currentLicense?.guildId; if (!guildId||!firestoreOps) return;
     const{collection,getDocs}=firestoreOps; startRealtimeLogs(guildId);
@@ -1045,10 +1031,10 @@
     const el_sl=document.getElementById('d_stockList'); if(el_sl){if(!stockItems.length){el_sl.innerHTML='<div class="dash-empty">재고 데이터가 없습니다</div>';}else{const stockByProd={};stockItems.forEach(s=>{const prod=products.find(p=>p.id===s.prodId);const name=prod?.name||'알 수 없음';stockByProd[name]=(stockByProd[name]||0)+(parseInt(s.qty)||0);});const sorted=Object.entries(stockByProd).sort((a,b)=>b[1]-a[1]).slice(0,5);el_sl.innerHTML=sorted.map(([name,qty],i)=>`<div class="dash-rank"><span class="dash-rank-num">${i+1}</span><span class="dash-rank-name">${esc(name)}</span><span class="dash-rank-val">${qty}개</span></div>`).join('');}}
   }
 
-  /* HELPERS */
+  /* ── HELPERS ── */
   function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  /* USERS */
+  /* ── USERS ── */
   let allUsers = [], _verifyOn = false;
   async function initUsersPage() { const guildId=currentLicense?.guildId; if(!guildId) return; const{collection,getDocs}=firestoreOps; try{const snap=await getDocs(collection(_dbRef,'guilds',guildId,'users'));allUsers=[];snap.forEach(d=>allUsers.push({...d.data(),_docId:d.id}));}catch(e){console.error(e);} renderUserTable(allUsers); }
   function renderUserTable(users) {
@@ -1063,7 +1049,7 @@
   async function saveUserEdit() { const docId=document.getElementById('editUserId').value; const psid=document.getElementById('editUserPsid').value.trim(); const points=parseInt(document.getElementById('editUserPoints').value)||0; const isAdmin=document.getElementById('editUserAdmin').value==='true'; const grade=document.getElementById('editUserGrade').value; const guildId=currentLicense.guildId; try { const{doc,setDoc}=firestoreOps; const u=allUsers.find(x=>x._docId===docId)||{}; await setDoc(doc(_dbRef,'guilds',guildId,'users',docId),{...u,psid,points,isAdmin,grade,_docId:undefined}); const idx=allUsers.findIndex(x=>x._docId===docId); if(idx>=0) allUsers[idx]={...allUsers[idx],psid,points,isAdmin,grade}; closeModal('modalUserEdit'); showToast('✅ 유저 정보가 저장되었습니다!'); renderUserTable(allUsers); } catch(e) { console.error(e); showToast('❌ 저장 실패', true); } }
   async function openPurchaseLog(docId) { const u=allUsers.find(x=>x._docId===docId); const guildId=currentLicense.guildId; const el=document.getElementById('purchaseLogContent'); el.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3);font-family:JetBrains Mono,monospace;">로딩 중...</div>'; openModal('modalPurchaseLog'); try { const{collection,getDocs}=firestoreOps; const snap=await getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')); const logs=[]; snap.forEach(d=>{const data=d.data();if(data.userId===docId||data.discordId===(u?.discordId||docId)) logs.push(data);}); if (!logs.length){el.innerHTML='<div style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">구매 기록이 없습니다</div>';return;} logs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); el.innerHTML=logs.map(l=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">${esc(l.productName||'알 수 없음')}</div><div style="font-size:11px;color:var(--text3);font-family:JetBrains Mono,monospace;margin-top:2px;">${l.timestamp?new Date(l.timestamp).toLocaleString('ko-KR'):'-'}</div></div><div style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--success);">${(l.price||0).toLocaleString()}원</div></div>`).join(''); } catch(e) { el.innerHTML='<div style="text-align:center;padding:24px;color:var(--danger);">로드 실패</div>'; } }
 
-  /* GRADES */
+  /* ── GRADES ── */
   let grades = [];
   async function loadGrades() { const guildId=currentLicense?.guildId; if(!guildId) return; const{collection,getDocs}=firestoreOps; try{const snap=await getDocs(collection(_dbRef,'guilds',guildId,'grades'));grades=[];snap.forEach(d=>grades.push({...d.data(),id:d.id}));}catch(e){} }
   function buildGradesPage() { const items=grades.map(g=>{const role=discordRoles.find(r=>r.id===g.roleId);return `<div class="list-item"><div style="width:14px;height:14px;border-radius:50%;background:${g.color||'#4ade80'};flex-shrink:0;"></div><div style="flex:1;"><div class="item-name">${esc(g.name)}</div><div class="item-meta">${role?'@ '+esc(role.name):'역할 없음'} · 할인 ${g.discount||0}% · 승급조건 ${g.required?(g.required).toLocaleString()+'원 이상':'없음'}</div></div><button class="btn btn-ghost btn-sm" onclick="openGradeEdit('${g.id}')">✏️ 편집</button><button class="btn btn-red-ghost btn-sm" onclick="deleteGrade('${g.id}')">삭제</button></div>`;}).join(''); return `<div class="page-header"><div class="page-title">🏅 등급 관리</div><div class="page-sub">// 유저 등급과 역할 · 할인율을 설정합니다</div></div><div class="card"><div class="card-header"><div class="card-title">🏅 등급 목록 <span class="tag">${grades.length}개</span></div><button class="btn btn-white btn-sm" onclick="openGradeAdd()">+ 등급 추가</button></div>${grades.length?items:emptyState('🏅','등급이 없습니다','등급을 추가해주세요')}</div>`; }
