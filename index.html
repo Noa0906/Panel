@@ -62,8 +62,6 @@
       margin: 16px;
     }
     .login-brand { display:flex; align-items:center; gap:11px; margin-bottom:30px; }
-    .login-brand-icon { width:36px; height:36px; border-radius:9px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
-    .login-brand-icon img { width:100%; height:100%; object-fit:cover; }
     .login-brand-name { font-size:18px; font-weight:700; letter-spacing:-0.02em; }
     .login-brand-name span { color:var(--text2); font-weight:400; }
     .login-title { font-size:24px; font-weight:700; letter-spacing:-0.02em; margin-bottom:5px; }
@@ -85,7 +83,7 @@
 
     /* ── MOBILE HAMBURGER ── */
     .hamburger-btn {
-      display:none;
+      display:none; /* 기본적으로 숨김 - JS에서 모바일일 때만 표시 */
       position:fixed;
       top:14px;
       left:14px;
@@ -120,8 +118,7 @@
 
     /* SIDEBAR OVERLAY (mobile) */
     .sidebar-overlay {
-            pointer-events:none;
-display:none;
+      display:none;
       position:fixed;
       inset:0;
       background:rgba(0,0,0,0.6);
@@ -129,7 +126,10 @@ display:none;
       z-index:999;
       animation:fadeIn 0.2s ease;
     }
-    .sidebar-overlay.open { display:block; }
+    .sidebar-overlay.open {
+      display:block;
+      pointer-events:all;
+    }
 
     /* SIDEBAR */
     .sidebar {
@@ -378,15 +378,6 @@ display:none;
     /* 최소충전액 배지 */
     .min-charge-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:var(--accent); font-size:11px; font-family:'JetBrains Mono',monospace; }
 
-    /* Supabase 설정 배너 */
-    .supabase-banner {
-      background:rgba(63,207,142,0.08); border:1px solid rgba(63,207,142,0.25);
-      border-radius:10px; padding:12px 16px; margin-bottom:20px;
-      display:flex; align-items:center; gap:10px; font-size:12px;
-      font-family:'JetBrains Mono',monospace; color:rgba(63,207,142,0.9);
-    }
-    .supabase-banner a { color:inherit; text-decoration:underline; }
-
     /* ── RESPONSIVE ── */
     @media (max-width:780px) {
       .sidebar {
@@ -402,7 +393,7 @@ display:none;
         transform:translateX(0);
         animation:slideInLeft 0.3s ease;
       }
-      .hamburger-btn { display:flex; }
+      .hamburger-btn { display:flex !important; }
       .main-inner { padding:20px 16px; padding-top:70px; }
       .dash-grid { grid-template-columns:1fr 1fr; }
       .dash-row { grid-template-columns:1fr; }
@@ -452,7 +443,7 @@ display:none;
   </div>
 </div>
 
-<!-- MOBILE HAMBURGER -->
+<!-- MOBILE HAMBURGER (모바일에서만 표시) -->
 <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="메뉴">
   <span></span>
   <span></span>
@@ -614,29 +605,6 @@ display:none;
         <option value="">유저 등급 선택해주세요.</option>
       </select>
     </div>
-    <div class="form-field">
-      <label>추가 옵션</label>
-      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:20px;">🪪</span>
-          <div>
-            <div style="font-size:13px;font-weight:600;">본인인증 정보 보기</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px;">유저의 본인인증 정보를 확인합니다.</div>
-          </div>
-        </div>
-        <div id="verifyToggle" onclick="toggleVerifyInfo()" style="width:44px;height:24px;border-radius:99px;background:#333;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;">
-          <div id="verifyThumb" style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left 0.2s;"></div>
-        </div>
-      </div>
-    </div>
-    <div id="verifyWarning" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--danger);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">
-      ⚠️ 만약 이 유저의 악성행위로 인하여 조치를 취하려는 것이라면 개발팀에 연락해주세요.
-    </div>
-    <div id="verifyInfoSection" style="display:none;">
-      <div class="form-field"><label>실명</label><input type="text" id="editUserRealName" readonly style="opacity:0.6;"/></div>
-      <div class="form-field"><label>전화번호</label><input type="text" id="editUserPhone" readonly style="opacity:0.6;"/></div>
-      <div class="form-field"><label>생년월일</label><input type="text" id="editUserBirth" readonly style="opacity:0.6;"/></div>
-    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalUserEdit')">취소</button>
       <button class="btn btn-white btn-md" onclick="saveUserEdit()">저장</button>
@@ -771,31 +739,8 @@ display:none;
 </div>
 
 <script>
-/*
- ══════════════════════════════════════════════════════════════
-  SUPABASE 연동 설정
-  ─────────────────────────────────────────────────────────────
-  방법 A) 아래 두 줄에 직접 값을 붙여넣기 (권장)
-    const HARDCODED_URL = 'https://xxxx.supabase.co';
-    const HARDCODED_KEY = 'eyJhbGci...';
-
-  방법 B) 브라우저에서 설정 모달로 입력
-    → 로그인 화면 하단 [⚙️ Supabase 설정] 버튼 클릭
-
-  테이블 구조 매핑:
-    licenses              → 로그인 인증
-    inventory_categories  → 카테고리
-    inventory_products    → 제품
-    inventory_stock       → 재고
-    charge_logs           → 충전 로그
-    autocharge_config     → 자동충전 설정 (pushbullet)
-    guild_channels        → Discord 채널 목록
-    guild_roles           → Discord 역할 목록
-    panel_tasks           → 봇 작업 큐 (자판기 전송 등)
- ══════════════════════════════════════════════════════════════
-*/
-const HARDCODED_URL = 'https://txueuybqroiatppjsoxl.supabase.co'; // 예: 'https://abcdefgh.supabase.co'
-const HARDCODED_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4dWV1eWJxcm9pYXRwcGpzb3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODQ2NjEsImV4cCI6MjA4Nzg2MDY2MX0.PsYt-m_GxPG5wx9Zjmtq1pBh2sT_ddRuQGcvTkCtnmU'; // 예: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+const HARDCODED_URL = 'https://txueuybqroiatppjsoxl.supabase.co';
+const HARDCODED_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4dWV1eWJxcm9pYXRwcGpzb3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODQ2NjEsImV4cCI6MjA4Nzg2MDY2MX0.PsYt-m_GxPG5wx9Zjmtq1pBh2sT_ddRuQGcvTkCtnmU';
 
 let SUPABASE_URL = HARDCODED_URL || localStorage.getItem('sb_url') || '';
 let SUPABASE_KEY = HARDCODED_KEY || localStorage.getItem('sb_key') || '';
@@ -829,16 +774,16 @@ function saveSupabaseConfig() {
    STATE
 ══════════════════════════════════════════════ */
 let currentLicense = null;
-let categories  = [];  // inventory_categories
-let products    = [];  // inventory_products
-let stockItems  = [];  // inventory_stock
+let categories  = [];
+let products    = [];
+let stockItems  = [];
 let discordChannels = [];
 let discordRoles    = [];
 let grades          = [];
-let chargeAccounts  = []; // autocharge_accounts (별도 테이블 없음 → autocharge_config에 JSON 저장)
-let chargeLogs      = [];  // charge_logs
+let chargeAccounts  = [];
+let chargeLogs      = [];
 let autoChargeConfig = { pushbullet_api_key: '', enabled: true };
-let serverConfig = {}; // guild_channels/guild_roles/panel_tasks로 구성
+let serverConfig = {};
 let vendingSettings = {
   title: 'Vending | 구매하기',
   desc: '아래 버튼을 눌러 자판기를 이용해주세요!',
@@ -860,19 +805,39 @@ let _rtChannel = null;
 
 /* ══════════════════════════════════════════════
    MOBILE SIDEBAR
+   - 모바일(≤780px)에서만 햄버거 버튼 표시
+   - 데스크탑에서는 버튼 숨김 + 오버레이 비활성화
 ══════════════════════════════════════════════ */
-function isMobileSidebar() {
+function isMobile() {
   return window.matchMedia('(max-width:780px)').matches;
 }
 
+function updateHamburgerVisibility() {
+  const btn = document.getElementById('hamburgerBtn');
+  if (!btn) return;
+  const inDash = document.getElementById('dashScreen').classList.contains('active');
+  if (inDash && isMobile()) {
+    btn.style.display = 'flex';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
 function toggleSidebar() {
-  if (!isMobileSidebar()) return;
+  if (!isMobile()) return;
   const sidebar = document.getElementById('mainSidebar');
   const overlay = document.getElementById('sidebarOverlay');
   const btn     = document.getElementById('hamburgerBtn');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('open');
-  btn.classList.toggle('open');
+  const isOpen  = sidebar.classList.contains('open');
+  if (isOpen) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.classList.remove('open');
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.classList.add('open');
+  }
 }
 
 function closeSidebar() {
@@ -881,9 +846,19 @@ function closeSidebar() {
   document.getElementById('hamburgerBtn').classList.remove('open');
 }
 
+// 창 크기 변경 시 햄버거 버튼 가시성 업데이트
+window.addEventListener('resize', () => {
+  updateHamburgerVisibility();
+  // 데스크탑으로 전환 시 사이드바 열린 상태 초기화
+  if (!isMobile()) {
+    document.getElementById('mainSidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+    document.getElementById('hamburgerBtn').classList.remove('open');
+  }
+});
+
 /* ══════════════════════════════════════════════
    SUPABASE HELPERS
-   실제 테이블명에 맞춘 래퍼
 ══════════════════════════════════════════════ */
 async function sbSelect(table, filters = {}, opts = {}) {
   if (!_sb) throw new Error('Supabase 미연결');
@@ -901,7 +876,6 @@ async function sbSelectOne(table, filters = {}) {
   return rows[0] || null;
 }
 
-// INSERT (id는 BIGSERIAL이므로 insert 사용, id 필드 제외)
 async function sbInsert(table, data) {
   if (!_sb) throw new Error('Supabase 미연결');
   const { data: result, error } = await _sb.from(table).insert(data).select().single();
@@ -909,28 +883,24 @@ async function sbInsert(table, data) {
   return result;
 }
 
-// UPSERT (id가 있으면 업데이트, 없으면 삽입)
 async function sbUpsert(table, data) {
   if (!_sb) throw new Error('Supabase 미연결');
   const { error } = await _sb.from(table).upsert(data);
   if (error) throw error;
 }
 
-// UPDATE by id
 async function sbUpdate(table, id, data) {
   if (!_sb) throw new Error('Supabase 미연결');
   const { error } = await _sb.from(table).update(data).eq('id', id);
   if (error) throw error;
 }
 
-// DELETE by id
 async function sbDelete(table, id) {
   if (!_sb) throw new Error('Supabase 미연결');
   const { error } = await _sb.from(table).delete().eq('id', id);
   if (error) throw error;
 }
 
-// DELETE by guild_id (전체 초기화용)
 async function sbDeleteByGuild(table, guildId) {
   if (!_sb) throw new Error('Supabase 미연결');
   const { error } = await _sb.from(table).delete().eq('guild_id', guildId);
@@ -962,7 +932,6 @@ async function doLogin() {
   if (!panelId)  { errEl.textContent = '❌ 아이디를 입력하세요.';   errEl.style.display = 'block'; return; }
   if (!password) { errEl.textContent = '❌ 비밀번호를 입력하세요.'; errEl.style.display = 'block'; return; }
 
-  // Supabase 연결 확인
   if (!_sb) {
     if (!initSupabase(SUPABASE_URL, SUPABASE_KEY)) {
       errEl.textContent = '❌ Supabase가 연결되지 않았습니다. 아래 설정 버튼을 눌러주세요.';
@@ -976,7 +945,6 @@ async function doLogin() {
   btnText.innerHTML = '<div class="spinner"></div>';
 
   try {
-    // licenses 테이블: panel_id 컬럼으로 조회
     const rows = await sbSelect('licenses', { panel_id: panelId });
     if (!rows.length) {
       errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
@@ -984,26 +952,22 @@ async function doLogin() {
     }
     const found = rows[0];
 
-    // is_active 체크
     if (!found.is_active) {
       errEl.textContent = '❌ 비활성화된 라이선스입니다.';
       errEl.style.display = 'block'; return;
     }
 
-    // 만료일 체크 (expires_at 컬럼)
     if (found.expires_at && new Date(found.expires_at) < new Date()) {
       errEl.textContent = '❌ 만료된 라이선스입니다.';
       errEl.style.display = 'block'; return;
     }
 
-    // 비밀번호 해시 검증 (password_hash 컬럼)
     const inputHash = await sha256(password);
     if (!found.password_hash || inputHash !== found.password_hash) {
       errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
       errEl.style.display = 'block'; return;
     }
 
-    // 만료 임박 경고
     if (found.expires_at) {
       const daysLeft = Math.ceil((new Date(found.expires_at) - new Date()) / 86400000);
       if (daysLeft <= 7) {
@@ -1012,7 +976,6 @@ async function doLogin() {
       }
     }
 
-    // currentLicense 설정 (guild_id, guild_name 컬럼)
     currentLicense = {
       guildId:   found.guild_id,
       guildName: found.guild_name,
@@ -1036,7 +999,6 @@ async function doLogin() {
 function enterDashboard(license) {
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('dashScreen').classList.add('active');
-  document.getElementById('hamburgerBtn').style.display = '';
   const name = license.guildName || '알 수 없는 서버';
   document.getElementById('serverNameBadge').textContent = name;
   document.getElementById('sidebarGuildName').textContent = name;
@@ -1044,6 +1006,8 @@ function enterDashboard(license) {
   document.getElementById('serverExpiryBadge').textContent = license.expiresAt
     ? `만료: ${new Date(license.expiresAt).toLocaleDateString('ko-KR')}`
     : '영구 라이선스';
+  // 대시보드 진입 후 햄버거 버튼 가시성 업데이트
+  updateHamburgerVisibility();
   showPage('dashboard');
 }
 
@@ -1055,30 +1019,21 @@ function doLogout() {
   discordChannels = []; discordRoles = []; grades = [];
   document.getElementById('dashScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
-  document.getElementById('hamburgerBtn').style.display = '';
+  closeSidebar();
+  updateHamburgerVisibility();
   document.getElementById('inputCode').value = '';
   document.getElementById('loginError').style.display = 'none';
   document.getElementById('loginWarn').style.display = 'none';
-  closeSidebar();
 }
 
 /* ══════════════════════════════════════════════
    DATA LOADING
-   실제 테이블명:
-     inventory_categories, inventory_products,
-     inventory_stock, charge_logs,
-     autocharge_config, guild_channels, guild_roles
 ══════════════════════════════════════════════ */
 async function loadAllData(guildId) {
   try {
-    // 재고 관련 (inventory_* 테이블)
     categories = await sbSelect('inventory_categories', { guild_id: guildId });
     products   = await sbSelect('inventory_products',   { guild_id: guildId });
     stockItems = await sbSelect('inventory_stock',       { guild_id: guildId });
-
-    // inventory_products에는 category_id (FK → inventory_categories.id)
-    // product_key, name, price 컬럼 사용
-
   } catch(e) { console.error('재고 로드 오류:', e); }
 
   await loadDiscordData(guildId);
@@ -1088,9 +1043,6 @@ async function loadAllData(guildId) {
 }
 
 async function loadVendingSettings(guildId) {
-  // panel_tasks 테이블에서 vending 설정 조회
-  // 또는 별도 저장 방식: autocharge_config처럼 JSON 컬럼 활용
-  // → guild_channels의 별도 row로 payload에 저장
   try {
     const row = await sbSelectOne('panel_tasks', { guild_id: guildId, task_type: 'vendingConfig' });
     if (row?.payload) {
@@ -1124,7 +1076,6 @@ function showPage(page) {
 
 /* ══════════════════════════════════════════════
    INVENTORY PAGE
-   테이블: inventory_categories, inventory_products, inventory_stock
 ══════════════════════════════════════════════ */
 function buildInventoryPage() {
   return `
@@ -1171,7 +1122,6 @@ function buildCatSection() {
 function buildProdSection() {
   if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
   const items = products.map(p => {
-    // category_id (FK) → inventory_categories.id
     const cat = categories.find(c => c.id === p.category_id);
     return `
       <div class="list-item">
@@ -1198,7 +1148,6 @@ function buildProdSection() {
 function buildStockSection() {
   if (!products.length) return `<div class="card">${emptyState('⚠️','제품을 먼저 추가해주세요','제품 탭에서 추가하세요')}</div>`;
   const items = stockItems.map(item => {
-    // inventory_stock: product_id (FK → inventory_products.id), guild_id, note
     const prod = products.find(p => p.id === item.product_id);
     const cat  = prod ? categories.find(c => c.id === prod.category_id) : null;
     return `
@@ -1229,28 +1178,19 @@ function emptyState(icon, title, desc) {
 
 /* ══════════════════════════════════════════════
    AUTO CHARGE PAGE
-   테이블: charge_logs, autocharge_config
-   ※ charge_accounts는 autocharge_config.accounts (JSONB)에 저장
 ══════════════════════════════════════════════ */
 async function loadAutoChargeData(guildId) {
   if (!guildId || !_sb) return;
   try {
-    // charge_logs: id, guild_id, user_id, psid, amount, status, bank_name, account_num, sender_name, total_points, created_at
     chargeLogs = await sbSelect('charge_logs', { guild_id: guildId }, { order: 'created_at', asc: false });
-
-    // autocharge_config: id, guild_id, pushbullet_api_key, enabled
     const cfg = await sbSelectOne('autocharge_config', { guild_id: guildId });
     if (cfg) autoChargeConfig = cfg;
-
-    // chargeAccounts: panel_tasks (task_type='chargeAccounts') payload.accounts
     const accRow = await sbSelectOne('panel_tasks', { guild_id: guildId, task_type: 'chargeAccounts' });
     chargeAccounts = accRow?.payload?.accounts || [];
   } catch(e) { console.error('자동충전 로드 오류:', e); }
 }
 
 function buildAutoChargePage() {
-  // charge_logs.status: 'confirmed' 기준 집계
-  // charge_logs.created_at → 날짜로 비교
   const tsOf = l => l.created_at ? new Date(l.created_at).getTime() : 0;
   const totalAmount  = chargeLogs.filter(l=>l.status==='confirmed').reduce((s,l)=>s+(l.amount||0),0);
   const pendingCount = chargeLogs.filter(l=>l.status==='pending').length;
@@ -1260,7 +1200,6 @@ function buildAutoChargePage() {
   const logRows = chargeLogs.slice(0,50).map(l => {
     const statusMap = { pending:'대기중', confirmed:'승인', rejected:'거절' };
     const statusClass = l.status || 'confirmed';
-    // created_at 컬럼
     const ts = l.created_at ? new Date(l.created_at).toLocaleString('ko-KR') : '-';
     return `
       <tr>
@@ -1359,13 +1298,6 @@ function buildAutoChargePage() {
         </div>
         ${chargeAccounts.length ? accountCards : emptyState('🏦','등록된 계좌가 없습니다','충전 계좌를 추가해주세요')}
       </div>
-      <div class="card" style="border-color:rgba(96,165,250,0.15);background:rgba(96,165,250,0.03);">
-        <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:2;">
-          <div>· 계좌 정보는 <code style="color:var(--accent);">autocharge_config.accounts</code> (JSONB)에 저장됩니다</div>
-          <div>· 최소 충전액 미만 입금은 자동 거절 처리됩니다</div>
-          <div>· 계좌번호는 하이픈(-) 포함하여 정확히 입력해주세요</div>
-        </div>
-      </div>
     </div>
     <div class="tab-section" id="ac-tab-pushbullet">
       <div class="card">
@@ -1412,11 +1344,6 @@ function buildAutoChargePage() {
           <button class="btn btn-ghost btn-md" onclick="testPbConnection()">🔌 연결 테스트</button>
           <button class="btn btn-white btn-md" onclick="savePushbulletConfig()">💾 설정 저장</button>
         </div>
-        <div style="margin-top:14px;padding:12px 14px;background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:8px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.8;">
-          <div style="color:var(--accent);font-weight:600;margin-bottom:4px;">🗄️ DB 저장 위치</div>
-          <div>테이블: <code style="color:var(--text2);">autocharge_config</code></div>
-          <div>컬럼: <code style="color:var(--text2);">pushbullet_api_key</code>, <code style="color:var(--text2);">enabled</code></div>
-        </div>
       </div>
     </div>
   `;
@@ -1442,7 +1369,6 @@ async function refreshChargeData() {
   showToast('✅ 새로고침 완료!');
 }
 
-/* ── 계좌 관리 (autocharge_config.accounts JSONB) ── */
 function openAccountAdd() {
   document.getElementById('accountModalTitle').textContent = '💳 계좌 추가';
   document.getElementById('editAccountId').value = 'new';
@@ -1481,7 +1407,6 @@ async function saveAccount() {
   else { const idx = parseInt(rawId); if (!isNaN(idx)) arr[idx] = newAcc; }
 
   try {
-    // panel_tasks에 task_type='chargeAccounts'로 저장
     const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'chargeAccounts' });
     if (existing) {
       await sbUpdate('panel_tasks', existing.id, { payload: { accounts: arr }, done: true });
@@ -1514,7 +1439,6 @@ async function deleteAccount(idx) {
 }
 
 function openChargeDetail(id) {
-  // charge_logs: id(BIGSERIAL), guild_id, user_id, psid, amount, status, bank_name, account_num, sender_name, total_points, created_at
   const l = chargeLogs.find(x => x.id == id);
   if (!l) return;
   const statusMap = { pending:'⏳ 대기중', confirmed:'✅ 승인', rejected:'❌ 거절' };
@@ -1559,7 +1483,6 @@ function openChargeDetail(id) {
 }
 
 async function updateChargeStatus(id, status) {
-  // charge_logs.status 컬럼 업데이트
   try {
     await sbUpdate('charge_logs', id, { status });
     const idx = chargeLogs.findIndex(l => l.id == id);
@@ -1613,7 +1536,6 @@ async function testPbConnection() {
 }
 
 async function savePushbulletConfig() {
-  // autocharge_config 테이블: guild_id(UNIQUE), pushbullet_api_key, enabled
   const key = document.getElementById('pbApiKeyInput')?.value?.trim() || '';
   autoChargeConfig.pushbullet_api_key = key;
   try {
@@ -1630,37 +1552,31 @@ async function savePushbulletConfig() {
 
 /* ══════════════════════════════════════════════
    SETTINGS PAGE
-   guild_channels: guild_id, channel_id, channel_name
-   guild_roles:    guild_id, role_id, role_name
-   panel_tasks:    guild_id, task_type, payload, done
 ══════════════════════════════════════════════ */
 async function loadDiscordData(guildId) {
   guildId = guildId || currentLicense?.guildId;
   if (!guildId || !_sb) return;
   try {
-    // guild_channels 테이블에서 채널 목록 조회
     const chRows = await sbSelect('guild_channels', { guild_id: guildId });
     discordChannels = chRows.map(r => ({ id: r.channel_id, name: r.channel_name }));
 
-    // guild_roles 테이블에서 역할 목록 조회
     const roRows = await sbSelect('guild_roles', { guild_id: guildId });
     discordRoles = roRows.map(r => ({ id: r.role_id, name: r.role_name, color: r.role_color }));
 
-    // panel_tasks에서 serverConfig 조회 (task_type='serverConfig')
     const cfRow = await sbSelectOne('panel_tasks', { guild_id: guildId, task_type: 'serverConfig' });
     if (cfRow?.payload) Object.assign(serverConfig, cfRow.payload);
   } catch(e) { console.error('Discord 데이터 로드 오류:', e); }
 }
 
 function chOptions(selectedId) {
-  if (!discordChannels.length) return `<option value="">⚠️ 봇이 아직 채널 목록을 업로드하지 않았습니다</option>`;
+  if (!discordChannels.length) return `<option value="">채널이 없습니다</option>`;
   return discordChannels.map(ch =>
     `<option value="${ch.id}" ${ch.id === selectedId ? 'selected' : ''}># ${esc(ch.name)}</option>`
   ).join('');
 }
 
 function roleOptions(selectedId) {
-  if (!discordRoles.length) return `<option value="">⚠️ 봇이 아직 역할 목록을 업로드하지 않았습니다</option>`;
+  if (!discordRoles.length) return `<option value="">역할이 없습니다</option>`;
   return discordRoles.map(r =>
     `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>@ ${esc(r.name)}</option>`
   ).join('');
@@ -1677,21 +1593,19 @@ function buildSettingsPage() {
     ? `<span class="tag" style="color:var(--success);border-color:rgba(74,222,128,0.3);">✓ 동기화됨 · ${discordChannels.length}개 채널</span>`
     : `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⚠️ 봇 미동기화</span>`;
 
-  const projId = SUPABASE_URL ? SUPABASE_URL.replace('https://','').split('.')[0] : '미설정';
-
   return `
     <div class="page-header">
       <div class="page-title">설정</div>
       <div class="page-sub">// 채널·역할 설정 및 자판기 관리</div>
     </div>
-<div class="settings-layout">
+    <div class="settings-layout">
       <div>
         <div class="card">
           <div class="card-header">
             <div class="card-title">📡 서버 채널 설정 ${syncBadge}</div>
             <button class="btn btn-ghost btn-sm" onclick="refreshDiscordData()">🔄 새로고침</button>
           </div>
-<div class="form-field">
+          <div class="form-field">
             <label>🤖 자판기 메시지 채널</label>
             <select id="cfg_vendingCh"><option value="">채널 선택</option>${chOptions(vendingSettings.vendingChannelId)}</select>
           </div>
@@ -1734,8 +1648,7 @@ function buildSettingsPage() {
         <div class="card">
           <div class="card-header"><div class="card-title">📤 자판기 메시지 전송</div></div>
           <p style="font-size:12px;color:var(--text2);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">
-            설정한 자판기 채널로 메시지를 전송합니다.<br/>
-            <span style="color:var(--text3);">봇이 <code style="color:var(--accent);">panel_tasks</code> 테이블을 감지해 실행합니다.</span>
+            설정한 자판기 채널로 메시지를 전송합니다.
           </p>
           <div class="actions-bar">
             <button class="btn btn-white btn-md" onclick="sendVending()">📤 전송하기</button>
@@ -1797,7 +1710,6 @@ async function saveVending() {
   vendingSettings.title  = document.getElementById('vs_title')?.value  || vendingSettings.title;
   vendingSettings.desc   = document.getElementById('vs_desc')?.value   || vendingSettings.desc;
   vendingSettings.notice = document.getElementById('vs_notice')?.value ?? '';
-  // panel_tasks 테이블에 task_type='vendingConfig'로 저장
   try {
     const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'vendingConfig' });
     if (existing) {
@@ -1823,7 +1735,6 @@ async function saveServerConfig() {
   if (s) vendingSettings.stockAlertChannelId = s.value;
   if (r) vendingSettings.stockAlertRoleId    = r.value;
   if (b) vendingSettings.buyLogChannelId     = b.value;
-  // panel_tasks에 task_type='serverConfig'로 저장
   try {
     const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'serverConfig' });
     const payload = {
@@ -1851,7 +1762,6 @@ async function refreshDiscordData() {
 
 async function sendVending() {
   if (!vendingSettings.vendingChannelId) { showToast('⚠️ 자판기 채널을 먼저 설정해주세요', true); return; }
-  // panel_tasks에 task_type='sendVending'으로 INSERT → 봇이 폴링해서 처리
   try {
     await sbInsert('panel_tasks', {
       guild_id:  currentLicense.guildId,
@@ -1870,7 +1780,6 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function openModalProd() {
   if (!categories.length) { showToast('⚠️ 카테고리를 먼저 추가해주세요!', true); return; }
   const sel = document.getElementById('prodCatSel');
-  // inventory_categories.id (BIGINT), name
   sel.innerHTML = categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
   document.getElementById('prodNameInput').value = '';
   document.getElementById('prodDescInput').value = '';
@@ -1881,7 +1790,6 @@ function openModalProd() {
 function openModalStock() {
   if (!products.length) { showToast('⚠️ 제품을 먼저 추가해주세요!', true); return; }
   const sel = document.getElementById('stockProdSel');
-  // inventory_products: id(BIGINT), category_id, name, product_key
   sel.innerHTML = products.map(p => {
     const cat = categories.find(c => c.id === p.category_id);
     return `<option value="${p.id}">[${esc(cat?.name||'-')}] ${esc(p.name)}</option>`;
@@ -1901,15 +1809,11 @@ function updateStockCount() {
 
 /* ══════════════════════════════════════════════
    CATEGORY CRUD
-   테이블: inventory_categories
-   컬럼:  id(BIGSERIAL), guild_id, name
-   UNIQUE(guild_id, name)
 ══════════════════════════════════════════════ */
 async function saveCategory() {
   const name = document.getElementById('catNameInput').value.trim();
   if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
   try {
-    // id는 BIGSERIAL이므로 INSERT, id 제외
     const result = await sbInsert('inventory_categories', {
       guild_id: currentLicense.guildId,
       name,
@@ -1926,7 +1830,6 @@ async function saveCategory() {
 async function deleteCategory(id) {
   if (!confirm('이 카테고리를 삭제할까요?\n포함된 제품과 재고도 함께 삭제됩니다 (CASCADE).')) return;
   try {
-    // ON DELETE CASCADE 설정이 있으므로 카테고리만 삭제하면 products, stock도 자동 삭제
     await sbDelete('inventory_categories', id);
     const deletedProdIds = products.filter(p => p.category_id == id).map(p => p.id);
     categories = categories.filter(c => c.id != id);
@@ -1939,17 +1842,12 @@ async function deleteCategory(id) {
 
 /* ══════════════════════════════════════════════
    PRODUCT CRUD
-   테이블: inventory_products
-   컬럼:  id(BIGSERIAL), guild_id, category_id(FK),
-           product_key(UNIQUE), name, price
-   UNIQUE(guild_id, product_key)
 ══════════════════════════════════════════════ */
 async function saveProduct() {
   const category_id = parseInt(document.getElementById('prodCatSel').value);
   const name        = document.getElementById('prodNameInput').value.trim();
   const price       = parseInt(document.getElementById('prodPriceInput').value) || 0;
   if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
-  // product_key: 영문/숫자 조합 자동 생성 (소문자로 정규화)
   const product_key = name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_가-힣]/g,'') + '_' + Date.now();
   try {
     const result = await sbInsert('inventory_products', {
@@ -1970,7 +1868,6 @@ async function saveProduct() {
 async function deleteProduct(id) {
   if (!confirm('이 제품을 삭제할까요? 해당 재고도 함께 삭제됩니다 (CASCADE).')) return;
   try {
-    // ON DELETE CASCADE → inventory_stock도 자동 삭제
     await sbDelete('inventory_products', id);
     stockItems = stockItems.filter(s => s.product_id != id);
     products   = products.filter(p => p.id != id);
@@ -1982,9 +1879,6 @@ async function deleteProduct(id) {
 
 /* ══════════════════════════════════════════════
    STOCK CRUD
-   테이블: inventory_stock
-   컬럼:  id(BIGSERIAL), product_id(FK), guild_id, note
-   ※ qty 컬럼 없음 → 한 행 = 재고 1개 (note에 내용 저장)
 ══════════════════════════════════════════════ */
 async function saveStock() {
   const product_id = parseInt(document.getElementById('stockProdSel').value);
@@ -1993,7 +1887,6 @@ async function saveStock() {
   if (!lines.length) { showToast('⚠️ 재고를 한 줄 이상 입력하세요', true); return; }
   let savedCount = 0;
   try {
-    // 한 줄 = 재고 1개 → 행 여러 개 INSERT
     for (const note of lines) {
       const result = await sbInsert('inventory_stock', {
         guild_id:   currentLicense.guildId,
@@ -2108,47 +2001,9 @@ function buildDashboardPage() {
 let _dashChartSales = null;
 let _dashChartCount = null;
 
-function renderRtLog(logs) {
-  const el = document.getElementById('rtLogList');
-  const statusEl = document.getElementById('rtLogStatus');
-  if (!el) return;
-  if (!logs.length) {
-    el.innerHTML = '<div class="rt-log-empty">아직 구매 기록이 없습니다</div>';
-    if (statusEl) statusEl.textContent = '대기 중...';
-    return;
-  }
-  if (statusEl) statusEl.textContent = '실시간 연결됨 · ' + logs.length + '건';
-  el.innerHTML = logs.map(l => {
-    const ts = l.timestamp ? new Date(l.timestamp) : null;
-    const timeStr = ts ? formatRelativeTime(ts) : '-';
-    return `
-      <div class="rt-log-item">
-        <div class="rt-log-emoji">🛒</div>
-        <div class="rt-log-info">
-          <div class="rt-log-prod">${esc(l.product_name||l.productName||'알 수 없음')}</div>
-          <div class="rt-log-user">${esc(l.psid||l.user_id||l.discord_id||'알 수 없음')}</div>
-        </div>
-        <div class="rt-log-price">${(l.price||0).toLocaleString()}원</div>
-        <div class="rt-log-time">${timeStr}</div>
-      </div>`;
-  }).join('');
-}
-
-function formatRelativeTime(date) {
-  const diff = Date.now() - date.getTime();
-  const sec = Math.floor(diff / 1000);
-  if (sec < 60) return sec + '초 전';
-  const min = Math.floor(sec / 60);
-  if (min < 60) return min + '분 전';
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return hr + '시간 전';
-  return date.toLocaleDateString('ko-KR');
-}
-
 async function startRealtimeLogs(guildId) {
   if (!_sb) return;
   try {
-    // purchase_logs: id, guild_id, user_id, product_name, category_name, price, created_at
     const { data: logs } = await _sb.from('purchase_logs')
       .select('*').eq('guild_id', guildId)
       .order('created_at', { ascending: false }).limit(30);
@@ -2186,7 +2041,6 @@ function renderRtLog(logs) {
   }
   if (statusEl) statusEl.textContent = '실시간 연결됨 · ' + logs.length + '건';
   el.innerHTML = logs.map(l => {
-    // purchase_logs.created_at (TIMESTAMPTZ)
     const ts = l.created_at ? new Date(l.created_at) : null;
     const timeStr = ts ? formatRelativeTime(ts) : '-';
     return `
@@ -2247,7 +2101,6 @@ async function initDashboard() {
     el.innerHTML = (r.up ? '↗' : '↘') + ' ' + (r.up ? '+' : '') + r.p + '% 전일 대비';
   }
 
-  // charge_logs: amount, created_at  /  purchase_logs: price, created_at
   let dbChargeLogs = [];
   let purchaseLogs = [];
   try {
@@ -2257,7 +2110,6 @@ async function initDashboard() {
     purchaseLogs = pl || [];
   } catch(e) { console.error(e); }
 
-  // created_at (TIMESTAMPTZ) → ms
   function tsOf(l) { return l.created_at ? new Date(l.created_at).getTime() : 0; }
   function sumRange(logs, from, to, key) {
     return logs.filter(l => { const t = tsOf(l); return t >= from && t < to; })
@@ -2329,7 +2181,6 @@ async function initDashboard() {
   _dashChartSales = makeChart('chartSales', salesData, '매출', 'rgba(74,222,128,1)');
   _dashChartCount = makeChart('chartCount', countData, '건수', 'rgba(96,165,250,1)');
 
-  // 인기 제품 TOP 5 (purchase_logs.product_name 컬럼)
   const prodCount = {};
   purchaseLogs.forEach(l => {
     const k = l.product_name || '알 수 없음';
@@ -2346,7 +2197,6 @@ async function initDashboard() {
       </div>`).join('') : '<div class="dash-empty">구매 데이터가 없습니다</div>';
   }
 
-  // 재고 현황 (inventory_stock.product_id → inventory_products.name)
   const el_sl = document.getElementById('d_stockList');
   if (el_sl) {
     if (!stockItems.length) {
@@ -2356,7 +2206,7 @@ async function initDashboard() {
       stockItems.forEach(s => {
         const prod = products.find(p => p.id == s.product_id);
         const name = prod?.name || '알 수 없음';
-        stockByProd[name] = (stockByProd[name]||0) + 1; // 1행 = 1개
+        stockByProd[name] = (stockByProd[name]||0) + 1;
       });
       const sorted = Object.entries(stockByProd).sort((a,b)=>b[1]-a[1]).slice(0,5);
       el_sl.innerHTML = sorted.map(([name,qty],i) => `
@@ -2376,24 +2226,18 @@ function esc(str) {
 
 /* ══════════════════════════════════════════════
    USERS PAGE
-   ※ 별도 users 테이블 없음
-   → purchase_logs / charge_logs 기반으로
-     user_id별 통계를 집계해서 표시
 ══════════════════════════════════════════════ */
 let allUsers = [];
-let _verifyOn = false;
 
 async function initUsersPage() {
   const guildId = currentLicense?.guildId;
   if (!guildId || !_sb) return;
   try {
-    // purchase_logs와 charge_logs에서 user_id 집계
     const { data: pl } = await _sb.from('purchase_logs').select('user_id,product_name,price,created_at').eq('guild_id', guildId);
     const { data: cl } = await _sb.from('charge_logs').select('user_id,psid,amount,status,created_at').eq('guild_id', guildId);
     const purchaseLogs = pl || [];
     const chargeLogs   = cl || [];
 
-    // user_id 별로 집계
     const userMap = {};
     purchaseLogs.forEach(l => {
       if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0 };
@@ -2441,7 +2285,7 @@ function buildUsersPage() {
   return `
     <div class="page-header">
       <div class="page-title">👥 유저 목록</div>
-</div>
+    </div>
     <div class="card" style="padding:0;overflow:hidden;">
       <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
         <div style="position:relative;">
@@ -2469,8 +2313,6 @@ function buildUsersPage() {
     </div>`;
 }
 
-function openUserEdit(id) { /* users 테이블 없음 - 사용 안 함 */ }
-function toggleVerifyInfo() { /* 사용 안 함 */ }
 function saveUserEdit() { /* 사용 안 함 */ }
 
 async function openPurchaseLog(userId) {
@@ -2478,7 +2320,6 @@ async function openPurchaseLog(userId) {
   el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3);font-family:JetBrains Mono,monospace;">로딩 중...</div>';
   openModal('modalPurchaseLog');
   try {
-    // purchase_logs: user_id, product_name, category_name, price, created_at
     const { data: logs } = await _sb.from('purchase_logs')
       .select('*')
       .eq('guild_id', currentLicense.guildId)
@@ -2503,10 +2344,7 @@ async function openPurchaseLog(userId) {
 
 /* ══════════════════════════════════════════════
    GRADES
-   ※ grades 전용 테이블 없음
-   → panel_tasks (task_type='gradesConfig')에 JSONB로 저장
 ══════════════════════════════════════════════ */
-
 async function loadGrades(guildId) {
   guildId = guildId || currentLicense?.guildId;
   if (!guildId || !_sb) return;
@@ -2547,9 +2385,6 @@ function buildGradesPage() {
       <div class="page-sub">// 유저 등급과 역할 · 할인율을 설정합니다</div>
     </div>
     <div class="card">
-      <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:12px;">
-        ※ <code style="color:var(--accent);">panel_tasks</code> (task_type=<code style="color:var(--accent);">'gradesConfig'</code>)에 저장됩니다
-      </div>
       <div class="card-header">
         <div class="card-title">🏅 등급 목록 <span class="tag">${grades.length}개</span></div>
         <button class="btn btn-white btn-sm" onclick="openGradeAdd()">+ 등급 추가</button>
@@ -2621,11 +2456,9 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 /* 초기화 */
 document.addEventListener('DOMContentLoaded', () => {
   if (SUPABASE_URL && SUPABASE_KEY) initSupabase(SUPABASE_URL, SUPABASE_KEY);
-  document.getElementById('hamburgerBtn').style.display = '';
+  // 초기에는 로그인 화면이므로 햄버거 버튼 숨김
+  document.getElementById('hamburgerBtn').style.display = 'none';
 });
 </script>
 </body>
 </html>
-
-
-
