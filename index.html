@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Core Web Panel</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, collection, setDoc, getDocs, deleteDoc, onSnapshot, orderBy, query, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -24,27 +23,14 @@
     window._firebaseReady = true;
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0d0d0d;
-      --surface: #141414;
-      --surface2: #1a1a1a;
-      --surface3: #202020;
-      --border: #262626;
-      --border2: #303030;
-      --text: #f0f0f0;
-      --text2: #909090;
-      --text3: #555555;
-      --success: #4ade80;
-      --danger: #f87171;
-      --warning: #fbbf24;
-      --accent: #60a5fa;
+      --bg: #0d0d0d; --surface: #141414; --surface2: #1a1a1a; --surface3: #202020;
+      --border: #262626; --border2: #303030; --text: #f0f0f0; --text2: #909090;
+      --text3: #555555; --success: #4ade80; --danger: #f87171; --warning: #fbbf24; --accent: #60a5fa;
     }
-
     html, body { height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
-
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
@@ -54,24 +40,19 @@
     @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
     @keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
     @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+    @keyframes slideInLeft { from { transform:translateX(-100%); } to { transform:translateX(0); } }
+    @keyframes slideOutLeft { from { transform:translateX(0); } to { transform:translateX(-100%); } }
+
     .screen { display:none; }
     .screen.active { display:flex; width:100%; height:100%; position:fixed; top:0; left:0; right:0; bottom:0; }
 
     /* LOGIN */
-    #loginScreen {
-      align-items:center; justify-content:center; position:relative;
-      background: url('logo.gif') center/cover no-repeat fixed;
-    }
-    #loginScreen::before {
-      content:''; position:absolute; inset:0;
-      background:rgba(0,0,0,0.75); backdrop-filter:blur(3px);
-    }
+    #loginScreen { align-items:center; justify-content:center; position:relative; background: url('logo.gif') center/cover no-repeat fixed; }
+    #loginScreen::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(3px); }
     .login-card {
-      position:relative; z-index:1;
-      background:rgba(12,12,12,0.94); border:1px solid var(--border2);
+      position:relative; z-index:1; background:rgba(12,12,12,0.94); border:1px solid var(--border2);
       border-radius:16px; padding:44px 40px; width:100%; max-width:420px;
-      animation:fadeUp 0.45s ease; backdrop-filter:blur(20px);
-      box-shadow:0 32px 80px rgba(0,0,0,0.7);
+      animation:fadeUp 0.45s ease; backdrop-filter:blur(20px); box-shadow:0 32px 80px rgba(0,0,0,0.7);
     }
     .login-brand { display:flex; align-items:center; gap:11px; margin-bottom:30px; }
     .login-brand-icon { width:36px; height:36px; border-radius:9px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
@@ -93,13 +74,57 @@
     .alert-warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.25); color:var(--warning); }
     .spinner { width:15px; height:15px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.6s linear infinite; }
 
-    #dashScreen { flex-direction:row; overflow:hidden; }
+    /* DASH LAYOUT */
+    #dashScreen { flex-direction:column; overflow:hidden; }
 
-    /* SIDEBAR */
-    .sidebar { width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:20px 0; animation:fadeIn 0.35s ease; overflow-y:auto; height:100%; }
+    /* ── 모바일 상단 헤더 ── */
+    .mobile-header {
+      display:none;
+      height:52px; background:var(--surface); border-bottom:1px solid var(--border);
+      align-items:center; justify-content:space-between; padding:0 16px;
+      flex-shrink:0; z-index:200;
+    }
+    .mobile-header-brand { display:flex; align-items:center; gap:9px; }
+    .mobile-header-icon { width:26px; height:26px; border-radius:6px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
+    .mobile-header-icon img { width:100%; height:100%; object-fit:cover; }
+    .mobile-header-name { font-size:14px; font-weight:700; letter-spacing:-0.02em; }
+    .mobile-header-name span { color:var(--text2); font-weight:400; }
+    .hamburger {
+      width:36px; height:36px; border-radius:8px; background:var(--surface2);
+      border:1px solid var(--border2); display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:4px; cursor:pointer;
+      transition:background 0.15s;
+    }
+    .hamburger:hover { background:var(--surface3); }
+    .hamburger span { display:block; width:16px; height:2px; background:var(--text2); border-radius:1px; transition:all 0.25s; }
+    .hamburger.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+
+    /* ── DRAWER OVERLAY ── */
+    .drawer-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      backdrop-filter:blur(2px); z-index:300; animation:fadeIn 0.2s ease;
+    }
+    .drawer-overlay.open { display:block; }
+
+    /* ── SIDEBAR (데스크탑 + 드로어) ── */
+    .sidebar {
+      width:220px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border);
+      display:flex; flex-direction:column; padding:20px 0; animation:fadeIn 0.35s ease;
+      overflow-y:auto; height:100%;
+    }
+    /* 모바일 드로어 모드 */
+    .sidebar.drawer-mode {
+      position:fixed; top:0; left:0; height:100%; z-index:400;
+      transform:translateX(-100%); transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      border-right:1px solid var(--border2); box-shadow:8px 0 32px rgba(0,0,0,0.5);
+    }
+    .sidebar.drawer-mode.open { transform:translateX(0); }
+
     .sidebar-brand { display:flex; align-items:center; gap:10px; padding:0 16px 18px; border-bottom:1px solid var(--border); margin-bottom:10px; }
     .sidebar-brand-icon { width:30px; height:30px; border-radius:7px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
-    .sidebar-brand-icon img { width:100%; height:100%; object-fit:cover; }
+    .sidebar-brand-icon img { width:100%; height:100%; object-fit:cover; border-radius:7px; }
     .sidebar-brand-name { font-size:14px; font-weight:700; letter-spacing:-0.02em; white-space:nowrap; }
     .sidebar-brand-name span { color:var(--text2); font-weight:400; }
     .server-chip { margin:0 10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:9px 11px; }
@@ -120,6 +145,8 @@
     .btn-logout { width:100%; padding:8px; background:transparent; border:1px solid var(--border); border-radius:7px; color:var(--text3); font-family:'Outfit',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
     .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
+    /* DASH BODY */
+    .dash-body { display:flex; flex:1; overflow:hidden; }
     .main { flex:1; overflow-y:auto; background:#181818; height:100%; }
     .main-inner { padding:30px 34px; max-width:960px; }
     .page-header { margin-bottom:24px; }
@@ -133,11 +160,9 @@
     .tag { font-size:10px; padding:2px 7px; border-radius:99px; font-family:'JetBrains Mono',monospace; font-weight:400; background:var(--surface2); color:var(--text2); border:1px solid var(--border); }
 
     /* FORMS */
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .form-row.full { grid-column:1/-1; }
     .form-field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
     .form-field label { font-size:11px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; color:var(--text3); }
-    .form-field input,.form-field select,.form-field textarea { background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:border-color 0.15s,box-shadow 0.15s; }
+    .form-field input,.form-field select,.form-field textarea { background:var(--surface2); border:1px solid var(--border2); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:border-color 0.15s; }
     .form-field select option { background:var(--surface2); }
     .form-field input:focus,.form-field select:focus,.form-field textarea:focus { border-color:rgba(255,255,255,0.3); box-shadow:0 0 0 3px rgba(255,255,255,0.04); }
     .form-field input::placeholder,.form-field textarea::placeholder { color:var(--text3); }
@@ -154,8 +179,6 @@
     .btn-ghost:hover:not(:disabled) { border-color:rgba(255,255,255,0.3); color:var(--text); }
     .btn-red-ghost { background:transparent; color:var(--text3); border:1px solid var(--border); }
     .btn-red-ghost:hover:not(:disabled) { border-color:var(--danger); color:var(--danger); }
-    .btn-dashed { padding:9px; background:var(--surface2); border:1px dashed var(--border2); border-radius:8px; color:var(--text2); font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:6px; }
-    .btn-dashed:hover { border-color:rgba(255,255,255,0.25); color:var(--text); }
 
     /* LIST */
     .list-item { display:flex; align-items:center; gap:12px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:11px 14px; margin-bottom:7px; transition:border-color 0.15s; }
@@ -198,8 +221,8 @@
 
     /* BUTTON EDITOR ROW */
     .btn-edit-row { display:flex; gap:7px; align-items:center; margin-bottom:8px; }
-    .btn-edit-emoji { width:46px; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px; color:var(--text); font-size:13px; outline:none; text-align:center; cursor:default; opacity:0.7; }
-    .btn-edit-label { flex:1; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px 10px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; cursor:default; opacity:0.7; }
+    .btn-edit-emoji { width:46px; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px; color:var(--text); font-size:13px; outline:none; text-align:center; opacity:0.7; }
+    .btn-edit-label { flex:1; background:var(--surface2); border:1px solid var(--border2); border-radius:7px; padding:8px 10px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; opacity:0.7; }
 
     /* MODAL */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); backdrop-filter:blur(4px); z-index:1000; align-items:center; justify-content:center; }
@@ -212,13 +235,7 @@
     .toast { position:fixed; bottom:26px; right:26px; background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:11px 17px; font-size:13px; font-weight:500; box-shadow:0 8px 30px rgba(0,0,0,0.5); opacity:0; transform:translateY(8px); transition:all 0.25s ease; pointer-events:none; z-index:9999; }
     .toast.show { opacity:1; transform:translateY(0); }
 
-    @media (max-width:780px) {
-      .sidebar { display:none; }
-      .main-inner { padding:18px 16px; }
-      .settings-layout { grid-template-columns:1fr; }
-    }
-
-    /* ── DASHBOARD ── */
+    /* DASHBOARD */
     .dash-hero { border-radius:14px; padding:28px; background:linear-gradient(135deg,#071a0d 0%,#0a1a10 60%,#0d0d0d 100%); border:1px solid #1e3d26; position:relative; overflow:hidden; margin-bottom:16px; }
     .dash-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:200px; height:200px; background:radial-gradient(circle,rgba(74,222,128,0.08) 0%,transparent 70%); pointer-events:none; }
     .dash-hero-icon { width:44px; height:44px; border-radius:12px; background:rgba(74,222,128,0.18); border:1px solid rgba(74,222,128,0.3); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; }
@@ -264,20 +281,11 @@
     .rt-log-price { font-size:13px; font-family:'JetBrains Mono',monospace; color:var(--success); font-weight:600; flex-shrink:0; }
     .rt-log-time { font-size:10px; font-family:'JetBrains Mono',monospace; color:var(--text3); flex-shrink:0; }
     .rt-log-empty { text-align:center; padding:32px; color:var(--text3); font-size:12px; font-family:'JetBrains Mono',monospace; }
-
-    /* STOCK TEXTAREA HELPER */
     .stock-count-badge { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:4px; }
 
-    /* ── AUTO CHARGE PAGE ── */
-    .ac-hero {
-      border-radius:14px; padding:26px 28px;
-      background: linear-gradient(135deg, #050e1f 0%, #071020 60%, #0d0d0d 100%);
-      border:1px solid #1a2a50; position:relative; overflow:hidden; margin-bottom:18px;
-    }
-    .ac-hero::after {
-      content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px;
-      background:radial-gradient(circle, rgba(96,165,250,0.08) 0%, transparent 70%); pointer-events:none;
-    }
+    /* AUTO CHARGE */
+    .ac-hero { border-radius:14px; padding:26px 28px; background:linear-gradient(135deg,#050e1f 0%,#071020 60%,#0d0d0d 100%); border:1px solid #1a2a50; position:relative; overflow:hidden; margin-bottom:18px; }
+    .ac-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%); pointer-events:none; }
     .ac-hero-row { display:flex; align-items:center; gap:16px; }
     .ac-hero-icon { width:48px; height:48px; border-radius:13px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
     .ac-hero-info { flex:1; }
@@ -290,14 +298,11 @@
     .ac-status-dot { width:6px; height:6px; border-radius:50%; animation:blink 1.5s infinite; }
     .ac-status-badge.on .ac-status-dot { background:#4ade80; }
     .ac-status-badge.off .ac-status-dot { background:var(--text3); animation:none; }
-
     .ac-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
     .ac-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
     .ac-stat-label { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
     .ac-stat-value { font-size:22px; font-weight:700; letter-spacing:-0.02em; color:var(--accent); }
     .ac-stat-sub { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:5px; }
-
-    /* 충전 로그 테이블 */
     .charge-log-table { width:100%; border-collapse:collapse; }
     .charge-log-table th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:var(--text3); border-bottom:1px solid var(--border2); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.06em; }
     .charge-log-table td { padding:11px 14px; font-size:12px; border-bottom:1px solid var(--border); }
@@ -307,8 +312,6 @@
     .log-status-badge.pending { background:rgba(251,191,36,0.1); border-color:rgba(251,191,36,0.3); color:var(--warning); }
     .log-status-badge.confirmed { background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.3); color:var(--success); }
     .log-status-badge.rejected { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--danger); }
-
-    /* 계좌 카드 */
     .account-card { background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:14px; transition:border-color 0.15s; }
     .account-card:hover { border-color:rgba(96,165,250,0.25); }
     .account-card-icon { width:38px; height:38px; border-radius:9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
@@ -316,8 +319,6 @@
     .account-card-bank { font-size:13px; font-weight:600; margin-bottom:3px; }
     .account-card-num { font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text2); }
     .account-card-holder { font-size:11px; color:var(--text3); margin-top:2px; }
-
-    /* API 키 입력 */
     .api-key-field { position:relative; }
     .api-key-field input { padding-right:40px; }
     .api-key-toggle { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text3); font-size:14px; padding:4px; transition:color 0.15s; }
@@ -326,23 +327,42 @@
     .api-key-status.ok { color:var(--success); }
     .api-key-status.err { color:var(--danger); }
     .api-key-status.idle { color:var(--text3); }
-
-    /* Pushbullet 도움말 */
     .pb-help { background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px; padding:12px 14px; margin-top:10px; }
     .pb-help-title { font-size:12px; font-weight:600; color:var(--accent); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
     .pb-help-steps { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; line-height:1.8; }
     .pb-help-steps span { color:var(--text2); }
-
-    /* 알림 토글 스위치 */
     .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
     .toggle-row:last-child { border-bottom:none; }
     .toggle-label { font-size:13px; font-weight:500; }
     .toggle-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:2px; }
     .toggle-switch { width:44px; height:24px; border-radius:99px; position:relative; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
     .toggle-thumb { position:absolute; left:3px; top:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left 0.2s; }
-
-    /* 최소충전액 배지 */
     .min-charge-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:var(--accent); font-size:11px; font-family:'JetBrains Mono',monospace; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:780px) {
+      /* 데스크탑 사이드바 숨기고 모바일 헤더 표시 */
+      .sidebar:not(.drawer-mode) { display:none; }
+      .sidebar.drawer-mode { display:flex; }
+      .mobile-header { display:flex; }
+      .dash-body { flex-direction:column; }
+      .main-inner { padding:18px 14px; }
+      .settings-layout { grid-template-columns:1fr; }
+      .dash-grid { grid-template-columns:1fr; }
+      .dash-row { grid-template-columns:1fr; }
+      .ac-hero-row { flex-wrap:wrap; }
+      .ac-status-badge { margin-top:8px; }
+      .toast { left:16px; right:16px; bottom:16px; text-align:center; }
+      /* 모달 모바일 최적화 */
+      .modal { margin:16px; max-width:calc(100vw - 32px); }
+    }
+    @media (min-width:781px) {
+      .sidebar { display:flex !important; }
+      .sidebar.drawer-mode { position:static; transform:none; box-shadow:none; }
+      .mobile-header { display:none !important; }
+      .drawer-overlay { display:none !important; }
+      .dash-body { flex-direction:row; }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -352,9 +372,7 @@
 <div id="loginScreen" class="screen active">
   <div class="login-card">
     <div class="login-brand">
-      <div class="login-brand-icon">
-        <img src="logo.gif" onerror="this.parentElement.textContent='⚙️'"/>
-      </div>
+      <div class="login-brand-icon"><img src="logo.gif" onerror="this.parentElement.textContent='⚙️'"/></div>
       <div class="login-brand-name">Core Web<span>Panel</span></div>
     </div>
     <div class="login-title">웹패널 로그인</div>
@@ -377,53 +395,58 @@
 
 <!-- DASHBOARD -->
 <div id="dashScreen" class="screen">
-  <div class="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-brand-icon">
-        <img src="logo.gif" onerror="this.parentElement.textContent='⚙️'" style="width:100%;height:100%;object-fit:cover;border-radius:7px;"/>
-      </div>
-      <div class="sidebar-brand-name">Core Web<span>Panel</span></div>
+
+  <!-- 모바일 상단 헤더 -->
+  <div class="mobile-header">
+    <div class="mobile-header-brand">
+      <div class="mobile-header-icon"><img src="logo.gif" onerror="this.parentElement.textContent='⚙️'"/></div>
+      <div class="mobile-header-name">Core Web<span>Panel</span></div>
     </div>
-    <div class="server-chip">
-      <div class="chip-label">연결된 서버</div>
-      <div class="chip-name" id="serverNameBadge">-</div>
-      <div class="chip-exp" id="serverExpiryBadge"></div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-label">메뉴</div>
-      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
-        <span class="nav-icon">📊</span> 대시보드
-      </div>
-      <div class="nav-item" onclick="showPage('inventory')" id="nav-inventory">
-        <span class="nav-icon">📦</span> 재고 관리
-      </div>
-      <div class="nav-item" onclick="showPage('users')" id="nav-users">
-        <span class="nav-icon">👥</span> 유저 목록
-      </div>
-      <div class="nav-item" onclick="showPage('grades')" id="nav-grades">
-        <span class="nav-icon">🏅</span> 등급 관리
-      </div>
-      <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge">
-        <span class="nav-icon">💳</span> 자동충전
-      </div>
-      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
-        <span class="nav-icon">⚙️</span> 설정
-      </div>
-    </div>
-    <div class="sidebar-footer">
-      <div class="user-row">
-        <div class="user-avatar" id="avatarLetter">?</div>
-        <div>
-          <div class="user-name" id="sidebarGuildName">-</div>
-          <div class="user-role">// 라이선스 유저</div>
-        </div>
-      </div>
-      <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+    <div class="hamburger" id="hamburgerBtn" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
     </div>
   </div>
 
-  <div class="main">
-    <div class="main-inner" id="mainContent"></div>
+  <!-- 드로어 오버레이 (모바일) -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+  <!-- DASH BODY -->
+  <div class="dash-body">
+    <!-- SIDEBAR (데스크탑: static, 모바일: drawer) -->
+    <div class="sidebar drawer-mode" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><img src="logo.gif" onerror="this.parentElement.textContent='⚙️'"/></div>
+        <div class="sidebar-brand-name">Core Web<span>Panel</span></div>
+      </div>
+      <div class="server-chip">
+        <div class="chip-label">연결된 서버</div>
+        <div class="chip-name" id="serverNameBadge">-</div>
+        <div class="chip-exp" id="serverExpiryBadge"></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">메뉴</div>
+        <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span> 대시보드</div>
+        <div class="nav-item" onclick="showPage('inventory')" id="nav-inventory"><span class="nav-icon">📦</span> 재고 관리</div>
+        <div class="nav-item" onclick="showPage('users')" id="nav-users"><span class="nav-icon">👥</span> 유저 목록</div>
+        <div class="nav-item" onclick="showPage('grades')" id="nav-grades"><span class="nav-icon">🏅</span> 등급 관리</div>
+        <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge"><span class="nav-icon">💳</span> 자동충전</div>
+        <div class="nav-item" onclick="showPage('settings')" id="nav-settings"><span class="nav-icon">⚙️</span> 설정</div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="user-row">
+          <div class="user-avatar" id="avatarLetter">?</div>
+          <div>
+            <div class="user-name" id="sidebarGuildName">-</div>
+            <div class="user-role">// 라이선스 유저</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="main-inner" id="mainContent"></div>
+    </div>
   </div>
 </div>
 
@@ -434,14 +457,8 @@
 <div class="modal-overlay" id="modalCat">
   <div class="modal">
     <div class="modal-title">카테고리 추가</div>
-    <div class="form-field">
-      <label>카테고리 이름</label>
-      <input type="text" id="catNameInput" placeholder="예) 광물, 무기, 소모품"/>
-    </div>
-    <div class="form-field">
-      <label>이모지 (선택)</label>
-      <input type="text" id="catEmojiInput" placeholder="예) 💎"/>
-    </div>
+    <div class="form-field"><label>카테고리 이름</label><input type="text" id="catNameInput" placeholder="예) 광물, 무기, 소모품"/></div>
+    <div class="form-field"><label>이모지 (선택)</label><input type="text" id="catEmojiInput" placeholder="예) 💎"/></div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalCat')">취소</button>
       <button class="btn btn-white btn-md" onclick="saveCategory()">추가하기</button>
@@ -453,22 +470,10 @@
 <div class="modal-overlay" id="modalProd">
   <div class="modal">
     <div class="modal-title">제품 추가</div>
-    <div class="form-field">
-      <label>카테고리</label>
-      <select id="prodCatSel"></select>
-    </div>
-    <div class="form-field">
-      <label>제품 이름</label>
-      <input type="text" id="prodNameInput" placeholder="예) 다이아몬드 검"/>
-    </div>
-    <div class="form-field">
-      <label>설명 (선택)</label>
-      <input type="text" id="prodDescInput" placeholder="예) 최강의 무기"/>
-    </div>
-    <div class="form-field">
-      <label>가격</label>
-      <input type="number" id="prodPriceInput" placeholder="0" min="0"/>
-    </div>
+    <div class="form-field"><label>카테고리</label><select id="prodCatSel"></select></div>
+    <div class="form-field"><label>제품 이름</label><input type="text" id="prodNameInput" placeholder="예) 다이아몬드 검"/></div>
+    <div class="form-field"><label>설명 (선택)</label><input type="text" id="prodDescInput" placeholder="예) 최강의 무기"/></div>
+    <div class="form-field"><label>가격</label><input type="number" id="prodPriceInput" placeholder="0" min="0"/></div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalProd')">취소</button>
       <button class="btn btn-white btn-md" onclick="saveProduct()">추가하기</button>
@@ -480,13 +485,10 @@
 <div class="modal-overlay" id="modalStock">
   <div class="modal">
     <div class="modal-title">재고 추가</div>
-    <div class="form-field">
-      <label>제품 선택</label>
-      <select id="stockProdSel"></select>
-    </div>
+    <div class="form-field"><label>제품 선택</label><select id="stockProdSel"></select></div>
     <div class="form-field">
       <label>재고 목록 (줄바꿈으로 구분)</label>
-      <textarea id="stockItemsInput" placeholder="재고1&#10;재고2&#10;재고3&#10;&#10;예) 계정: test1@test.com / 비번: 1234&#10;계정: test2@test.com / 비번: 5678" style="min-height:160px;" oninput="updateStockCount()"></textarea>
+      <textarea id="stockItemsInput" placeholder="재고1&#10;재고2&#10;재고3" style="min-height:160px;" oninput="updateStockCount()"></textarea>
       <div class="stock-count-badge" id="stockCountBadge">0개 재고 입력됨</div>
     </div>
     <div class="modal-footer">
@@ -502,32 +504,17 @@
     <div class="modal-title">✏️ 유저 편집</div>
     <p style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:18px;">스토어에 새로운 제품을 편집합니다.</p>
     <input type="hidden" id="editUserId"/>
-    <div class="form-field">
-      <label>Psid</label>
-      <input type="text" id="editUserPsid" placeholder="Psid"/>
-    </div>
-    <div class="form-field">
-      <label>디스코드 아이디</label>
-      <input type="text" id="editUserDiscordId" readonly style="opacity:0.5;cursor:not-allowed;"/>
-    </div>
-    <div class="form-field">
-      <label>잔액</label>
-      <input type="number" id="editUserPoints" placeholder="잔액을 입력해주세요."/>
-    </div>
-    <div class="form-field">
-      <label>관리자 여부</label>
+    <div class="form-field"><label>Psid</label><input type="text" id="editUserPsid" placeholder="Psid"/></div>
+    <div class="form-field"><label>디스코드 아이디</label><input type="text" id="editUserDiscordId" readonly style="opacity:0.5;cursor:not-allowed;"/></div>
+    <div class="form-field"><label>잔액</label><input type="number" id="editUserPoints" placeholder="잔액을 입력해주세요."/></div>
+    <div class="form-field"><label>관리자 여부</label>
       <select id="editUserAdmin">
         <option value="">관리자 여부를 선택해주세요.</option>
         <option value="true">관리자</option>
         <option value="false">일반 유저</option>
       </select>
     </div>
-    <div class="form-field">
-      <label>등급</label>
-      <select id="editUserGrade">
-        <option value="">유저 등급 선택해주세요.</option>
-      </select>
-    </div>
+    <div class="form-field"><label>등급</label><select id="editUserGrade"><option value="">유저 등급 선택해주세요.</option></select></div>
     <div class="form-field">
       <label>추가 옵션</label>
       <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
@@ -543,9 +530,7 @@
         </div>
       </div>
     </div>
-    <div id="verifyWarning" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--danger);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">
-      ⚠️ 만약 이 유저의 악성행위로 인하여 조치를 취하려는 것이라면 개발팀에 연락해주세요.
-    </div>
+    <div id="verifyWarning" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--danger);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">⚠️ 만약 이 유저의 악성행위로 인하여 조치를 취하려는 것이라면 개발팀에 연락해주세요.</div>
     <div id="verifyInfoSection" style="display:none;">
       <div class="form-field"><label>실명</label><input type="text" id="editUserRealName" placeholder="본인인증을 하지 않아 알 수 없습니다." readonly style="opacity:0.6;"/></div>
       <div class="form-field"><label>전화번호</label><input type="text" id="editUserPhone" placeholder="본인인증을 하지 않아 알 수 없습니다." readonly style="opacity:0.6;"/></div>
@@ -563,9 +548,7 @@
   <div class="modal" style="max-width:600px;">
     <div class="modal-title">🛒 구매기록</div>
     <div id="purchaseLogContent" style="max-height:400px;overflow-y:auto;margin-bottom:16px;"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost btn-md" onclick="closeModal('modalPurchaseLog')">닫기</button>
-    </div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-md" onclick="closeModal('modalPurchaseLog')">닫기</button></div>
   </div>
 </div>
 
@@ -574,28 +557,11 @@
   <div class="modal">
     <div class="modal-title" id="gradeModalTitle">🏅 등급 추가</div>
     <input type="hidden" id="editGradeId"/>
-    <div class="form-field">
-      <label>등급 이름</label>
-      <input type="text" id="gradeNameInput" placeholder="예) VIP 멤버, 구매자"/>
-    </div>
-    <div class="form-field">
-      <label>Discord 역할 선택</label>
-      <select id="gradeRoleSel">
-        <option value="">역할 없음</option>
-      </select>
-    </div>
-    <div class="form-field">
-      <label>할인율 (%)</label>
-      <input type="number" id="gradeDiscountInput" placeholder="0" min="0" max="100"/>
-    </div>
-    <div class="form-field">
-      <label>색상 (뱃지 색)</label>
-      <input type="color" id="gradeColorInput" value="#4ade80" style="height:40px;padding:4px 8px;width:100%;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;"/>
-    </div>
-    <div class="form-field">
-      <label>승급 조건 — 누적 구매금액 (원)</label>
-      <input type="number" id="gradeRequiredInput" placeholder="예) 50000 (0이면 조건 없음)" min="0"/>
-    </div>
+    <div class="form-field"><label>등급 이름</label><input type="text" id="gradeNameInput" placeholder="예) VIP 멤버, 구매자"/></div>
+    <div class="form-field"><label>Discord 역할 선택</label><select id="gradeRoleSel"><option value="">역할 없음</option></select></div>
+    <div class="form-field"><label>할인율 (%)</label><input type="number" id="gradeDiscountInput" placeholder="0" min="0" max="100"/></div>
+    <div class="form-field"><label>색상 (뱃지 색)</label><input type="color" id="gradeColorInput" value="#4ade80" style="height:40px;padding:4px 8px;width:100%;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;"/></div>
+    <div class="form-field"><label>승급 조건 — 누적 구매금액 (원)</label><input type="number" id="gradeRequiredInput" placeholder="예) 50000 (0이면 조건 없음)" min="0"/></div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalGrade')">취소</button>
       <button class="btn btn-white btn-md" onclick="saveGrade()">저장</button>
@@ -608,36 +574,20 @@
   <div class="modal">
     <div class="modal-title" id="accountModalTitle">💳 계좌 추가</div>
     <input type="hidden" id="editAccountId"/>
-    <div class="form-field">
-      <label>은행명</label>
+    <div class="form-field"><label>은행명</label>
       <select id="accountBankSel">
         <option value="">은행 선택</option>
-        <option value="카카오뱅크">카카오뱅크</option>
-        <option value="국민은행">국민은행 (KB)</option>
-        <option value="신한은행">신한은행</option>
-        <option value="우리은행">우리은행</option>
-        <option value="하나은행">하나은행</option>
-        <option value="농협은행">농협은행 (NH)</option>
-        <option value="기업은행">기업은행 (IBK)</option>
-        <option value="토스뱅크">토스뱅크</option>
-        <option value="케이뱅크">케이뱅크</option>
-        <option value="SC제일은행">SC제일은행</option>
-        <option value="씨티은행">씨티은행</option>
-        <option value="기타">기타</option>
+        <option value="카카오뱅크">카카오뱅크</option><option value="국민은행">국민은행 (KB)</option>
+        <option value="신한은행">신한은행</option><option value="우리은행">우리은행</option>
+        <option value="하나은행">하나은행</option><option value="농협은행">농협은행 (NH)</option>
+        <option value="기업은행">기업은행 (IBK)</option><option value="토스뱅크">토스뱅크</option>
+        <option value="케이뱅크">케이뱅크</option><option value="SC제일은행">SC제일은행</option>
+        <option value="씨티은행">씨티은행</option><option value="기타">기타</option>
       </select>
     </div>
-    <div class="form-field">
-      <label>계좌번호</label>
-      <input type="text" id="accountNumberInput" placeholder="예) 3333-01-1234567"/>
-    </div>
-    <div class="form-field">
-      <label>예금주</label>
-      <input type="text" id="accountHolderInput" placeholder="예) 홍길동"/>
-    </div>
-    <div class="form-field">
-      <label>최소 충전액 (원)</label>
-      <input type="number" id="accountMinInput" placeholder="예) 5000" min="0"/>
-    </div>
+    <div class="form-field"><label>계좌번호</label><input type="text" id="accountNumberInput" placeholder="예) 3333-01-1234567"/></div>
+    <div class="form-field"><label>예금주</label><input type="text" id="accountHolderInput" placeholder="예) 홍길동"/></div>
+    <div class="form-field"><label>최소 충전액 (원)</label><input type="number" id="accountMinInput" placeholder="예) 5000" min="0"/></div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalAccount')">취소</button>
       <button class="btn btn-white btn-md" onclick="saveAccount()">저장</button>
@@ -657,6 +607,45 @@
 </div>
 
 <script>
+  /* ── DRAWER (모바일 사이드바) ── */
+  function toggleDrawer() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('drawerOverlay');
+    const btn = document.getElementById('hamburgerBtn');
+    const isOpen = sidebar.classList.contains('open');
+    if (isOpen) closeDrawer();
+    else {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      btn.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  function closeDrawer() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('drawerOverlay');
+    const btn = document.getElementById('hamburgerBtn');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // 모바일에서 nav 클릭 시 드로어 닫기
+  function navClick(page) {
+    showPage(page);
+    if (window.innerWidth <= 780) closeDrawer();
+  }
+  // nav-item onclick을 navClick으로 교체
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.nav-item').forEach(el => {
+      const orig = el.getAttribute('onclick');
+      if (orig) {
+        const page = orig.match(/showPage\('(\w+)'\)/)?.[1];
+        if (page) el.setAttribute('onclick', `navClick('${page}')`);
+      }
+    });
+  });
+
   /* STATE */
   let currentLicense = null;
   let _dbRef = null;
@@ -668,41 +657,23 @@
     title: 'Vending | 구매하기',
     desc: '아래 버튼을 눌러 자판기를 이용해주세요!',
     buttons: [
-      {emoji:'🖊️', label:'구매'},
-      {emoji:'🧭', label:'제품'},
-      {emoji:'🎁', label:'충전'},
-      {emoji:'👤', label:'정보'},
-      {emoji:'📢', label:'공지'},
+      {emoji:'🖊️', label:'구매'},{emoji:'🧭', label:'제품'},
+      {emoji:'🎁', label:'충전'},{emoji:'👤', label:'정보'},{emoji:'📢', label:'공지'},
     ]
   };
-
-  // Auto-charge state
   let chargeAccounts = [];
   let chargeLogs = [];
-  let autoChargeConfig = {
-    pushbulletApiKey: '',
-    enabled: false,
-    notifyOnCharge: true,
-    autoConfirm: false,
-  };
-
+  let autoChargeConfig = { pushbulletApiKey:'', enabled:false, notifyOnCharge:true, autoConfirm:false };
   let _rtUnsubscribe = null;
 
-  window.addEventListener('firebaseReady', () => {
-    _dbRef = window._db;
-    firestoreOps = window._firestoreOps;
-  });
-
+  window.addEventListener('firebaseReady', () => { _dbRef = window._db; firestoreOps = window._firestoreOps; });
   function waitForFirebase() {
-    return new Promise(r => {
-      if (window._firebaseReady) return r();
-      window.addEventListener('firebaseReady', r, { once: true });
-    });
+    return new Promise(r => { if (window._firebaseReady) return r(); window.addEventListener('firebaseReady', r, { once:true }); });
   }
 
-  /* ── LOGIN ── */
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) doLogin();
+    if (e.key === 'Escape') closeDrawer();
   });
 
   async function sha256(str) {
@@ -711,34 +682,27 @@
   }
 
   async function doLogin() {
-    const panelId  = document.getElementById('inputCode').value.trim().toUpperCase();
+    const panelId = document.getElementById('inputCode').value.trim().toUpperCase();
     const password = document.getElementById('inputPassword').value;
-    const errEl    = document.getElementById('loginError');
-    const warnEl   = document.getElementById('loginWarn');
-    const btn      = document.getElementById('loginBtn');
-    const btnText  = document.getElementById('loginBtnText');
+    const errEl = document.getElementById('loginError');
+    const warnEl = document.getElementById('loginWarn');
+    const btn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('loginBtnText');
     errEl.style.display = 'none'; warnEl.style.display = 'none';
-    if (!panelId)   { errEl.textContent = '❌ 아이디를 입력하세요.';    errEl.style.display = 'block'; return; }
-    if (!password)  { errEl.textContent = '❌ 비밀번호를 입력하세요.';  errEl.style.display = 'block'; return; }
-    btn.disabled = true;
-    btnText.innerHTML = '<div class="spinner"></div>';
+    if (!panelId) { errEl.textContent = '❌ 아이디를 입력하세요.'; errEl.style.display = 'block'; return; }
+    if (!password) { errEl.textContent = '❌ 비밀번호를 입력하세요.'; errEl.style.display = 'block'; return; }
+    btn.disabled = true; btnText.innerHTML = '<div class="spinner"></div>';
     await waitForFirebase();
     try {
       const { collection, getDocs } = firestoreOps;
       const snap = await getDocs(collection(_dbRef, 'licenses'));
       let found = null;
-      snap.forEach(d => {
-        const data = d.data();
-        if (data.panelId === panelId) { found = data; if (!found.guildId) found.guildId = d.id; }
-      });
+      snap.forEach(d => { const data = d.data(); if (data.panelId === panelId) { found = data; if (!found.guildId) found.guildId = d.id; } });
       if (!found) { errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.'; errEl.style.display = 'block'; return; }
       if (!found.isActive) { errEl.textContent = '❌ 비활성화된 라이선스입니다.'; errEl.style.display = 'block'; return; }
       if (found.expiresAt && new Date(found.expiresAt) < new Date()) { errEl.textContent = '❌ 만료된 라이선스입니다.'; errEl.style.display = 'block'; return; }
       const inputHash = await sha256(password);
-      if (!found.passwordHash || inputHash !== found.passwordHash) {
-        errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
-        errEl.style.display = 'block'; return;
-      }
+      if (!found.passwordHash || inputHash !== found.passwordHash) { errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.'; errEl.style.display = 'block'; return; }
       if (found.expiresAt) {
         const d = Math.ceil((new Date(found.expiresAt) - new Date()) / 86400000);
         if (d <= 7) { warnEl.textContent = `⚠️ ${d}일 후 만료됩니다.`; warnEl.style.display = 'block'; }
@@ -758,23 +722,21 @@
     document.getElementById('sidebarGuildName').textContent = name;
     document.getElementById('avatarLetter').textContent = name[0] || '?';
     document.getElementById('serverExpiryBadge').textContent = license.expiresAt
-      ? `만료: ${new Date(license.expiresAt).toLocaleDateString('ko-KR')}`
-      : '영구 라이선스';
+      ? `만료: ${new Date(license.expiresAt).toLocaleDateString('ko-KR')}` : '영구 라이선스';
     showPage('dashboard');
   }
 
   function doLogout() {
     if (_rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe = null; }
-    currentLicense = null; categories = []; products = []; stockItems = [];
-    chargeAccounts = []; chargeLogs = [];
+    currentLicense = null; categories = []; products = []; stockItems = []; chargeAccounts = []; chargeLogs = [];
     document.getElementById('dashScreen').classList.remove('active');
     document.getElementById('loginScreen').classList.add('active');
     document.getElementById('inputCode').value = '';
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('loginWarn').style.display = 'none';
+    closeDrawer();
   }
 
-  /* ── DATA ── */
   async function loadAllData(guildId) {
     try {
       const { collection, getDocs, doc, getDoc } = firestoreOps;
@@ -783,24 +745,16 @@
         getDocs(collection(_dbRef, 'inventory', guildId, 'products')),
         getDocs(collection(_dbRef, 'inventory', guildId, 'stock')),
       ]);
-      categories = []; catSnap.forEach(d => categories.push({...d.data(), id: d.id}));
-      products = []; prodSnap.forEach(d => products.push({...d.data(), id: d.id}));
-      stockItems = []; stockSnap.forEach(d => stockItems.push({...d.data(), id: d.id}));
-      try {
-        const sd = await getDoc(doc(_dbRef, 'inventory', guildId, 'settings', 'vending'));
-        if (sd.exists()) Object.assign(vendingSettings, sd.data());
-      } catch(e) {}
+      categories = []; catSnap.forEach(d => categories.push({...d.data(), id:d.id}));
+      products = []; prodSnap.forEach(d => products.push({...d.data(), id:d.id}));
+      stockItems = []; stockSnap.forEach(d => stockItems.push({...d.data(), id:d.id}));
+      try { const sd = await getDoc(doc(_dbRef, 'inventory', guildId, 'settings', 'vending')); if (sd.exists()) Object.assign(vendingSettings, sd.data()); } catch(e) {}
     } catch(e) { console.error('로드 오류:', e); }
-    await loadDiscordData();
-    await loadGrades();
-    await loadAutoChargeData();
+    await loadDiscordData(); await loadGrades(); await loadAutoChargeData();
   }
 
-  /* ── ROUTING ── */
   function showPage(page) {
-    if (page !== 'dashboard' && _rtUnsubscribe) {
-      _rtUnsubscribe(); _rtUnsubscribe = null;
-    }
+    if (page !== 'dashboard' && _rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe = null; }
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const navEl = document.getElementById('nav-' + page);
     if (navEl) navEl.classList.add('active');
@@ -809,19 +763,14 @@
     if (page === 'inventory') mc.innerHTML = buildInventoryPage();
     if (page === 'settings') mc.innerHTML = buildSettingsPage();
     if (page === 'users') { mc.innerHTML = buildUsersPage(); initUsersPage(); }
-    if (page === 'grades') { mc.innerHTML = buildGradesPage(); }
+    if (page === 'grades') mc.innerHTML = buildGradesPage();
     if (page === 'autocharge') { mc.innerHTML = buildAutoChargePage(); initAutoCharge(); }
     const main = document.querySelector('.main');
     if (main) main.scrollTop = 0;
   }
 
-  /* ── INVENTORY PAGE ── */
   function buildInventoryPage() {
-    return `
-      <div class="page-header">
-        <div class="page-title">재고 관리</div>
-        <div class="page-sub">// 카테고리 → 제품 → 재고 순서로 추가하세요</div>
-      </div>
+    return `<div class="page-header"><div class="page-title">재고 관리</div><div class="page-sub">// 카테고리 → 제품 → 재고 순서로 추가하세요</div></div>
       <div class="tabs">
         <div class="tab active" onclick="switchTab('cat',this)">📂 카테고리</div>
         <div class="tab" onclick="switchTab('prod',this)">📦 제품</div>
@@ -829,119 +778,41 @@
       </div>
       <div class="tab-section active" id="tab-cat">${buildCatSection()}</div>
       <div class="tab-section" id="tab-prod">${buildProdSection()}</div>
-      <div class="tab-section" id="tab-stock">${buildStockSection()}</div>
-    `;
+      <div class="tab-section" id="tab-stock">${buildStockSection()}</div>`;
   }
-
   function switchTab(id, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('tab-' + id).classList.add('active');
+    el.classList.add('active'); document.getElementById('tab-' + id).classList.add('active');
   }
-
   function buildCatSection() {
-    const items = categories.map(cat => `
-      <div class="list-item">
-        <span style="font-size:17px">${cat.emoji||'📁'}</span>
-        <div class="item-name">${esc(cat.name)}</div>
-        <div class="item-meta">${products.filter(p=>p.catId===cat.id).length}개 제품</div>
-        <button class="btn btn-red-ghost btn-sm" onclick="deleteCategory('${cat.id}')">삭제</button>
-      </div>`).join('');
-    return `
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📂 카테고리 <span class="tag">${categories.length}개</span></div>
-          <button class="btn btn-white btn-sm" onclick="openModal('modalCat')">+ 추가</button>
-        </div>
-        ${categories.length ? items : emptyState('📂','카테고리가 없습니다','카테고리를 먼저 추가하세요')}
-      </div>`;
+    const items = categories.map(cat => `<div class="list-item"><span style="font-size:17px">${cat.emoji||'📁'}</span><div class="item-name">${esc(cat.name)}</div><div class="item-meta">${products.filter(p=>p.catId===cat.id).length}개 제품</div><button class="btn btn-red-ghost btn-sm" onclick="deleteCategory('${cat.id}')">삭제</button></div>`).join('');
+    return `<div class="card"><div class="card-header"><div class="card-title">📂 카테고리 <span class="tag">${categories.length}개</span></div><button class="btn btn-white btn-sm" onclick="openModal('modalCat')">+ 추가</button></div>${categories.length ? items : emptyState('📂','카테고리가 없습니다','카테고리를 먼저 추가하세요')}</div>`;
   }
-
   function buildProdSection() {
     if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
-    const items = products.map(p => {
-      const cat = categories.find(c => c.id === p.catId);
-      return `
-        <div class="list-item">
-          <span style="font-size:16px">${cat?.emoji||'📦'}</span>
-          <div style="flex:1">
-            <div class="item-name">${esc(p.name)}</div>
-            ${p.desc ? `<div class="item-meta">${esc(p.desc)}</div>` : ''}
-          </div>
-          <div class="item-meta">${esc(cat?.name||'-')}</div>
-          ${p.price ? `<div class="item-qty">${Number(p.price).toLocaleString()}원</div>` : ''}
-          <button class="btn btn-red-ghost btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>
-        </div>`;
-    }).join('');
-    return `
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📦 제품 <span class="tag">${products.length}개</span></div>
-          <button class="btn btn-white btn-sm" onclick="openModalProd()">+ 추가</button>
-        </div>
-        ${products.length ? items : emptyState('📭','제품이 없습니다','제품을 추가해주세요')}
-      </div>`;
+    const items = products.map(p => { const cat = categories.find(c=>c.id===p.catId); return `<div class="list-item"><span style="font-size:16px">${cat?.emoji||'📦'}</span><div style="flex:1"><div class="item-name">${esc(p.name)}</div>${p.desc?`<div class="item-meta">${esc(p.desc)}</div>`:''}</div><div class="item-meta">${esc(cat?.name||'-')}</div>${p.price?`<div class="item-qty">${Number(p.price).toLocaleString()}원</div>`:''}<button class="btn btn-red-ghost btn-sm" onclick="deleteProduct('${p.id}')">삭제</button></div>`; }).join('');
+    return `<div class="card"><div class="card-header"><div class="card-title">📦 제품 <span class="tag">${products.length}개</span></div><button class="btn btn-white btn-sm" onclick="openModalProd()">+ 추가</button></div>${products.length ? items : emptyState('📭','제품이 없습니다','제품을 추가해주세요')}</div>`;
   }
-
   function buildStockSection() {
     if (!products.length) return `<div class="card">${emptyState('⚠️','제품을 먼저 추가해주세요','제품 탭에서 추가하세요')}</div>`;
-    const items = stockItems.map(item => {
-      const prod = products.find(p => p.id === item.prodId);
-      const cat = prod ? categories.find(c => c.id === prod.catId) : null;
-      return `
-        <div class="list-item">
-          <span style="font-size:16px">${cat?.emoji||'📦'}</span>
-          <div style="flex:1">
-            <div class="item-name">${esc(prod?.name||'알 수 없음')}</div>
-            ${item.note ? `<div class="item-meta">📦 ${esc(item.note)}</div>` : ''}
-          </div>
-          <div class="item-meta">${esc(cat?.name||'-')}</div>
-          <div class="item-qty">x${item.qty}</div>
-          <button class="btn btn-red-ghost btn-sm" onclick="deleteStock('${item.id}')">삭제</button>
-        </div>`;
-    }).join('');
+    const items = stockItems.map(item => { const prod = products.find(p=>p.id===item.prodId); const cat = prod ? categories.find(c=>c.id===prod.catId) : null; return `<div class="list-item"><span style="font-size:16px">${cat?.emoji||'📦'}</span><div style="flex:1"><div class="item-name">${esc(prod?.name||'알 수 없음')}</div>${item.note?`<div class="item-meta">📦 ${esc(item.note)}</div>`:''}</div><div class="item-meta">${esc(cat?.name||'-')}</div><div class="item-qty">x${item.qty}</div><button class="btn btn-red-ghost btn-sm" onclick="deleteStock('${item.id}')">삭제</button></div>`; }).join('');
     const total = stockItems.reduce((s,i) => s+(parseInt(i.qty)||0), 0);
-    return `
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📋 재고 <span class="tag">${stockItems.length}종</span><span class="tag">${total}개</span></div>
-          <button class="btn btn-white btn-sm" onclick="openModalStock()">+ 추가</button>
-        </div>
-        ${stockItems.length ? items : emptyState('📭','재고가 없습니다','재고를 추가해주세요')}
-        ${stockItems.length ? `<hr class="divider"/><div class="actions-bar"><button class="btn btn-ghost btn-md" onclick="clearAllStock()">전체 초기화</button></div>` : ''}
-      </div>`;
+    return `<div class="card"><div class="card-header"><div class="card-title">📋 재고 <span class="tag">${stockItems.length}종</span><span class="tag">${total}개</span></div><button class="btn btn-white btn-sm" onclick="openModalStock()">+ 추가</button></div>${stockItems.length ? items : emptyState('📭','재고가 없습니다','재고를 추가해주세요')}${stockItems.length?`<hr class="divider"/><div class="actions-bar"><button class="btn btn-ghost btn-md" onclick="clearAllStock()">전체 초기화</button></div>`:''}</div>`;
   }
-
-  function emptyState(icon, title, desc) {
-    return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`;
-  }
-
-  /* ══════════════════════════════════════════════
-     ── AUTO CHARGE PAGE ──
-  ══════════════════════════════════════════════ */
+  function emptyState(icon, title, desc) { return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`; }
 
   async function loadAutoChargeData() {
     const guildId = currentLicense?.guildId;
     if (!guildId || !firestoreOps) return;
     const { collection, getDocs, doc, getDoc } = firestoreOps;
     try {
-      // 계좌 목록
       const accSnap = await getDocs(collection(_dbRef, 'guilds', guildId, 'chargeAccounts'));
-      chargeAccounts = [];
-      accSnap.forEach(d => chargeAccounts.push({ ...d.data(), id: d.id }));
-
-      // 충전 로그
+      chargeAccounts = []; accSnap.forEach(d => chargeAccounts.push({...d.data(), id:d.id}));
       const logSnap = await getDocs(collection(_dbRef, 'guilds', guildId, 'chargeLogs'));
-      chargeLogs = [];
-      logSnap.forEach(d => chargeLogs.push({ ...d.data(), _docId: d.id }));
+      chargeLogs = []; logSnap.forEach(d => chargeLogs.push({...d.data(), _docId:d.id}));
       chargeLogs.sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
-
-      // 자동충전 설정
-      try {
-        const cfSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'autoCharge', 'config'));
-        if (cfSnap.exists()) Object.assign(autoChargeConfig, cfSnap.data());
-      } catch(e) {}
+      try { const cfSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'autoCharge', 'config')); if (cfSnap.exists()) Object.assign(autoChargeConfig, cfSnap.data()); } catch(e) {}
     } catch(e) { console.error('자동충전 로드 오류:', e); }
   }
 
@@ -950,263 +821,39 @@
     const pendingCount = chargeLogs.filter(l=>l.status==='pending').length;
     const todayStart = new Date(new Date().setHours(0,0,0,0)).getTime();
     const todayAmount = chargeLogs.filter(l=>l.status==='confirmed'&&(l.timestamp||0)>=todayStart).reduce((s,l)=>s+(l.amount||0),0);
-
     const logRows = chargeLogs.slice(0,50).map(l => {
       const statusMap = { pending:'대기중', confirmed:'승인', rejected:'거절' };
       const statusClass = l.status || 'pending';
       const ts = l.timestamp ? new Date(l.timestamp).toLocaleString('ko-KR') : '-';
-      return `
-        <tr>
-          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);">${ts}</td>
-          <td style="font-size:13px;font-weight:600;">${esc(l.psid||l.userId||'-')}</td>
-          <td style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);">${(l.amount||0).toLocaleString()}원</td>
-          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);">${esc(l.bankName||'-')} ${esc(l.accountNum||'')}</td>
-          <td><span class="log-status-badge ${statusClass}">${statusMap[statusClass]||statusClass}</span></td>
-          <td>
-            <button class="btn btn-ghost btn-sm" onclick="openChargeDetail('${l._docId}')">상세</button>
-            ${statusClass==='pending' ? `
-              <button class="btn btn-sm" style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);margin-left:4px;" onclick="updateChargeStatus('${l._docId}','confirmed')">승인</button>
-              <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);margin-left:4px;" onclick="updateChargeStatus('${l._docId}','rejected')">거절</button>
-            ` : ''}
-          </td>
-        </tr>`;
+      return `<tr><td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);">${ts}</td><td style="font-size:13px;font-weight:600;">${esc(l.psid||l.userId||'-')}</td><td style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);">${(l.amount||0).toLocaleString()}원</td><td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);">${esc(l.bankName||'-')}</td><td><span class="log-status-badge ${statusClass}">${statusMap[statusClass]||statusClass}</span></td><td><button class="btn btn-ghost btn-sm" onclick="openChargeDetail('${l._docId}')">상세</button>${statusClass==='pending'?`<button class="btn btn-sm" style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);margin-left:4px;" onclick="updateChargeStatus('${l._docId}','confirmed')">승인</button><button class="btn btn-sm" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);margin-left:4px;" onclick="updateChargeStatus('${l._docId}','rejected')">거절</button>`:''}</td></tr>`;
     }).join('');
-
-    const accountCards = chargeAccounts.map(acc => `
-      <div class="account-card">
-        <div class="account-card-icon">🏦</div>
-        <div class="account-card-info">
-          <div class="account-card-bank">${esc(acc.bankName||'-')}</div>
-          <div class="account-card-num">${esc(acc.accountNumber||'-')}</div>
-          <div class="account-card-holder">예금주: ${esc(acc.holder||'-')} ${acc.minAmount ? `&nbsp;·&nbsp;<span class="min-charge-badge">최소 ${Number(acc.minAmount).toLocaleString()}원</span>` : ''}</div>
-        </div>
-        <div style="display:flex;gap:6px;flex-shrink:0;">
-          <button class="btn btn-ghost btn-sm" onclick="openAccountEdit('${acc.id}')">✏️</button>
-          <button class="btn btn-red-ghost btn-sm" onclick="deleteAccount('${acc.id}')">삭제</button>
-        </div>
-      </div>`).join('');
-
+    const accountCards = chargeAccounts.map(acc => `<div class="account-card"><div class="account-card-icon">🏦</div><div class="account-card-info"><div class="account-card-bank">${esc(acc.bankName||'-')}</div><div class="account-card-num">${esc(acc.accountNumber||'-')}</div><div class="account-card-holder">예금주: ${esc(acc.holder||'-')} ${acc.minAmount?`&nbsp;·&nbsp;<span class="min-charge-badge">최소 ${Number(acc.minAmount).toLocaleString()}원</span>`:''}</div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="btn btn-ghost btn-sm" onclick="openAccountEdit('${acc.id}')">✏️</button><button class="btn btn-red-ghost btn-sm" onclick="deleteAccount('${acc.id}')">삭제</button></div></div>`).join('');
     const isOn = autoChargeConfig.enabled;
     const apiKey = autoChargeConfig.pushbulletApiKey || '';
-
-    return `
-      <div class="page-header">
-        <div class="page-title">💳 자동충전</div>
-        <div class="page-sub">// 충전 계좌 관리 · Pushbullet 연동 · 충전 로그 확인</div>
-      </div>
-
-      <!-- 히어로 -->
-      <div class="ac-hero">
-        <div class="ac-hero-row">
-          <div class="ac-hero-icon">💳</div>
-          <div class="ac-hero-info">
-            <div class="ac-hero-label">Auto Charge System</div>
-            <div class="ac-hero-title">자동충전 관리</div>
-            <div class="ac-hero-desc">// Pushbullet SMS 수신 → 자동 잔액 충전 처리</div>
-          </div>
-          <div class="ac-status-badge ${isOn ? 'on' : 'off'}">
-            <div class="ac-status-dot"></div>
-            ${isOn ? 'ACTIVE' : 'INACTIVE'}
-          </div>
-        </div>
-      </div>
-
-      <!-- 통계 카드 -->
-      <div class="ac-grid">
-        <div class="ac-stat-card">
-          <div class="ac-stat-label">📦 누적 충전금액</div>
-          <div class="ac-stat-value">${totalAmount.toLocaleString()}원</div>
-          <div class="ac-stat-sub">승인된 충전 기준 · 총 ${chargeLogs.filter(l=>l.status==='confirmed').length}건</div>
-        </div>
-        <div class="ac-stat-card">
-          <div class="ac-stat-label">📅 오늘 충전금액</div>
-          <div class="ac-stat-value">${todayAmount.toLocaleString()}원</div>
-          <div class="ac-stat-sub">대기 중 ${pendingCount}건 남음</div>
-        </div>
-      </div>
-
-      <!-- 탭 -->
-      <div class="tabs" style="margin-bottom:20px;">
-        <div class="tab active" onclick="switchAcTab('logs',this)">📋 충전 로그</div>
-        <div class="tab" onclick="switchAcTab('accounts',this)">🏦 충전 계좌</div>
-        <div class="tab" onclick="switchAcTab('pushbullet',this)">🔔 Pushbullet 설정</div>
-      </div>
-
-      <!-- TAB: 충전 로그 -->
-      <div class="tab-section active" id="ac-tab-logs">
-        <div class="card" style="padding:0;overflow:hidden;">
-          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-            <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;">
-              📋 충전 로그
-              <span class="tag">${chargeLogs.length}건</span>
-              ${pendingCount > 0 ? `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⏳ 대기 ${pendingCount}건</span>` : ''}
-            </div>
-            <button class="btn btn-ghost btn-sm" onclick="refreshChargeData()">🔄 새로고침</button>
-          </div>
-          <div style="overflow-x:auto;">
-            ${chargeLogs.length ? `
-              <table class="charge-log-table">
-                <thead>
-                  <tr>
-                    <th>시간</th>
-                    <th>유저</th>
-                    <th>금액</th>
-                    <th>계좌</th>
-                    <th>상태</th>
-                    <th>관리</th>
-                  </tr>
-                </thead>
-                <tbody>${logRows}</tbody>
-              </table>
-            ` : `<div style="padding:40px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px;">📭 충전 기록이 없습니다</div>`}
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: 충전 계좌 -->
-      <div class="tab-section" id="ac-tab-accounts">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🏦 충전 계좌 목록 <span class="tag">${chargeAccounts.length}개</span></div>
-            <button class="btn btn-white btn-sm" onclick="openAccountAdd()">+ 계좌 추가</button>
-          </div>
-          ${chargeAccounts.length ? accountCards : emptyState('🏦','등록된 계좌가 없습니다','충전 계좌를 추가해주세요')}
-        </div>
-
-        <div class="card" style="border-color:rgba(96,165,250,0.15);background:rgba(96,165,250,0.03);">
-          <div class="card-header" style="margin-bottom:10px;">
-            <div class="card-title" style="color:var(--accent);">ℹ️ 계좌 운영 안내</div>
-          </div>
-          <div style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:2;">
-            <div>· 여러 계좌를 등록해도 봇이 모두 표시합니다</div>
-            <div>· 최소 충전액 미만 입금 시 자동 거절 처리됩니다</div>
-            <div>· 계좌번호는 하이픈(-) 포함하여 정확히 입력해주세요</div>
-            <div>· 계좌 변경 시 기존 대기 중 요청이 있다면 먼저 처리하세요</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: Pushbullet 설정 -->
-      <div class="tab-section" id="ac-tab-pushbullet">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🔔 Pushbullet API 설정</div>
-            <span class="tag" id="pbStatusTag" style="${apiKey ? 'color:var(--success);border-color:rgba(74,222,128,0.3);' : ''}">
-              ${apiKey ? '✓ 키 등록됨' : '미설정'}
-            </span>
-          </div>
-
-          <div class="form-field">
-            <label>Pushbullet API Key</label>
-            <div class="api-key-field">
-              <input type="password" id="pbApiKeyInput" value="${esc(apiKey)}" placeholder="o.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" oninput="onPbKeyChange()"/>
-              <button class="api-key-toggle" onclick="togglePbKeyVisibility()" id="pbToggleBtn">👁</button>
-            </div>
-            <div class="api-key-status idle" id="pbKeyStatus">
-              ${apiKey ? '✓ API 키가 등록되어 있습니다' : '// API 키를 입력해주세요'}
-            </div>
-          </div>
-
-          <div class="pb-help">
-            <div class="pb-help-title">📖 Pushbullet API Key 발급 방법</div>
-            <div class="pb-help-steps">
-              1. <span>pushbullet.com</span> 접속 후 로그인<br/>
-              2. 우측 상단 프로필 → <span>Settings</span> 클릭<br/>
-              3. <span>Account</span> 탭 → <span>Access Tokens</span> 섹션<br/>
-              4. <span>Create Access Token</span> 버튼 클릭<br/>
-              5. 생성된 토큰을 위 입력란에 붙여넣기
-            </div>
-          </div>
-
-          <hr class="divider"/>
-
-          <div class="form-field" style="margin-bottom:0;">
-            <label>알림 설정</label>
-            <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:4px 14px;">
-              <div class="toggle-row">
-                <div>
-                  <div class="toggle-label">자동충전 시스템 활성화</div>
-                  <div class="toggle-desc">비활성화 시 SMS 수신 처리를 중단합니다</div>
-                </div>
-                <div class="toggle-switch" id="ts_enabled" onclick="toggleAcSwitch('enabled')" style="background:${autoChargeConfig.enabled ? '#4ade80' : '#333'};">
-                  <div class="toggle-thumb" style="left:${autoChargeConfig.enabled ? '23px' : '3px'};"></div>
-                </div>
-              </div>
-              <div class="toggle-row">
-                <div>
-                  <div class="toggle-label">충전 요청 알림</div>
-                  <div class="toggle-desc">새 충전 요청 시 Discord DM으로 알림</div>
-                </div>
-                <div class="toggle-switch" id="ts_notifyOnCharge" onclick="toggleAcSwitch('notifyOnCharge')" style="background:${autoChargeConfig.notifyOnCharge ? '#4ade80' : '#333'};">
-                  <div class="toggle-thumb" style="left:${autoChargeConfig.notifyOnCharge ? '23px' : '3px'};"></div>
-                </div>
-              </div>
-              <div class="toggle-row">
-                <div>
-                  <div class="toggle-label">자동 승인</div>
-                  <div class="toggle-desc">SMS 수신 즉시 자동으로 잔액 충전 (위험)</div>
-                </div>
-                <div class="toggle-switch" id="ts_autoConfirm" onclick="toggleAcSwitch('autoConfirm')" style="background:${autoChargeConfig.autoConfirm ? '#f87171' : '#333'};">
-                  <div class="toggle-thumb" style="left:${autoChargeConfig.autoConfirm ? '23px' : '3px'};"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <hr class="divider"/>
-          <div class="actions-bar">
-            <button class="btn btn-ghost btn-md" onclick="testPbConnection()">🔌 연결 테스트</button>
-            <button class="btn btn-white btn-md" onclick="savePushbulletConfig()">💾 설정 저장</button>
-          </div>
-        </div>
-      </div>
-    `;
+    return `<div class="page-header"><div class="page-title">💳 자동충전</div><div class="page-sub">// 충전 계좌 관리 · Pushbullet 연동 · 충전 로그 확인</div></div>
+      <div class="ac-hero"><div class="ac-hero-row"><div class="ac-hero-icon">💳</div><div class="ac-hero-info"><div class="ac-hero-label">Auto Charge System</div><div class="ac-hero-title">자동충전 관리</div><div class="ac-hero-desc">// Pushbullet SMS 수신 → 자동 잔액 충전 처리</div></div><div class="ac-status-badge ${isOn?'on':'off'}"><div class="ac-status-dot"></div>${isOn?'ACTIVE':'INACTIVE'}</div></div></div>
+      <div class="ac-grid"><div class="ac-stat-card"><div class="ac-stat-label">📦 누적 충전금액</div><div class="ac-stat-value">${totalAmount.toLocaleString()}원</div><div class="ac-stat-sub">승인된 충전 기준 · 총 ${chargeLogs.filter(l=>l.status==='confirmed').length}건</div></div><div class="ac-stat-card"><div class="ac-stat-label">📅 오늘 충전금액</div><div class="ac-stat-value">${todayAmount.toLocaleString()}원</div><div class="ac-stat-sub">대기 중 ${pendingCount}건 남음</div></div></div>
+      <div class="tabs" style="margin-bottom:20px;"><div class="tab active" onclick="switchAcTab('logs',this)">📋 충전 로그</div><div class="tab" onclick="switchAcTab('accounts',this)">🏦 충전 계좌</div><div class="tab" onclick="switchAcTab('pushbullet',this)">🔔 Pushbullet 설정</div></div>
+      <div class="tab-section active" id="ac-tab-logs"><div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;"><div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;">📋 충전 로그 <span class="tag">${chargeLogs.length}건</span>${pendingCount>0?`<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⏳ 대기 ${pendingCount}건</span>`:''}</div><button class="btn btn-ghost btn-sm" onclick="refreshChargeData()">🔄 새로고침</button></div><div style="overflow-x:auto;">${chargeLogs.length?`<table class="charge-log-table"><thead><tr><th>시간</th><th>유저</th><th>금액</th><th>계좌</th><th>상태</th><th>관리</th></tr></thead><tbody>${logRows}</tbody></table>`:`<div style="padding:40px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px;">📭 충전 기록이 없습니다</div>`}</div></div></div>
+      <div class="tab-section" id="ac-tab-accounts"><div class="card"><div class="card-header"><div class="card-title">🏦 충전 계좌 목록 <span class="tag">${chargeAccounts.length}개</span></div><button class="btn btn-white btn-sm" onclick="openAccountAdd()">+ 계좌 추가</button></div>${chargeAccounts.length?accountCards:emptyState('🏦','등록된 계좌가 없습니다','충전 계좌를 추가해주세요')}</div></div>
+      <div class="tab-section" id="ac-tab-pushbullet"><div class="card"><div class="card-header"><div class="card-title">🔔 Pushbullet API 설정</div><span class="tag" id="pbStatusTag" style="${apiKey?'color:var(--success);border-color:rgba(74,222,128,0.3);':''}">${apiKey?'✓ 키 등록됨':'미설정'}</span></div>
+        <div class="form-field"><label>Pushbullet API Key</label><div class="api-key-field"><input type="password" id="pbApiKeyInput" value="${esc(apiKey)}" placeholder="o.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" oninput="onPbKeyChange()"/><button class="api-key-toggle" onclick="togglePbKeyVisibility()" id="pbToggleBtn">👁</button></div><div class="api-key-status idle" id="pbKeyStatus">${apiKey?'✓ API 키가 등록되어 있습니다':'// API 키를 입력해주세요'}</div></div>
+        <div class="pb-help"><div class="pb-help-title">📖 Pushbullet API Key 발급 방법</div><div class="pb-help-steps">1. <span>pushbullet.com</span> 접속 후 로그인<br/>2. 우측 상단 프로필 → <span>Settings</span> 클릭<br/>3. <span>Account</span> 탭 → <span>Access Tokens</span> 섹션<br/>4. <span>Create Access Token</span> 버튼 클릭<br/>5. 생성된 토큰을 위 입력란에 붙여넣기</div></div>
+        <hr class="divider"/>
+        <div class="form-field" style="margin-bottom:0;"><label>알림 설정</label><div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:4px 14px;">
+          <div class="toggle-row"><div><div class="toggle-label">자동충전 시스템 활성화</div><div class="toggle-desc">비활성화 시 SMS 수신 처리를 중단합니다</div></div><div class="toggle-switch" id="ts_enabled" onclick="toggleAcSwitch('enabled')" style="background:${autoChargeConfig.enabled?'#4ade80':'#333'};"><div class="toggle-thumb" style="left:${autoChargeConfig.enabled?'23px':'3px'};"></div></div></div>
+          <div class="toggle-row"><div><div class="toggle-label">충전 요청 알림</div><div class="toggle-desc">새 충전 요청 시 Discord DM으로 알림</div></div><div class="toggle-switch" id="ts_notifyOnCharge" onclick="toggleAcSwitch('notifyOnCharge')" style="background:${autoChargeConfig.notifyOnCharge?'#4ade80':'#333'};"><div class="toggle-thumb" style="left:${autoChargeConfig.notifyOnCharge?'23px':'3px'};"></div></div></div>
+          <div class="toggle-row"><div><div class="toggle-label">자동 승인</div><div class="toggle-desc">SMS 수신 즉시 자동으로 잔액 충전 (위험)</div></div><div class="toggle-switch" id="ts_autoConfirm" onclick="toggleAcSwitch('autoConfirm')" style="background:${autoChargeConfig.autoConfirm?'#f87171':'#333'};"><div class="toggle-thumb" style="left:${autoChargeConfig.autoConfirm?'23px':'3px'};"></div></div></div>
+        </div></div>
+        <hr class="divider"/><div class="actions-bar"><button class="btn btn-ghost btn-md" onclick="testPbConnection()">🔌 연결 테스트</button><button class="btn btn-white btn-md" onclick="savePushbulletConfig()">💾 설정 저장</button></div>
+      </div></div>`;
   }
+  function switchAcTab(id, el) { document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('[id^="ac-tab-"]').forEach(s => s.classList.remove('active')); el.classList.add('active'); document.getElementById('ac-tab-' + id).classList.add('active'); }
+  async function initAutoCharge() { await loadAutoChargeData(); const mc = document.getElementById('mainContent'); if (mc) mc.innerHTML = buildAutoChargePage(); }
+  async function refreshChargeData() { showToast('🔄 새로고침 중...'); await loadAutoChargeData(); showPage('autocharge'); showToast('✅ 새로고침 완료!'); }
 
-  function switchAcTab(id, el) {
-    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('[id^="ac-tab-"]').forEach(s => s.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('ac-tab-' + id).classList.add('active');
-  }
-
-  async function initAutoCharge() {
-    await loadAutoChargeData();
-    // re-render if data changed
-    const mc = document.getElementById('mainContent');
-    if (mc) { mc.innerHTML = buildAutoChargePage(); }
-  }
-
-  async function refreshChargeData() {
-    showToast('🔄 새로고침 중...');
-    await loadAutoChargeData();
-    showPage('autocharge');
-    showToast('✅ 새로고침 완료!');
-  }
-
-  /* 계좌 CRUD */
-  function openAccountAdd() {
-    document.getElementById('accountModalTitle').textContent = '💳 계좌 추가';
-    document.getElementById('editAccountId').value = '';
-    document.getElementById('accountBankSel').value = '';
-    document.getElementById('accountNumberInput').value = '';
-    document.getElementById('accountHolderInput').value = '';
-    document.getElementById('accountMinInput').value = '';
-    openModal('modalAccount');
-  }
-
-  function openAccountEdit(id) {
-    const acc = chargeAccounts.find(a => a.id === id);
-    if (!acc) return;
-    document.getElementById('accountModalTitle').textContent = '✏️ 계좌 편집';
-    document.getElementById('editAccountId').value = id;
-    document.getElementById('accountBankSel').value = acc.bankName || '';
-    document.getElementById('accountNumberInput').value = acc.accountNumber || '';
-    document.getElementById('accountHolderInput').value = acc.holder || '';
-    document.getElementById('accountMinInput').value = acc.minAmount || '';
-    openModal('modalAccount');
-  }
-
+  function openAccountAdd() { document.getElementById('accountModalTitle').textContent='💳 계좌 추가'; document.getElementById('editAccountId').value=''; document.getElementById('accountBankSel').value=''; document.getElementById('accountNumberInput').value=''; document.getElementById('accountHolderInput').value=''; document.getElementById('accountMinInput').value=''; openModal('modalAccount'); }
+  function openAccountEdit(id) { const acc = chargeAccounts.find(a=>a.id===id); if (!acc) return; document.getElementById('accountModalTitle').textContent='✏️ 계좌 편집'; document.getElementById('editAccountId').value=id; document.getElementById('accountBankSel').value=acc.bankName||''; document.getElementById('accountNumberInput').value=acc.accountNumber||''; document.getElementById('accountHolderInput').value=acc.holder||''; document.getElementById('accountMinInput').value=acc.minAmount||''; openModal('modalAccount'); }
   async function saveAccount() {
     const id = document.getElementById('editAccountId').value || Date.now().toString();
     const bankName = document.getElementById('accountBankSel').value;
@@ -1217,1133 +864,215 @@
     if (!accountNumber) { showToast('⚠️ 계좌번호를 입력하세요', true); return; }
     if (!holder) { showToast('⚠️ 예금주를 입력하세요', true); return; }
     const guildId = currentLicense.guildId;
-    const data = { id, bankName, accountNumber, holder, minAmount, updatedAt: new Date().toISOString() };
+    const data = { id, bankName, accountNumber, holder, minAmount, updatedAt:new Date().toISOString() };
     try {
       const { doc, setDoc } = firestoreOps;
       await setDoc(doc(_dbRef, 'guilds', guildId, 'chargeAccounts', id), data);
-      const idx = chargeAccounts.findIndex(a => a.id === id);
+      const idx = chargeAccounts.findIndex(a=>a.id===id);
       if (idx >= 0) chargeAccounts[idx] = data; else chargeAccounts.push(data);
-      closeModal('modalAccount');
-      showToast('✅ 계좌가 저장되었습니다!');
-      showPage('autocharge');
-      setTimeout(() => {
-        const tabs = document.querySelectorAll('.tabs .tab');
-        if (tabs[1]) tabs[1].click();
-      }, 100);
+      closeModal('modalAccount'); showToast('✅ 계좌가 저장되었습니다!');
+      showPage('autocharge'); setTimeout(() => { const tabs = document.querySelectorAll('.tabs .tab'); if (tabs[1]) tabs[1].click(); }, 100);
     } catch(e) { showToast('❌ 저장 실패', true); }
   }
-
   async function deleteAccount(id) {
     if (!confirm('이 계좌를 삭제할까요?')) return;
     const guildId = currentLicense.guildId;
     try {
       const { doc, deleteDoc } = firestoreOps;
       await deleteDoc(doc(_dbRef, 'guilds', guildId, 'chargeAccounts', id));
-      chargeAccounts = chargeAccounts.filter(a => a.id !== id);
-      showToast('🗑️ 삭제되었습니다');
-      showPage('autocharge');
-      setTimeout(() => {
-        const tabs = document.querySelectorAll('.tabs .tab');
-        if (tabs[1]) tabs[1].click();
-      }, 100);
+      chargeAccounts = chargeAccounts.filter(a=>a.id!==id);
+      showToast('🗑️ 삭제되었습니다'); showPage('autocharge');
+      setTimeout(() => { const tabs = document.querySelectorAll('.tabs .tab'); if (tabs[1]) tabs[1].click(); }, 100);
     } catch(e) { showToast('❌ 삭제 실패', true); }
   }
 
-  /* 충전 로그 상세 */
   function openChargeDetail(docId) {
-    const l = chargeLogs.find(x => x._docId === docId);
-    if (!l) return;
+    const l = chargeLogs.find(x=>x._docId===docId); if (!l) return;
     const statusMap = { pending:'⏳ 대기중', confirmed:'✅ 승인', rejected:'❌ 거절' };
     const ts = l.timestamp ? new Date(l.timestamp).toLocaleString('ko-KR') : '-';
-    document.getElementById('chargeDetailContent').innerHTML = `
-      <div style="display:grid;gap:10px;">
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">
-          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">충전 금액</div>
-          <div style="font-size:22px;font-weight:700;color:var(--accent);">${(l.amount||0).toLocaleString()}원</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">유저 Psid</div>
-            <div style="font-size:13px;font-weight:600;">${esc(l.psid||l.userId||'-')}</div>
-          </div>
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">상태</div>
-            <div style="font-size:13px;font-weight:600;">${statusMap[l.status||'pending']||l.status}</div>
-          </div>
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">입금 계좌</div>
-            <div style="font-size:12px;font-family:'JetBrains Mono',monospace;">${esc(l.bankName||'-')}</div>
-            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${esc(l.accountNum||'-')}</div>
-          </div>
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">시간</div>
-            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;">${ts}</div>
-          </div>
-        </div>
-        ${l.smsText ? `
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-            <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">📱 SMS 원문</div>
-            <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2);line-height:1.6;word-break:break-all;">${esc(l.smsText)}</div>
-          </div>
-        ` : ''}
-      </div>
-    `;
+    document.getElementById('chargeDetailContent').innerHTML = `<div style="display:grid;gap:10px;"><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">충전 금액</div><div style="font-size:22px;font-weight:700;color:var(--accent);">${(l.amount||0).toLocaleString()}원</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">유저 Psid</div><div style="font-size:13px;font-weight:600;">${esc(l.psid||l.userId||'-')}</div></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">상태</div><div style="font-size:13px;font-weight:600;">${statusMap[l.status||'pending']||l.status}</div></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">입금 계좌</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;">${esc(l.bankName||'-')}</div></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;">시간</div><div style="font-size:11px;font-family:'JetBrains Mono',monospace;">${ts}</div></div></div>${l.smsText?`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;"><div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;">📱 SMS 원문</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2);line-height:1.6;word-break:break-all;">${esc(l.smsText)}</div></div>`:''}</div>`;
     const footer = document.getElementById('chargeDetailFooter');
     footer.innerHTML = `<button class="btn btn-ghost btn-md" onclick="closeModal('modalChargeDetail')">닫기</button>`;
-    if (l.status === 'pending') {
-      footer.innerHTML += `
-        <button class="btn btn-md" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);" onclick="updateChargeStatus('${docId}','rejected');closeModal('modalChargeDetail');">❌ 거절</button>
-        <button class="btn btn-white btn-md" onclick="updateChargeStatus('${docId}','confirmed');closeModal('modalChargeDetail');">✅ 승인</button>
-      `;
-    }
+    if (l.status === 'pending') footer.innerHTML += `<button class="btn btn-md" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);" onclick="updateChargeStatus('${docId}','rejected');closeModal('modalChargeDetail');">❌ 거절</button><button class="btn btn-white btn-md" onclick="updateChargeStatus('${docId}','confirmed');closeModal('modalChargeDetail');">✅ 승인</button>`;
     openModal('modalChargeDetail');
   }
-
   async function updateChargeStatus(docId, status) {
     const guildId = currentLicense.guildId;
-    const log = chargeLogs.find(l => l._docId === docId);
-    if (!log) return;
+    const log = chargeLogs.find(l=>l._docId===docId); if (!log) return;
     try {
       const { doc, setDoc } = firestoreOps;
-      const updated = { ...log, status, updatedAt: new Date().toISOString(), _docId: undefined };
+      const updated = { ...log, status, updatedAt:new Date().toISOString(), _docId:undefined };
       await setDoc(doc(_dbRef, 'guilds', guildId, 'chargeLogs', docId), updated);
-      const idx = chargeLogs.findIndex(l => l._docId === docId);
+      const idx = chargeLogs.findIndex(l=>l._docId===docId);
       if (idx >= 0) chargeLogs[idx].status = status;
-      showToast(status === 'confirmed' ? '✅ 충전이 승인되었습니다!' : '❌ 충전이 거절되었습니다');
+      showToast(status==='confirmed'?'✅ 충전이 승인되었습니다!':'❌ 충전이 거절되었습니다');
       showPage('autocharge');
     } catch(e) { showToast('❌ 처리 실패', true); }
   }
 
-  /* Pushbullet 설정 */
-  function togglePbKeyVisibility() {
-    const input = document.getElementById('pbApiKeyInput');
-    const btn = document.getElementById('pbToggleBtn');
-    if (!input) return;
-    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
-    else { input.type = 'password'; btn.textContent = '👁'; }
-  }
+  function togglePbKeyVisibility() { const input = document.getElementById('pbApiKeyInput'); const btn = document.getElementById('pbToggleBtn'); if (!input) return; if (input.type==='password') { input.type='text'; btn.textContent='🙈'; } else { input.type='password'; btn.textContent='👁'; } }
+  function onPbKeyChange() { const val = document.getElementById('pbApiKeyInput')?.value||''; const st = document.getElementById('pbKeyStatus'); if (!st) return; if (!val) { st.className='api-key-status idle'; st.textContent='// API 키를 입력해주세요'; return; } if (val.length<20) { st.className='api-key-status err'; st.textContent='⚠️ 키가 너무 짧습니다'; return; } st.className='api-key-status ok'; st.textContent='✓ 키 형식이 올바릅니다'; }
+  function toggleAcSwitch(key) { autoChargeConfig[key]=!autoChargeConfig[key]; const sw=document.getElementById('ts_'+key); const thumb=sw?.querySelector('.toggle-thumb'); if (!sw||!thumb) return; const isOn=autoChargeConfig[key]; const color=key==='autoConfirm'?(isOn?'#f87171':'#333'):(isOn?'#4ade80':'#333'); sw.style.background=color; thumb.style.left=isOn?'23px':'3px'; if (key==='enabled') { const badge=document.querySelector('.ac-status-badge'); if (badge) { badge.className='ac-status-badge '+(isOn?'on':'off'); badge.innerHTML=`<div class="ac-status-dot"></div>${isOn?'ACTIVE':'INACTIVE'}`; } } }
+  async function testPbConnection() { const key=document.getElementById('pbApiKeyInput')?.value?.trim(); if (!key) { showToast('⚠️ API 키를 먼저 입력하세요', true); return; } showToast('🔌 연결 테스트 중...'); if (key.length>=20) setTimeout(()=>showToast('✅ API 키 형식이 올바릅니다 (실제 테스트는 봇에서 수행)'),800); else setTimeout(()=>showToast('❌ API 키 형식이 올바르지 않습니다',true),800); }
+  async function savePushbulletConfig() { const key=document.getElementById('pbApiKeyInput')?.value?.trim()||''; autoChargeConfig.pushbulletApiKey=key; const guildId=currentLicense.guildId; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'guilds',guildId,'autoCharge','config'),autoChargeConfig); const tag=document.getElementById('pbStatusTag'); if (tag) { tag.style.color='var(--success)'; tag.style.borderColor='rgba(74,222,128,0.3)'; tag.textContent='✓ 키 등록됨'; } showToast('✅ Pushbullet 설정이 저장되었습니다!'); } catch(e) { showToast('❌ 저장 실패', true); } }
 
-  function onPbKeyChange() {
-    const val = document.getElementById('pbApiKeyInput')?.value || '';
-    const st = document.getElementById('pbKeyStatus');
-    if (!st) return;
-    if (!val) { st.className = 'api-key-status idle'; st.textContent = '// API 키를 입력해주세요'; return; }
-    if (val.length < 20) { st.className = 'api-key-status err'; st.textContent = '⚠️ 키가 너무 짧습니다'; return; }
-    st.className = 'api-key-status ok'; st.textContent = '✓ 키 형식이 올바릅니다';
-  }
-
-  function toggleAcSwitch(key) {
-    autoChargeConfig[key] = !autoChargeConfig[key];
-    const sw = document.getElementById('ts_' + key);
-    const thumb = sw?.querySelector('.toggle-thumb');
-    if (!sw || !thumb) return;
-    const isOn = autoChargeConfig[key];
-    const color = key === 'autoConfirm' ? (isOn ? '#f87171' : '#333') : (isOn ? '#4ade80' : '#333');
-    sw.style.background = color;
-    thumb.style.left = isOn ? '23px' : '3px';
-    // Update hero badge
-    if (key === 'enabled') {
-      const badge = document.querySelector('.ac-status-badge');
-      if (badge) {
-        badge.className = 'ac-status-badge ' + (isOn ? 'on' : 'off');
-        badge.innerHTML = `<div class="ac-status-dot"></div>${isOn ? 'ACTIVE' : 'INACTIVE'}`;
-      }
-    }
-  }
-
-  async function testPbConnection() {
-    const key = document.getElementById('pbApiKeyInput')?.value?.trim();
-    if (!key) { showToast('⚠️ API 키를 먼저 입력하세요', true); return; }
-    showToast('🔌 연결 테스트 중...');
-    // Simple validation (actual API call requires CORS)
-    if (key.length >= 20) {
-      setTimeout(() => showToast('✅ API 키 형식이 올바릅니다 (실제 테스트는 봇에서 수행)'), 800);
-    } else {
-      setTimeout(() => showToast('❌ API 키 형식이 올바르지 않습니다', true), 800);
-    }
-  }
-
-  async function savePushbulletConfig() {
-    const key = document.getElementById('pbApiKeyInput')?.value?.trim() || '';
-    autoChargeConfig.pushbulletApiKey = key;
-    const guildId = currentLicense.guildId;
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'guilds', guildId, 'autoCharge', 'config'), autoChargeConfig);
-      // Update status tag
-      const tag = document.getElementById('pbStatusTag');
-      if (tag) { tag.style.color = 'var(--success)'; tag.style.borderColor = 'rgba(74,222,128,0.3)'; tag.textContent = '✓ 키 등록됨'; }
-      showToast('✅ Pushbullet 설정이 저장되었습니다!');
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
-
-  /* ── SETTINGS PAGE ── */
+  /* SETTINGS */
   let discordChannels = [];
   let discordRoles = [];
-  let serverConfig = {
-    vendingChannelId: '', vendingChannelName: '',
-    stockAlertChannelId: '', stockAlertChannelName: '',
-    stockAlertRoleId: '', stockAlertRoleName: '',
-    buyLogChannelId: '', buyLogChannelName: '',
-  };
-
-  async function loadDiscordData() {
-    try {
-      const { doc, getDoc } = firestoreOps;
-      const guildId = currentLicense.guildId;
-      if (!guildId) return;
-      const chSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'channels'));
-      const roSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'roles'));
-      const cfSnap = await getDoc(doc(_dbRef, 'guilds', guildId, 'meta', 'config'));
-      if (chSnap.exists()) discordChannels = chSnap.data().list || [];
-      if (roSnap.exists()) discordRoles = roSnap.data().list || [];
-      if (cfSnap.exists()) Object.assign(serverConfig, cfSnap.data());
-    } catch(e) { console.error('Discord 데이터 로드 오류:', e); }
-  }
-
-  function chOptions(selectedId) {
-    if (!discordChannels.length) return `<option value="">⚠️ 봇이 채널 목록을 아직 업로드하지 않음</option>`;
-    return discordChannels.map(ch =>
-      `<option value="${ch.id}" ${ch.id === selectedId ? 'selected' : ''}># ${esc(ch.name)}</option>`
-    ).join('');
-  }
-
-  function roleOptions(selectedId) {
-    if (!discordRoles.length) return `<option value="">⚠️ 봇이 역할 목록을 아직 업로드하지 않음</option>`;
-    return discordRoles.map(r =>
-      `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>@ ${esc(r.name)}</option>`
-    ).join('');
-  }
-
+  let serverConfig = { vendingChannelId:'', vendingChannelName:'', stockAlertChannelId:'', stockAlertChannelName:'', stockAlertRoleId:'', stockAlertRoleName:'', buyLogChannelId:'', buyLogChannelName:'' };
+  async function loadDiscordData() { try { const{doc,getDoc}=firestoreOps; const guildId=currentLicense.guildId; if (!guildId) return; const chSnap=await getDoc(doc(_dbRef,'guilds',guildId,'meta','channels')); const roSnap=await getDoc(doc(_dbRef,'guilds',guildId,'meta','roles')); const cfSnap=await getDoc(doc(_dbRef,'guilds',guildId,'meta','config')); if (chSnap.exists()) discordChannels=chSnap.data().list||[]; if (roSnap.exists()) discordRoles=roSnap.data().list||[]; if (cfSnap.exists()) Object.assign(serverConfig,cfSnap.data()); } catch(e) { console.error('Discord 데이터 로드 오류:', e); } }
+  function chOptions(selectedId) { if (!discordChannels.length) return `<option value="">⚠️ 봇이 채널 목록을 아직 업로드하지 않음</option>`; return discordChannels.map(ch=>`<option value="${ch.id}" ${ch.id===selectedId?'selected':''}># ${esc(ch.name)}</option>`).join(''); }
+  function roleOptions(selectedId) { if (!discordRoles.length) return `<option value="">⚠️ 봇이 역할 목록을 아직 업로드하지 않음</option>`; return discordRoles.map(r=>`<option value="${r.id}" ${r.id===selectedId?'selected':''}>@ ${esc(r.name)}</option>`).join(''); }
   function buildSettingsPage() {
-    const btnRows = vendingSettings.buttons.map((b,i) => `
-      <div class="btn-edit-row" id="btnrow${i}">
-        <input class="btn-edit-emoji" type="text" value="${esc(b.emoji)}" id="be${i}" placeholder="🔘" readonly/>
-        <input class="btn-edit-label" type="text" value="${esc(b.label)}" id="bl${i}" placeholder="버튼 이름" readonly/>
-      </div>`).join('');
-
-    const syncBadge = discordChannels.length
-      ? `<span class="tag tag-green">✓ 동기화됨 · ${discordChannels.length}개 채널</span>`
-      : `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⚠️ 봇 미동기화</span>`;
-
-    return `
-      <div class="page-header">
-        <div class="page-title">설정</div>
-        <div class="page-sub">// 채널·역할 설정 및 자판기 관리</div>
-      </div>
+    const btnRows = vendingSettings.buttons.map((b,i)=>`<div class="btn-edit-row" id="btnrow${i}"><input class="btn-edit-emoji" type="text" value="${esc(b.emoji)}" id="be${i}" placeholder="🔘" readonly/><input class="btn-edit-label" type="text" value="${esc(b.label)}" id="bl${i}" placeholder="버튼 이름" readonly/></div>`).join('');
+    const syncBadge = discordChannels.length ? `<span class="tag">✓ 동기화됨 · ${discordChannels.length}개 채널</span>` : `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⚠️ 봇 미동기화</span>`;
+    return `<div class="page-header"><div class="page-title">설정</div><div class="page-sub">// 채널·역할 설정 및 자판기 관리</div></div>
       <div class="settings-layout">
         <div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">📡 서버 채널 설정 ${syncBadge}</div>
-              <button class="btn btn-ghost btn-sm" onclick="refreshDiscordData()">🔄 새로고침</button>
-            </div>
-            <div class="form-field">
-              <label>🤖 자판기 메시지 채널</label>
-              <select id="cfg_vendingCh"><option value="">채널 선택</option>${chOptions(serverConfig.vendingChannelId)}</select>
-            </div>
-            <div class="form-field">
-              <label>📦 입고 알림 채널</label>
-              <select id="cfg_stockCh"><option value="">채널 선택</option>${chOptions(serverConfig.stockAlertChannelId)}</select>
-            </div>
-            <div class="form-field">
-              <label>🔔 입고 알림 핑 역할</label>
-              <select id="cfg_stockRole"><option value="">역할 선택 (없음)</option>${roleOptions(serverConfig.stockAlertRoleId)}</select>
-            </div>
-            <div class="form-field">
-              <label>🧾 구매 로그 채널</label>
-              <select id="cfg_buyCh"><option value="">채널 선택</option>${chOptions(serverConfig.buyLogChannelId)}</select>
-            </div>
-            <hr class="divider"/>
-            <div class="actions-bar">
-              <button class="btn btn-white btn-md" onclick="saveServerConfig()">💾 채널 설정 저장</button>
-            </div>
+          <div class="card"><div class="card-header"><div class="card-title">📡 서버 채널 설정 ${syncBadge}</div><button class="btn btn-ghost btn-sm" onclick="refreshDiscordData()">🔄 새로고침</button></div>
+            <div class="form-field"><label>🤖 자판기 메시지 채널</label><select id="cfg_vendingCh"><option value="">채널 선택</option>${chOptions(serverConfig.vendingChannelId)}</select></div>
+            <div class="form-field"><label>📦 입고 알림 채널</label><select id="cfg_stockCh"><option value="">채널 선택</option>${chOptions(serverConfig.stockAlertChannelId)}</select></div>
+            <div class="form-field"><label>🔔 입고 알림 핑 역할</label><select id="cfg_stockRole"><option value="">역할 선택 (없음)</option>${roleOptions(serverConfig.stockAlertRoleId)}</select></div>
+            <div class="form-field"><label>🧾 구매 로그 채널</label><select id="cfg_buyCh"><option value="">채널 선택</option>${chOptions(serverConfig.buyLogChannelId)}</select></div>
+            <hr class="divider"/><div class="actions-bar"><button class="btn btn-white btn-md" onclick="saveServerConfig()">💾 채널 설정 저장</button></div>
           </div>
-
-          <div class="card">
-            <div class="card-header"><div class="card-title">🤖 자판기 메시지 내용</div></div>
-            <div class="form-field">
-              <label>임베드 제목</label>
-              <input type="text" id="vs_title" value="${esc(vendingSettings.title)}" placeholder="Vending | 구매하기" oninput="livePreview()"/>
-            </div>
-            <div class="form-field">
-              <label>임베드 설명</label>
-              <textarea id="vs_desc" placeholder="설명..." oninput="livePreview()">${esc(vendingSettings.desc)}</textarea>
-            </div>
+          <div class="card"><div class="card-header"><div class="card-title">🤖 자판기 메시지 내용</div></div>
+            <div class="form-field"><label>임베드 제목</label><input type="text" id="vs_title" value="${esc(vendingSettings.title)}" placeholder="Vending | 구매하기" oninput="livePreview()"/></div>
+            <div class="form-field"><label>임베드 설명</label><textarea id="vs_desc" placeholder="설명..." oninput="livePreview()">${esc(vendingSettings.desc)}</textarea></div>
             <div class="form-field" style="margin-bottom:6px;"><label>버튼 목록</label></div>
             <div id="btnRows">${btnRows}</div>
-            <hr class="divider"/>
-            <div class="actions-bar">
-              <button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button>
-            </div>
+            <hr class="divider"/><div class="actions-bar"><button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button></div>
           </div>
-
-          <div class="card">
-            <div class="card-header"><div class="card-title">📤 자판기 메시지 전송</div></div>
-            <p style="font-size:12px;color:var(--text2);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">위에서 설정한 자판기 채널로 메시지를 전송해요.</p>
-            <div class="actions-bar">
-              <button class="btn btn-white btn-md" onclick="sendVending()">📤 전송하기</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header"><div class="card-title">📢 공지 버튼 내용 설정</div></div>
-            <div class="form-field">
-              <label>공지 내용</label>
-              <textarea id="vs_notice" placeholder="자판기의 📢 공지 버튼을 눌렀을 때 표시될 내용을 입력하세요..." style="min-height:120px;">${esc(vendingSettings.notice||'')}</textarea>
-            </div>
-            <hr class="divider"/>
-            <div class="actions-bar">
-              <button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button>
-            </div>
-          </div>
+          <div class="card"><div class="card-header"><div class="card-title">📤 자판기 메시지 전송</div></div><p style="font-size:12px;color:var(--text2);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">위에서 설정한 자판기 채널로 메시지를 전송해요.</p><div class="actions-bar"><button class="btn btn-white btn-md" onclick="sendVending()">📤 전송하기</button></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">📢 공지 버튼 내용 설정</div></div><div class="form-field"><label>공지 내용</label><textarea id="vs_notice" placeholder="자판기의 📢 공지 버튼을 눌렀을 때 표시될 내용을 입력하세요..." style="min-height:120px;">${esc(vendingSettings.notice||'')}</textarea></div><hr class="divider"/><div class="actions-bar"><button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button></div></div>
         </div>
-        <div class="vending-preview">
-          <div class="preview-header">
-            <div class="preview-dot"></div>Discord 미리보기
-          </div>
-          <div class="discord-mock">
-            <div id="discordPreview">${buildPreview()}</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function buildPreview() {
-    const btns = vendingSettings.buttons.map(b =>
-      `<div class="discord-btn">${b.emoji ? b.emoji+' ' : ''}${esc(b.label)}</div>`
-    ).join('');
-    return `
-      <div class="discord-msg">
-        <div class="discord-avatar">🤖</div>
-        <div class="discord-body">
-          <div class="discord-username">Core <span>앱 · 오늘 오전 12:01</span></div>
-          <div class="discord-embed">
-            <div class="discord-embed-title">${esc(vendingSettings.title)}</div>
-            <div class="discord-embed-desc">${esc(vendingSettings.desc)}</div>
-            <div class="discord-buttons">${btns}</div>
-          </div>
-        </div>
+        <div class="vending-preview"><div class="preview-header"><div class="preview-dot"></div>Discord 미리보기</div><div class="discord-mock"><div id="discordPreview">${buildPreview()}</div></div></div>
       </div>`;
   }
+  function buildPreview() { const btns = vendingSettings.buttons.map(b=>`<div class="discord-btn">${b.emoji?b.emoji+' ':''}${esc(b.label)}</div>`).join(''); return `<div class="discord-msg"><div class="discord-avatar">🤖</div><div class="discord-body"><div class="discord-username">Core <span>앱 · 오늘 오전 12:01</span></div><div class="discord-embed"><div class="discord-embed-title">${esc(vendingSettings.title)}</div><div class="discord-embed-desc">${esc(vendingSettings.desc)}</div><div class="discord-buttons">${btns}</div></div></div></div>`; }
+  function livePreview() { const t=document.getElementById('vs_title'); const d=document.getElementById('vs_desc'); if(t) vendingSettings.title=t.value; if(d) vendingSettings.desc=d.value; const p=document.getElementById('discordPreview'); if(p) p.innerHTML=buildPreview(); }
+  async function saveVending() { vendingSettings.title=document.getElementById('vs_title')?.value||vendingSettings.title; vendingSettings.desc=document.getElementById('vs_desc')?.value||vendingSettings.desc; vendingSettings.notice=document.getElementById('vs_notice')?.value??vendingSettings.notice??''; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'inventory',currentLicense.guildId,'settings','vending'),vendingSettings); showToast('✅ 자판기 설정이 저장되었습니다!'); } catch(e) { showToast('❌ 저장 실패', true); } }
+  async function saveServerConfig() { const v=document.getElementById('cfg_vendingCh'); const s=document.getElementById('cfg_stockCh'); const r=document.getElementById('cfg_stockRole'); const b=document.getElementById('cfg_buyCh'); if(v){serverConfig.vendingChannelId=v.value;serverConfig.vendingChannelName=v.options[v.selectedIndex]?.text.replace(/^# /,'')||'';} if(s){serverConfig.stockAlertChannelId=s.value;serverConfig.stockAlertChannelName=s.options[s.selectedIndex]?.text.replace(/^# /,'')||'';} if(r){serverConfig.stockAlertRoleId=r.value;serverConfig.stockAlertRoleName=r.options[r.selectedIndex]?.text.replace(/^@ /,'')||'';} if(b){serverConfig.buyLogChannelId=b.value;serverConfig.buyLogChannelName=b.options[b.selectedIndex]?.text.replace(/^# /,'')||'';} try{const{doc,setDoc}=firestoreOps;await setDoc(doc(_dbRef,'guilds',currentLicense.guildId,'meta','config'),serverConfig);showToast('✅ 채널 설정이 저장되었습니다!');}catch(e){showToast('❌ 저장 실패',true);} }
+  async function refreshDiscordData() { showToast('🔄 새로고침 중...'); await loadDiscordData(); showPage('settings'); showToast('✅ 새로고침 완료!'); }
+  async function sendVending() { if (!serverConfig.vendingChannelId) { showToast('⚠️ 자판기 채널을 먼저 설정해주세요', true); return; } try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'guilds',currentLicense.guildId,'tasks','sendVending'),{type:'sendVending',channelId:serverConfig.vendingChannelId,settings:vendingSettings,requestedAt:new Date().toISOString(),done:false}); showToast('📤 봇에 전송 요청을 보냈습니다!'); } catch(e) { showToast('❌ 전송 요청 실패', true); } }
 
-  function livePreview() {
-    const t = document.getElementById('vs_title');
-    const d = document.getElementById('vs_desc');
-    if (t) vendingSettings.title = t.value;
-    if (d) vendingSettings.desc = d.value;
-    const p = document.getElementById('discordPreview');
-    if (p) p.innerHTML = buildPreview();
-  }
-
-  async function saveVending() {
-    vendingSettings.title = document.getElementById('vs_title')?.value || vendingSettings.title;
-    vendingSettings.desc = document.getElementById('vs_desc')?.value || vendingSettings.desc;
-    vendingSettings.notice = document.getElementById('vs_notice')?.value ?? vendingSettings.notice ?? '';
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'settings', 'vending'), vendingSettings);
-      showToast('✅ 자판기 설정이 저장되었습니다!');
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
-
-  async function saveServerConfig() {
-    const v = document.getElementById('cfg_vendingCh');
-    const s = document.getElementById('cfg_stockCh');
-    const r = document.getElementById('cfg_stockRole');
-    const b = document.getElementById('cfg_buyCh');
-    if (v) { serverConfig.vendingChannelId = v.value; serverConfig.vendingChannelName = v.options[v.selectedIndex]?.text.replace(/^# /,'') || ''; }
-    if (s) { serverConfig.stockAlertChannelId = s.value; serverConfig.stockAlertChannelName = s.options[s.selectedIndex]?.text.replace(/^# /,'') || ''; }
-    if (r) { serverConfig.stockAlertRoleId = r.value; serverConfig.stockAlertRoleName = r.options[r.selectedIndex]?.text.replace(/^@ /,'') || ''; }
-    if (b) { serverConfig.buyLogChannelId = b.value; serverConfig.buyLogChannelName = b.options[b.selectedIndex]?.text.replace(/^# /,'') || ''; }
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'guilds', currentLicense.guildId, 'meta', 'config'), serverConfig);
-      showToast('✅ 채널 설정이 저장되었습니다!');
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
-
-  async function refreshDiscordData() {
-    showToast('🔄 새로고침 중...');
-    await loadDiscordData();
-    showPage('settings');
-    showToast('✅ 새로고침 완료!');
-  }
-
-  async function sendVending() {
-    if (!serverConfig.vendingChannelId) { showToast('⚠️ 자판기 채널을 먼저 설정해주세요', true); return; }
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'guilds', currentLicense.guildId, 'tasks', 'sendVending'), {
-        type: 'sendVending', channelId: serverConfig.vendingChannelId,
-        settings: vendingSettings, requestedAt: new Date().toISOString(), done: false
-      });
-      showToast('📤 봇에 전송 요청을 보냈습니다!');
-    } catch(e) { showToast('❌ 전송 요청 실패', true); }
-  }
-
-  /* ── MODALS ── */
+  /* MODALS */
   function openModal(id) { document.getElementById(id).classList.add('open'); }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function openModalProd() { if (!categories.length) { showToast('⚠️ 카테고리를 먼저 추가해주세요!', true); return; } const sel=document.getElementById('prodCatSel'); sel.innerHTML=categories.map(c=>`<option value="${c.id}">${c.emoji||''} ${esc(c.name)}</option>`).join(''); document.getElementById('prodNameInput').value=''; document.getElementById('prodDescInput').value=''; document.getElementById('prodPriceInput').value=''; openModal('modalProd'); }
+  function openModalStock() { if (!products.length) { showToast('⚠️ 제품을 먼저 추가해주세요!', true); return; } const sel=document.getElementById('stockProdSel'); sel.innerHTML=products.map(p=>{ const cat=categories.find(c=>c.id===p.catId); return `<option value="${p.id}">[${esc(cat?.name||'-')}] ${esc(p.name)}</option>`; }).join(''); document.getElementById('stockItemsInput').value=''; document.getElementById('stockCountBadge').textContent='0개 재고 입력됨'; openModal('modalStock'); }
+  function updateStockCount() { const ta=document.getElementById('stockItemsInput'); const badge=document.getElementById('stockCountBadge'); if (!ta||!badge) return; const lines=ta.value.split('\n').filter(l=>l.trim()!==''); badge.textContent=lines.length+'개 재고 입력됨'; }
 
-  function openModalProd() {
-    if (!categories.length) { showToast('⚠️ 카테고리를 먼저 추가해주세요!', true); return; }
-    const sel = document.getElementById('prodCatSel');
-    sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.emoji||''} ${esc(c.name)}</option>`).join('');
-    document.getElementById('prodNameInput').value = '';
-    document.getElementById('prodDescInput').value = '';
-    document.getElementById('prodPriceInput').value = '';
-    openModal('modalProd');
-  }
+  /* CATEGORY CRUD */
+  async function saveCategory() { const name=document.getElementById('catNameInput').value.trim(); const emoji=document.getElementById('catEmojiInput').value.trim(); if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; } const id=Date.now().toString(); const cat={id,name,emoji:emoji||'📁'}; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'inventory',currentLicense.guildId,'categories',id),cat); categories.push(cat); closeModal('modalCat'); document.getElementById('catNameInput').value=''; document.getElementById('catEmojiInput').value=''; showToast('✅ 카테고리가 추가되었습니다!'); showPage('inventory'); } catch(e) { showToast('❌ 저장 실패', true); } }
+  async function deleteCategory(id) { if (!confirm('이 카테고리를 삭제할까요? 포함된 제품도 삭제됩니다.')) return; try { const{doc,deleteDoc}=firestoreOps; await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'categories',id)); const relProds=products.filter(p=>p.catId===id); for (const p of relProds) { await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'products',p.id)); stockItems=stockItems.filter(s=>s.prodId!==p.id); } categories=categories.filter(c=>c.id!==id); products=products.filter(p=>p.catId!==id); showToast('🗑️ 삭제되었습니다'); showPage('inventory'); } catch(e) { showToast('❌ 삭제 실패', true); } }
 
-  function openModalStock() {
-    if (!products.length) { showToast('⚠️ 제품을 먼저 추가해주세요!', true); return; }
-    const sel = document.getElementById('stockProdSel');
-    sel.innerHTML = products.map(p => {
-      const cat = categories.find(c => c.id === p.catId);
-      return `<option value="${p.id}">[${esc(cat?.name||'-')}] ${esc(p.name)}</option>`;
-    }).join('');
-    document.getElementById('stockItemsInput').value = '';
-    document.getElementById('stockCountBadge').textContent = '0개 재고 입력됨';
-    openModal('modalStock');
-  }
+  /* PRODUCT CRUD */
+  async function saveProduct() { const catId=document.getElementById('prodCatSel').value; const name=document.getElementById('prodNameInput').value.trim(); const desc=document.getElementById('prodDescInput').value.trim(); const price=parseInt(document.getElementById('prodPriceInput').value)||0; if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; } const id=Date.now().toString(); const prod={id,catId,name,desc,price}; try { const{doc,setDoc}=firestoreOps; await setDoc(doc(_dbRef,'inventory',currentLicense.guildId,'products',id),prod); products.push(prod); closeModal('modalProd'); showToast('✅ 제품이 추가되었습니다!'); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); },80); } catch(e) { showToast('❌ 저장 실패', true); } }
+  async function deleteProduct(id) { if (!confirm('이 제품을 삭제할까요?')) return; try { const{doc,deleteDoc}=firestoreOps; await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'products',id)); stockItems=stockItems.filter(s=>s.prodId!==id); products=products.filter(p=>p.id!==id); showToast('🗑️ 삭제되었습니다'); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); },80); } catch(e) { showToast('❌ 삭제 실패', true); } }
 
-  function updateStockCount() {
-    const ta = document.getElementById('stockItemsInput');
-    const badge = document.getElementById('stockCountBadge');
-    if (!ta || !badge) return;
-    const lines = ta.value.split('\n').filter(l => l.trim() !== '');
-    badge.textContent = lines.length + '개 재고 입력됨';
-  }
+  /* STOCK CRUD */
+  async function saveStock() { const prodId=document.getElementById('stockProdSel').value; const rawText=document.getElementById('stockItemsInput').value; const lines=rawText.split('\n').map(l=>l.trim()).filter(l=>l!==''); if (!lines.length) { showToast('⚠️ 재고를 한 줄 이상 입력하세요', true); return; } const{doc,setDoc}=firestoreOps; const guildId=currentLicense.guildId; let savedCount=0; try { for (const line of lines) { const id=Date.now().toString()+'_'+Math.random().toString(36).slice(2,7); const item={id,prodId,qty:1,note:line,addedAt:new Date().toISOString()}; await setDoc(doc(_dbRef,'inventory',guildId,'stock',id),item); stockItems.push(item); savedCount++; } closeModal('modalStock'); showToast(`✅ ${savedCount}개 재고가 추가되었습니다!`); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); },80); } catch(e) { showToast('❌ 저장 실패', true); } }
+  async function deleteStock(id) { try { const{doc,deleteDoc}=firestoreOps; await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'stock',id)); stockItems=stockItems.filter(s=>s.id!==id); showToast('🗑️ 삭제되었습니다'); showPage('inventory'); setTimeout(()=>{ const tabs=document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); },80); } catch(e) { showToast('❌ 삭제 실패', true); } }
+  async function clearAllStock() { if (!confirm('재고를 전부 삭제할까요?')) return; try { const{doc,deleteDoc}=firestoreOps; for (const item of stockItems) { await deleteDoc(doc(_dbRef,'inventory',currentLicense.guildId,'stock',item.id)); } stockItems=[]; showToast('🗑️ 재고가 초기화되었습니다'); showPage('inventory'); } catch(e) { showToast('❌ 실패', true); } }
 
-  /* ── CATEGORY CRUD ── */
-  async function saveCategory() {
-    const name = document.getElementById('catNameInput').value.trim();
-    const emoji = document.getElementById('catEmojiInput').value.trim();
-    if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
-    const id = Date.now().toString();
-    const cat = { id, name, emoji: emoji || '📁' };
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'categories', id), cat);
-      categories.push(cat);
-      closeModal('modalCat');
-      document.getElementById('catNameInput').value = '';
-      document.getElementById('catEmojiInput').value = '';
-      showToast('✅ 카테고리가 추가되었습니다!');
-      showPage('inventory');
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
+  /* TOAST */
+  function showToast(msg, warn=false) { const t=document.getElementById('toast'); t.textContent=msg; t.style.color=warn?'var(--danger)':'var(--success)'; t.style.borderColor=warn?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.2)'; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3000); }
 
-  async function deleteCategory(id) {
-    if (!confirm('이 카테고리를 삭제할까요? 포함된 제품도 삭제됩니다.')) return;
-    try {
-      const { doc, deleteDoc } = firestoreOps;
-      await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'categories', id));
-      const relProds = products.filter(p => p.catId === id);
-      for (const p of relProds) {
-        await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'products', p.id));
-        stockItems = stockItems.filter(s => s.prodId !== p.id);
-      }
-      categories = categories.filter(c => c.id !== id);
-      products = products.filter(p => p.catId !== id);
-      showToast('🗑️ 삭제되었습니다');
-      showPage('inventory');
-    } catch(e) { showToast('❌ 삭제 실패', true); }
-  }
-
-  /* ── PRODUCT CRUD ── */
-  async function saveProduct() {
-    const catId = document.getElementById('prodCatSel').value;
-    const name = document.getElementById('prodNameInput').value.trim();
-    const desc = document.getElementById('prodDescInput').value.trim();
-    const price = parseInt(document.getElementById('prodPriceInput').value) || 0;
-    if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
-    const id = Date.now().toString();
-    const prod = { id, catId, name, desc, price };
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'products', id), prod);
-      products.push(prod);
-      closeModal('modalProd');
-      showToast('✅ 제품이 추가되었습니다!');
-      showPage('inventory');
-      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
-
-  async function deleteProduct(id) {
-    if (!confirm('이 제품을 삭제할까요?')) return;
-    try {
-      const { doc, deleteDoc } = firestoreOps;
-      await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'products', id));
-      stockItems = stockItems.filter(s => s.prodId !== id);
-      products = products.filter(p => p.id !== id);
-      showToast('🗑️ 삭제되었습니다');
-      showPage('inventory');
-      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
-    } catch(e) { showToast('❌ 삭제 실패', true); }
-  }
-
-  /* ── STOCK CRUD ── */
-  async function saveStock() {
-    const prodId = document.getElementById('stockProdSel').value;
-    const rawText = document.getElementById('stockItemsInput').value;
-    const lines = rawText.split('\n').map(l => l.trim()).filter(l => l !== '');
-    if (!lines.length) { showToast('⚠️ 재고를 한 줄 이상 입력하세요', true); return; }
-    const { doc, setDoc } = firestoreOps;
-    const guildId = currentLicense.guildId;
-    let savedCount = 0;
-    try {
-      for (const line of lines) {
-        const id = Date.now().toString() + '_' + Math.random().toString(36).slice(2, 7);
-        const item = { id, prodId, qty: 1, note: line, addedAt: new Date().toISOString() };
-        await setDoc(doc(_dbRef, 'inventory', guildId, 'stock', id), item);
-        stockItems.push(item);
-        savedCount++;
-      }
-      closeModal('modalStock');
-      showToast(`✅ ${savedCount}개 재고가 추가되었습니다!`);
-      showPage('inventory');
-      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); }, 80);
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
-
-  async function deleteStock(id) {
-    try {
-      const { doc, deleteDoc } = firestoreOps;
-      await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'stock', id));
-      stockItems = stockItems.filter(s => s.id !== id);
-      showToast('🗑️ 삭제되었습니다');
-      showPage('inventory');
-      setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[2]) tabs[2].click(); }, 80);
-    } catch(e) { showToast('❌ 삭제 실패', true); }
-  }
-
-  async function clearAllStock() {
-    if (!confirm('재고를 전부 삭제할까요?')) return;
-    try {
-      const { doc, deleteDoc } = firestoreOps;
-      for (const item of stockItems) {
-        await deleteDoc(doc(_dbRef, 'inventory', currentLicense.guildId, 'stock', item.id));
-      }
-      stockItems = [];
-      showToast('🗑️ 재고가 초기화되었습니다');
-      showPage('inventory');
-    } catch(e) { showToast('❌ 실패', true); }
-  }
-
-  /* ── TOAST ── */
-  function showToast(msg, warn=false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.color = warn ? 'var(--danger)' : 'var(--success)';
-    t.style.borderColor = warn ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.2)';
-    t.classList.add('show');
-    clearTimeout(t._t);
-    t._t = setTimeout(() => t.classList.remove('show'), 3000);
-  }
-
-  /* ── DASHBOARD PAGE ── */
+  /* DASHBOARD */
   function buildDashboardPage() {
-    return `
-      <div class="page-header">
-        <div class="page-title">🛒 판매 통계</div>
-        <div class="page-sub">// 스토어의 판매 현황을 확인합니다</div>
-      </div>
-      <div class="dash-hero">
-        <div class="dash-hero-icon">💳</div>
-        <div class="dash-hero-label">총 충전금액</div>
-        <div class="dash-hero-value" id="d_totalCharge">로드 중...</div>
-        <div class="dash-hero-sub" id="d_totalChargeSub">집계 중...</div>
-      </div>
+    return `<div class="page-header"><div class="page-title">🛒 판매 통계</div><div class="page-sub">// 스토어의 판매 현황을 확인합니다</div></div>
+      <div class="dash-hero"><div class="dash-hero-icon">💳</div><div class="dash-hero-label">총 충전금액</div><div class="dash-hero-value" id="d_totalCharge">로드 중...</div><div class="dash-hero-sub" id="d_totalChargeSub">집계 중...</div></div>
       <div class="dash-grid">
-        <div class="dash-stat blue">
-          <div class="dash-stat-label">오늘 매출 <span class="dash-stat-dollar">💲</span></div>
-          <div class="dash-stat-value" id="d_today">—</div>
-          <div class="dash-stat-change neutral" id="d_todayChange">집계 중...</div>
-        </div>
-        <div class="dash-stat purple">
-          <div class="dash-stat-label">이번 주 매출 <span class="dash-stat-dollar">💲</span></div>
-          <div class="dash-stat-value" id="d_week">—</div>
-          <div class="dash-stat-change neutral" id="d_weekChange">집계 중...</div>
-        </div>
-        <div class="dash-stat orange">
-          <div class="dash-stat-label">이번 달 매출 <span class="dash-stat-dollar">💲</span></div>
-          <div class="dash-stat-value" id="d_month">—</div>
-          <div class="dash-stat-change neutral" id="d_monthChange">집계 중...</div>
-        </div>
+        <div class="dash-stat blue"><div class="dash-stat-label">오늘 매출 <span class="dash-stat-dollar">💲</span></div><div class="dash-stat-value" id="d_today">—</div><div class="dash-stat-change neutral" id="d_todayChange">집계 중...</div></div>
+        <div class="dash-stat purple"><div class="dash-stat-label">이번 주 매출 <span class="dash-stat-dollar">💲</span></div><div class="dash-stat-value" id="d_week">—</div><div class="dash-stat-change neutral" id="d_weekChange">집계 중...</div></div>
+        <div class="dash-stat orange"><div class="dash-stat-label">이번 달 매출 <span class="dash-stat-dollar">💲</span></div><div class="dash-stat-value" id="d_month">—</div><div class="dash-stat-change neutral" id="d_monthChange">집계 중...</div></div>
       </div>
-      <div class="rt-log-wrap">
-        <div class="rt-log-header">
-          <div class="rt-log-title">
-            <div class="rt-live-dot"></div>
-            실시간 구매로그
-            <span class="tag" id="rtLogCount" style="color:var(--danger);border-color:rgba(248,113,113,0.3);">LIVE</span>
-          </div>
-          <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;" id="rtLogStatus">연결 중...</span>
-        </div>
-        <div class="rt-log-list" id="rtLogList">
-          <div class="rt-log-empty">구매 로그를 불러오는 중...</div>
-        </div>
-      </div>
-      <div class="chart-wrap">
-        <div class="chart-label">판매 금액 추이 (최근 7일)</div>
-        <div class="chart-box"><canvas id="chartSales"></canvas></div>
-      </div>
-      <div class="chart-wrap">
-        <div class="chart-label">판매 개수 추이 (최근 7일)</div>
-        <div class="chart-box"><canvas id="chartCount"></canvas></div>
-      </div>
+      <div class="rt-log-wrap"><div class="rt-log-header"><div class="rt-log-title"><div class="rt-live-dot"></div>실시간 구매로그<span class="tag" id="rtLogCount" style="color:var(--danger);border-color:rgba(248,113,113,0.3);">LIVE</span></div><span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;" id="rtLogStatus">연결 중...</span></div><div class="rt-log-list" id="rtLogList"><div class="rt-log-empty">구매 로그를 불러오는 중...</div></div></div>
+      <div class="chart-wrap"><div class="chart-label">판매 금액 추이 (최근 7일)</div><div class="chart-box"><canvas id="chartSales"></canvas></div></div>
+      <div class="chart-wrap"><div class="chart-label">판매 개수 추이 (최근 7일)</div><div class="chart-box"><canvas id="chartCount"></canvas></div></div>
       <div class="dash-row">
-        <div class="card" style="margin-bottom:0">
-          <div class="card-header"><div class="card-title">🏆 인기 제품 TOP 5</div></div>
-          <div id="d_topProducts"><div class="dash-empty">집계 중...</div></div>
-        </div>
-        <div class="card" style="margin-bottom:0">
-          <div class="card-header"><div class="card-title">📦 현재 재고 현황</div></div>
-          <div id="d_stockList"><div class="dash-empty">집계 중...</div></div>
-        </div>
-      </div>
-    `;
+        <div class="card" style="margin-bottom:0"><div class="card-header"><div class="card-title">🏆 인기 제품 TOP 5</div></div><div id="d_topProducts"><div class="dash-empty">집계 중...</div></div></div>
+        <div class="card" style="margin-bottom:0"><div class="card-header"><div class="card-title">📦 현재 재고 현황</div></div><div id="d_stockList"><div class="dash-empty">집계 중...</div></div></div>
+      </div>`;
   }
-
-  let _dashChartSales = null;
-  let _dashChartCount = null;
-
+  let _dashChartSales = null, _dashChartCount = null;
   function renderRtLog(logs) {
-    const el = document.getElementById('rtLogList');
-    const statusEl = document.getElementById('rtLogStatus');
-    if (!el) return;
-    if (!logs.length) {
-      el.innerHTML = '<div class="rt-log-empty">아직 구매 기록이 없습니다</div>';
-      if (statusEl) statusEl.textContent = '대기 중...';
-      return;
-    }
-    if (statusEl) statusEl.textContent = '실시간 연결됨 · ' + logs.length + '건';
-    el.innerHTML = logs.map(l => {
-      const ts = l.timestamp ? new Date(l.timestamp) : null;
-      const timeStr = ts ? formatRelativeTime(ts) : '-';
-      return `
-        <div class="rt-log-item">
-          <div class="rt-log-emoji">🛒</div>
-          <div class="rt-log-info">
-            <div class="rt-log-prod">${esc(l.productName || '알 수 없음')}</div>
-            <div class="rt-log-user">${esc(l.psid || l.userId || l.discordId || '알 수 없음')}</div>
-          </div>
-          <div class="rt-log-price">${(l.price||0).toLocaleString()}원</div>
-          <div class="rt-log-time">${timeStr}</div>
-        </div>`;
-    }).join('');
+    const el=document.getElementById('rtLogList'); const statusEl=document.getElementById('rtLogStatus'); if (!el) return;
+    if (!logs.length) { el.innerHTML='<div class="rt-log-empty">아직 구매 기록이 없습니다</div>'; if (statusEl) statusEl.textContent='대기 중...'; return; }
+    if (statusEl) statusEl.textContent='실시간 연결됨 · '+logs.length+'건';
+    el.innerHTML = logs.map(l => { const ts=l.timestamp?new Date(l.timestamp):null; const timeStr=ts?formatRelativeTime(ts):'-'; return `<div class="rt-log-item"><div class="rt-log-emoji">🛒</div><div class="rt-log-info"><div class="rt-log-prod">${esc(l.productName||'알 수 없음')}</div><div class="rt-log-user">${esc(l.psid||l.userId||l.discordId||'알 수 없음')}</div></div><div class="rt-log-price">${(l.price||0).toLocaleString()}원</div><div class="rt-log-time">${timeStr}</div></div>`; }).join('');
   }
-
-  function formatRelativeTime(date) {
-    const diff = Date.now() - date.getTime();
-    const sec = Math.floor(diff / 1000);
-    if (sec < 60) return sec + '초 전';
-    const min = Math.floor(sec / 60);
-    if (min < 60) return min + '분 전';
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return hr + '시간 전';
-    return date.toLocaleDateString('ko-KR');
-  }
-
+  function formatRelativeTime(date) { const diff=Date.now()-date.getTime(); const sec=Math.floor(diff/1000); if (sec<60) return sec+'초 전'; const min=Math.floor(sec/60); if (min<60) return min+'분 전'; const hr=Math.floor(min/60); if (hr<24) return hr+'시간 전'; return date.toLocaleDateString('ko-KR'); }
   function startRealtimeLogs(guildId) {
-    if (_rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe = null; }
-    const { collection, onSnapshot, query, orderBy, limit } = firestoreOps;
-    if (!onSnapshot) {
-      const { getDocs } = firestoreOps;
-      getDocs(collection(_dbRef, 'guilds', guildId, 'purchaseLogs')).then(snap => {
-        const logs = [];
-        snap.forEach(d => logs.push(d.data()));
-        logs.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-        renderRtLog(logs.slice(0, 30));
-      }).catch(() => {});
-      return;
-    }
-    try {
-      const q = query(
-        collection(_dbRef, 'guilds', guildId, 'purchaseLogs'),
-        orderBy('timestamp', 'desc'),
-        limit(30)
-      );
-      _rtUnsubscribe = onSnapshot(q, (snap) => {
-        const logs = [];
-        snap.forEach(d => logs.push(d.data()));
-        renderRtLog(logs);
-      }, (err) => {
-        console.warn('onSnapshot 실패, fallback:', err.message);
-        const { getDocs } = firestoreOps;
-        getDocs(collection(_dbRef, 'guilds', guildId, 'purchaseLogs')).then(snap2 => {
-          const logs2 = [];
-          snap2.forEach(d => logs2.push(d.data()));
-          logs2.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-          renderRtLog(logs2.slice(0, 30));
-          const statusEl = document.getElementById('rtLogStatus');
-          if (statusEl) statusEl.textContent = '정적 로드됨 · ' + Math.min(logs2.length, 30) + '건';
-        }).catch(() => {});
-      });
-    } catch(e) { console.error('실시간 로그 오류:', e); }
+    if (_rtUnsubscribe) { _rtUnsubscribe(); _rtUnsubscribe=null; }
+    const{collection,onSnapshot,query,orderBy,limit}=firestoreOps;
+    if (!onSnapshot) { const{getDocs}=firestoreOps; getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')).then(snap=>{ const logs=[]; snap.forEach(d=>logs.push(d.data())); logs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); renderRtLog(logs.slice(0,30)); }).catch(()=>{}); return; }
+    try { const q=query(collection(_dbRef,'guilds',guildId,'purchaseLogs'),orderBy('timestamp','desc'),limit(30)); _rtUnsubscribe=onSnapshot(q,(snap)=>{ const logs=[]; snap.forEach(d=>logs.push(d.data())); renderRtLog(logs); },(err)=>{ console.warn('onSnapshot 실패, fallback:', err.message); const{getDocs}=firestoreOps; getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')).then(snap2=>{ const logs2=[]; snap2.forEach(d=>logs2.push(d.data())); logs2.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); renderRtLog(logs2.slice(0,30)); const statusEl=document.getElementById('rtLogStatus'); if (statusEl) statusEl.textContent='정적 로드됨 · '+Math.min(logs2.length,30)+'건'; }).catch(()=>{}); }); } catch(e) { console.error('실시간 로그 오류:', e); }
   }
-
   async function initDashboard() {
-    const guildId = currentLicense?.guildId;
-    if (!guildId || !firestoreOps) return;
-    const { collection, getDocs } = firestoreOps;
-    startRealtimeLogs(guildId);
-    const now = Date.now();
-    const D = 86400000;
-    const todayStart  = new Date(new Date().setHours(0,0,0,0)).getTime();
-    const weekStart   = todayStart - 6 * D;
-    const monthStart  = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
-    const yestStart   = todayStart - D;
-    const lastWeekS   = weekStart - 7 * D;
-    const lastMonthS  = new Date(new Date().getFullYear(), new Date().getMonth()-1, 1).getTime();
-    const lastMonthE  = monthStart;
-
-    function won(n) {
-      if (n === 0) return '0원';
-      if (n >= 100000000) return (n/100000000).toFixed(1) + '억원';
-      if (n >= 10000) return Math.round(n/10000).toLocaleString() + '만원';
-      return n.toLocaleString() + '원';
-    }
-    function pct(curr, prev) {
-      if (!prev) return null;
-      const p = ((curr - prev) / prev * 100).toFixed(1);
-      return { p, up: parseFloat(p) >= 0 };
-    }
-    function setChange(elId, curr, prev) {
-      const el = document.getElementById(elId);
-      if (!el) return;
-      const r = pct(curr, prev);
-      if (!r) { el.textContent = '전일 대비 데이터 없음'; el.className = 'dash-stat-change neutral'; return; }
-      el.className = 'dash-stat-change ' + (r.up ? 'up' : 'down');
-      el.innerHTML = (r.up ? '↗' : '↘') + ' ' + (r.up ? '+' : '') + r.p + '% 전일 대비';
-    }
-
-    let dbChargeLogs = [];
-    try {
-      const snap = await getDocs(collection(_dbRef, 'guilds', guildId, 'chargeLogs'));
-      snap.forEach(d => dbChargeLogs.push(d.data()));
-    } catch(e) {}
-
-    let purchaseLogs = [];
-    try {
-      const snap = await getDocs(collection(_dbRef, 'guilds', guildId, 'purchaseLogs'));
-      snap.forEach(d => purchaseLogs.push(d.data()));
-    } catch(e) {}
-
-    const allLogs = [...dbChargeLogs, ...purchaseLogs];
-
-    function sumRange(logs, from, to) {
-      return logs.filter(l => { const t = l.timestamp||0; return t >= from && t < to; })
-                 .reduce((s,l) => s + (l.amount||l.price||0), 0);
-    }
-    function countRange(logs, from, to) {
-      return logs.filter(l => { const t = l.timestamp||0; return t >= from && t < to; }).length;
-    }
-
-    const totalCharge = dbChargeLogs.reduce((s,l) => s + (l.amount||0), 0);
-    const el_tc = document.getElementById('d_totalCharge');
-    if (el_tc) el_tc.textContent = totalCharge ? totalCharge.toLocaleString() + '원' : '데이터 없음';
-    const el_tcs = document.getElementById('d_totalChargeSub');
-    if (el_tcs) el_tcs.textContent = '충전 ' + dbChargeLogs.length + '건 · 구매 ' + purchaseLogs.length + '건 누적';
-
-    const todaySales  = sumRange(allLogs, todayStart, todayStart + D);
-    const yestSales   = sumRange(allLogs, yestStart, todayStart);
-    const weekSales   = sumRange(allLogs, weekStart, now);
-    const lastWeekS2  = sumRange(allLogs, lastWeekS, weekStart);
-    const monthSales  = sumRange(allLogs, monthStart, now);
-    const lastMonthSales = sumRange(allLogs, lastMonthS, lastMonthE);
-
-    const el_t = document.getElementById('d_today'); if(el_t) el_t.textContent = won(todaySales);
-    const el_w = document.getElementById('d_week');  if(el_w) el_w.textContent = won(weekSales);
-    const el_m = document.getElementById('d_month'); if(el_m) el_m.textContent = won(monthSales);
-    setChange('d_todayChange', todaySales, yestSales);
-    setChange('d_weekChange', weekSales, lastWeekS2);
-    setChange('d_monthChange', monthSales, lastMonthSales);
-
-    const labels = [];
-    const salesData = [];
-    const countData = [];
-    for (let i = 6; i >= 0; i--) {
-      const from = todayStart - i * D;
-      const to   = from + D;
-      const d = new Date(from);
-      labels.push((d.getMonth()+1) + '/' + d.getDate());
-      salesData.push(sumRange(allLogs, from, to));
-      countData.push(countRange(allLogs, from, to));
-    }
-
-    function makeChart(id, data, label, color) {
-      const ctx = document.getElementById(id);
-      if (!ctx) return null;
-      return new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label,
-            data,
-            borderColor: color,
-            backgroundColor: color.replace('1)', '0.08)'),
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: color,
-            tension: 0.4,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: {
-              grid: { color: 'rgba(255,255,255,0.04)' },
-              ticks: { color: '#555', font: { family: 'JetBrains Mono', size: 11 } }
-            },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.04)' },
-              ticks: {
-                color: '#555',
-                font: { family: 'JetBrains Mono', size: 11 },
-                callback: v => id === 'chartSales'
-                  ? (v >= 10000 ? Math.round(v/10000)+'만' : v)
-                  : v + '건'
-              }
-            }
-          }
-        }
-      });
-    }
-
-    if (_dashChartSales) { _dashChartSales.destroy(); _dashChartSales = null; }
-    if (_dashChartCount) { _dashChartCount.destroy(); _dashChartCount = null; }
-    _dashChartSales = makeChart('chartSales', salesData, '매출', 'rgba(74,222,128,1)');
-    _dashChartCount = makeChart('chartCount', countData, '건수', 'rgba(96,165,250,1)');
-
-    const prodCount = {};
-    purchaseLogs.forEach(l => {
-      const k = l.productName || '알 수 없음';
-      prodCount[k] = (prodCount[k]||0) + 1;
-    });
-    const topProds = Object.entries(prodCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const el_tp = document.getElementById('d_topProducts');
-    if (el_tp) {
-      if (!topProds.length) {
-        el_tp.innerHTML = '<div class="dash-empty">구매 데이터가 없습니다</div>';
-      } else {
-        el_tp.innerHTML = topProds.map(([name, cnt], i) => `
-          <div class="dash-rank">
-            <span class="dash-rank-num">${i+1}</span>
-            <span class="dash-rank-name">${esc(name)}</span>
-            <span class="dash-rank-val">${cnt}건</span>
-          </div>`).join('');
-      }
-    }
-
-    const el_sl = document.getElementById('d_stockList');
-    if (el_sl) {
-      if (!stockItems.length) {
-        el_sl.innerHTML = '<div class="dash-empty">재고 데이터가 없습니다</div>';
-      } else {
-        const stockByProd = {};
-        stockItems.forEach(s => {
-          const prod = products.find(p => p.id === s.prodId);
-          const name = prod?.name || '알 수 없음';
-          stockByProd[name] = (stockByProd[name]||0) + (parseInt(s.qty)||0);
-        });
-        const sorted = Object.entries(stockByProd).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        el_sl.innerHTML = sorted.map(([name, qty], i) => `
-          <div class="dash-rank">
-            <span class="dash-rank-num">${i+1}</span>
-            <span class="dash-rank-name">${esc(name)}</span>
-            <span class="dash-rank-val">${qty}개</span>
-          </div>`).join('');
-      }
-    }
+    const guildId=currentLicense?.guildId; if (!guildId||!firestoreOps) return;
+    const{collection,getDocs}=firestoreOps; startRealtimeLogs(guildId);
+    const now=Date.now(); const D=86400000;
+    const todayStart=new Date(new Date().setHours(0,0,0,0)).getTime(); const weekStart=todayStart-6*D; const monthStart=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();
+    const yestStart=todayStart-D; const lastWeekS=weekStart-7*D; const lastMonthS=new Date(new Date().getFullYear(),new Date().getMonth()-1,1).getTime(); const lastMonthE=monthStart;
+    function won(n) { if(n===0) return '0원'; if(n>=100000000) return (n/100000000).toFixed(1)+'억원'; if(n>=10000) return Math.round(n/10000).toLocaleString()+'만원'; return n.toLocaleString()+'원'; }
+    function pct(curr,prev) { if(!prev) return null; const p=((curr-prev)/prev*100).toFixed(1); return{p,up:parseFloat(p)>=0}; }
+    function setChange(elId,curr,prev) { const el=document.getElementById(elId); if(!el) return; const r=pct(curr,prev); if(!r){el.textContent='전일 대비 데이터 없음';el.className='dash-stat-change neutral';return;} el.className='dash-stat-change '+(r.up?'up':'down'); el.innerHTML=(r.up?'↗':'↘')+' '+(r.up?'+':'')+r.p+'% 전일 대비'; }
+    let dbChargeLogs=[]; try { const snap=await getDocs(collection(_dbRef,'guilds',guildId,'chargeLogs')); snap.forEach(d=>dbChargeLogs.push(d.data())); } catch(e) {}
+    let purchaseLogs=[]; try { const snap=await getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')); snap.forEach(d=>purchaseLogs.push(d.data())); } catch(e) {}
+    const allLogs=[...dbChargeLogs,...purchaseLogs];
+    function sumRange(logs,from,to) { return logs.filter(l=>{const t=l.timestamp||0;return t>=from&&t<to;}).reduce((s,l)=>s+(l.amount||l.price||0),0); }
+    function countRange(logs,from,to) { return logs.filter(l=>{const t=l.timestamp||0;return t>=from&&t<to;}).length; }
+    const totalCharge=dbChargeLogs.reduce((s,l)=>s+(l.amount||0),0);
+    const el_tc=document.getElementById('d_totalCharge'); if(el_tc) el_tc.textContent=totalCharge?totalCharge.toLocaleString()+'원':'데이터 없음';
+    const el_tcs=document.getElementById('d_totalChargeSub'); if(el_tcs) el_tcs.textContent='충전 '+dbChargeLogs.length+'건 · 구매 '+purchaseLogs.length+'건 누적';
+    const todaySales=sumRange(allLogs,todayStart,todayStart+D); const yestSales=sumRange(allLogs,yestStart,todayStart);
+    const weekSales=sumRange(allLogs,weekStart,now); const lastWeekS2=sumRange(allLogs,lastWeekS,weekStart);
+    const monthSales=sumRange(allLogs,monthStart,now); const lastMonthSales=sumRange(allLogs,lastMonthS,lastMonthE);
+    const el_t=document.getElementById('d_today'); if(el_t) el_t.textContent=won(todaySales);
+    const el_w=document.getElementById('d_week'); if(el_w) el_w.textContent=won(weekSales);
+    const el_m=document.getElementById('d_month'); if(el_m) el_m.textContent=won(monthSales);
+    setChange('d_todayChange',todaySales,yestSales); setChange('d_weekChange',weekSales,lastWeekS2); setChange('d_monthChange',monthSales,lastMonthSales);
+    const labels=[],salesData=[],countData=[];
+    for (let i=6;i>=0;i--) { const from=todayStart-i*D; const to=from+D; const d=new Date(from); labels.push((d.getMonth()+1)+'/'+d.getDate()); salesData.push(sumRange(allLogs,from,to)); countData.push(countRange(allLogs,from,to)); }
+    function makeChart(id,data,label,color) { const ctx=document.getElementById(id); if(!ctx) return null; return new Chart(ctx,{type:'line',data:{labels,datasets:[{label,data,borderColor:color,backgroundColor:color.replace('1)','0.08)'),borderWidth:2,pointRadius:3,pointBackgroundColor:color,tension:0.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555',font:{family:'JetBrains Mono',size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555',font:{family:'JetBrains Mono',size:11},callback:v=>id==='chartSales'?(v>=10000?Math.round(v/10000)+'만':v):v+'건'}}}}}); }
+    if (_dashChartSales){_dashChartSales.destroy();_dashChartSales=null;} if (_dashChartCount){_dashChartCount.destroy();_dashChartCount=null;}
+    _dashChartSales=makeChart('chartSales',salesData,'매출','rgba(74,222,128,1)'); _dashChartCount=makeChart('chartCount',countData,'건수','rgba(96,165,250,1)');
+    const prodCount={}; purchaseLogs.forEach(l=>{const k=l.productName||'알 수 없음';prodCount[k]=(prodCount[k]||0)+1;});
+    const topProds=Object.entries(prodCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const el_tp=document.getElementById('d_topProducts'); if(el_tp){if(!topProds.length){el_tp.innerHTML='<div class="dash-empty">구매 데이터가 없습니다</div>';}else{el_tp.innerHTML=topProds.map(([name,cnt],i)=>`<div class="dash-rank"><span class="dash-rank-num">${i+1}</span><span class="dash-rank-name">${esc(name)}</span><span class="dash-rank-val">${cnt}건</span></div>`).join('');}}
+    const el_sl=document.getElementById('d_stockList'); if(el_sl){if(!stockItems.length){el_sl.innerHTML='<div class="dash-empty">재고 데이터가 없습니다</div>';}else{const stockByProd={};stockItems.forEach(s=>{const prod=products.find(p=>p.id===s.prodId);const name=prod?.name||'알 수 없음';stockByProd[name]=(stockByProd[name]||0)+(parseInt(s.qty)||0);});const sorted=Object.entries(stockByProd).sort((a,b)=>b[1]-a[1]).slice(0,5);el_sl.innerHTML=sorted.map(([name,qty],i)=>`<div class="dash-rank"><span class="dash-rank-num">${i+1}</span><span class="dash-rank-name">${esc(name)}</span><span class="dash-rank-val">${qty}개</span></div>`).join('');}}
   }
 
-  /* ── HELPERS ── */
-  function esc(str) {
-    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  /* HELPERS */
+  function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  /* ── USERS ── */
-  let allUsers = [];
-  let _verifyOn = false;
-
-  async function initUsersPage() {
-    const guildId = currentLicense?.guildId;
-    if (!guildId) return;
-    const { collection, getDocs } = firestoreOps;
-    try {
-      const snap = await getDocs(collection(_dbRef, 'guilds', guildId, 'users'));
-      allUsers = [];
-      snap.forEach(d => allUsers.push({ ...d.data(), _docId: d.id }));
-    } catch(e) { console.error(e); }
-    renderUserTable(allUsers);
-  }
-
+  /* USERS */
+  let allUsers = [], _verifyOn = false;
+  async function initUsersPage() { const guildId=currentLicense?.guildId; if(!guildId) return; const{collection,getDocs}=firestoreOps; try{const snap=await getDocs(collection(_dbRef,'guilds',guildId,'users'));allUsers=[];snap.forEach(d=>allUsers.push({...d.data(),_docId:d.id}));}catch(e){console.error(e);} renderUserTable(allUsers); }
   function renderUserTable(users) {
-    const tbody = document.getElementById('userTableBody');
-    if (!tbody) return;
-    if (!users.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">유저 데이터가 없습니다</td></tr>';
-      return;
-    }
-    tbody.innerHTML = users.map(u => {
-      const grade = grades.find(g => g.id === u.grade);
-      const gradeLabel = grade
-        ? `<span style="background:${grade.color||'#4ade80'}22;color:${grade.color||'#4ade80'};border:1px solid ${grade.color||'#4ade80'}44;padding:2px 8px;border-radius:99px;font-size:11px;font-family:JetBrains Mono,monospace;">${esc(grade.name)}</span>`
-        : `<span style="color:var(--text3);font-size:12px;font-family:JetBrains Mono,monospace;">${esc(u.grade||'비구매자')}</span>`;
-      return `<tr style="border-bottom:1px solid var(--border);">
-        <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${esc(u.psid||u._docId)}</td>
-        <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2);">${esc(u.discordId||u._docId)}</td>
-        <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${(u.points||0).toLocaleString()}원</td>
-        <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${(u.totalCharged||0).toLocaleString()}원</td>
-        <td style="padding:12px 16px;">${gradeLabel}</td>
-        <td style="padding:12px 16px;white-space:nowrap;">
-          <button class="btn btn-ghost btn-sm" style="margin-right:6px;" onclick="openUserEdit('${u._docId}')">✏️ 편집</button>
-          <button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('${u._docId}')">🛒 구매기록</button>
-        </td>
-      </tr>`;
-    }).join('');
+    const tbody=document.getElementById('userTableBody'); if(!tbody) return;
+    if (!users.length) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">유저 데이터가 없습니다</td></tr>'; return; }
+    tbody.innerHTML=users.map(u=>{const grade=grades.find(g=>g.id===u.grade);const gradeLabel=grade?`<span style="background:${grade.color||'#4ade80'}22;color:${grade.color||'#4ade80'};border:1px solid ${grade.color||'#4ade80'}44;padding:2px 8px;border-radius:99px;font-size:11px;font-family:JetBrains Mono,monospace;">${esc(grade.name)}</span>`:`<span style="color:var(--text3);font-size:12px;font-family:JetBrains Mono,monospace;">${esc(u.grade||'비구매자')}</span>`;return `<tr style="border-bottom:1px solid var(--border);"><td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${esc(u.psid||u._docId)}</td><td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2);">${esc(u.discordId||u._docId)}</td><td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${(u.points||0).toLocaleString()}원</td><td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${(u.totalCharged||0).toLocaleString()}원</td><td style="padding:12px 16px;">${gradeLabel}</td><td style="padding:12px 16px;white-space:nowrap;"><button class="btn btn-ghost btn-sm" style="margin-right:6px;" onclick="openUserEdit('${u._docId}')">✏️ 편집</button><button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('${u._docId}')">🛒 구매기록</button></td></tr>`;}).join('');
   }
+  function filterUsers(q) { const filtered=allUsers.filter(u=>(u.psid||'').toLowerCase().includes(q.toLowerCase())||(u.discordId||'').includes(q)||(u._docId||'').includes(q)); renderUserTable(filtered); }
+  function buildUsersPage() { return `<div class="page-header"><div class="page-title">👥 유저 목록</div><div class="page-sub">// 스토어 유저 정보를 관리합니다.</div></div><div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px;border-bottom:1px solid var(--border);"><div style="position:relative;"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;">🔍</span><input type="text" placeholder="검색어를 입력해주세요." oninput="filterUsers(this.value)" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px 10px 38px;color:var(--text);font-size:13px;outline:none;"/></div></div><div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:1px solid var(--border2);"><th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">Psid</th><th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">디스코드 아이디</th><th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">잔액</th><th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">누적금액</th><th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">등급</th><th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:700;color:var(--text2);">관리</th></tr></thead><tbody id="userTableBody"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">로딩 중...</td></tr></tbody></table></div></div>`; }
+  function openUserEdit(docId) { const u=allUsers.find(x=>x._docId===docId); if(!u) return; _verifyOn=false; const tog=document.getElementById('verifyToggle'); const thumb=document.getElementById('verifyThumb'); if(tog) tog.style.background='#333'; if(thumb) thumb.style.left='3px'; document.getElementById('verifyWarning').style.display='none'; document.getElementById('verifyInfoSection').style.display='none'; document.getElementById('editUserId').value=docId; document.getElementById('editUserPsid').value=u.psid||''; document.getElementById('editUserDiscordId').value=u.discordId||docId; document.getElementById('editUserPoints').value=u.points||0; document.getElementById('editUserAdmin').value=u.isAdmin?'true':'false'; const gradeSel=document.getElementById('editUserGrade'); gradeSel.innerHTML='<option value="">유저 등급 선택해주세요.</option>'+grades.map(g=>`<option value="${g.id}" ${u.grade===g.id?'selected':''}>${esc(g.name)}</option>`).join(''); document.getElementById('editUserRealName').value=u.realName||''; document.getElementById('editUserPhone').value=u.phone||''; document.getElementById('editUserBirth').value=u.birth||''; openModal('modalUserEdit'); }
+  function toggleVerifyInfo() { _verifyOn=!_verifyOn; const tog=document.getElementById('verifyToggle'); const thumb=document.getElementById('verifyThumb'); if(tog) tog.style.background=_verifyOn?'#4ade80':'#333'; if(thumb) thumb.style.left=_verifyOn?'23px':'3px'; document.getElementById('verifyWarning').style.display=_verifyOn?'block':'none'; document.getElementById('verifyInfoSection').style.display=_verifyOn?'block':'none'; }
+  async function saveUserEdit() { const docId=document.getElementById('editUserId').value; const psid=document.getElementById('editUserPsid').value.trim(); const points=parseInt(document.getElementById('editUserPoints').value)||0; const isAdmin=document.getElementById('editUserAdmin').value==='true'; const grade=document.getElementById('editUserGrade').value; const guildId=currentLicense.guildId; try { const{doc,setDoc}=firestoreOps; const u=allUsers.find(x=>x._docId===docId)||{}; await setDoc(doc(_dbRef,'guilds',guildId,'users',docId),{...u,psid,points,isAdmin,grade,_docId:undefined}); const idx=allUsers.findIndex(x=>x._docId===docId); if(idx>=0) allUsers[idx]={...allUsers[idx],psid,points,isAdmin,grade}; closeModal('modalUserEdit'); showToast('✅ 유저 정보가 저장되었습니다!'); renderUserTable(allUsers); } catch(e) { console.error(e); showToast('❌ 저장 실패', true); } }
+  async function openPurchaseLog(docId) { const u=allUsers.find(x=>x._docId===docId); const guildId=currentLicense.guildId; const el=document.getElementById('purchaseLogContent'); el.innerHTML='<div style="text-align:center;padding:24px;color:var(--text3);font-family:JetBrains Mono,monospace;">로딩 중...</div>'; openModal('modalPurchaseLog'); try { const{collection,getDocs}=firestoreOps; const snap=await getDocs(collection(_dbRef,'guilds',guildId,'purchaseLogs')); const logs=[]; snap.forEach(d=>{const data=d.data();if(data.userId===docId||data.discordId===(u?.discordId||docId)) logs.push(data);}); if (!logs.length){el.innerHTML='<div style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">구매 기록이 없습니다</div>';return;} logs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); el.innerHTML=logs.map(l=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;font-weight:600;">${esc(l.productName||'알 수 없음')}</div><div style="font-size:11px;color:var(--text3);font-family:JetBrains Mono,monospace;margin-top:2px;">${l.timestamp?new Date(l.timestamp).toLocaleString('ko-KR'):'-'}</div></div><div style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--success);">${(l.price||0).toLocaleString()}원</div></div>`).join(''); } catch(e) { el.innerHTML='<div style="text-align:center;padding:24px;color:var(--danger);">로드 실패</div>'; } }
 
-  function filterUsers(q) {
-    const filtered = allUsers.filter(u =>
-      (u.psid||'').toLowerCase().includes(q.toLowerCase()) ||
-      (u.discordId||'').includes(q) ||
-      (u._docId||'').includes(q)
-    );
-    renderUserTable(filtered);
-  }
-
-  function buildUsersPage() {
-    return `
-      <div class="page-header">
-        <div class="page-title">👥 유저 목록</div>
-        <div class="page-sub">// 스토어 유저 정보를 관리합니다.</div>
-      </div>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
-          <div style="position:relative;">
-            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;">🔍</span>
-            <input type="text" placeholder="검색어를 입력해주세요." oninput="filterUsers(this.value)"
-              style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px 10px 38px;color:var(--text);font-size:13px;outline:none;"/>
-          </div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr style="border-bottom:1px solid var(--border2);">
-                <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">Psid</th>
-                <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">디스코드 아이디</th>
-                <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">잔액</th>
-                <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">누적금액</th>
-                <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">등급</th>
-                <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:700;color:var(--text2);">관리</th>
-              </tr>
-            </thead>
-            <tbody id="userTableBody">
-              <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">로딩 중...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>`;
-  }
-
-  function openUserEdit(docId) {
-    const u = allUsers.find(x => x._docId === docId);
-    if (!u) return;
-    _verifyOn = false;
-    const tog = document.getElementById('verifyToggle');
-    const thumb = document.getElementById('verifyThumb');
-    if (tog) tog.style.background = '#333';
-    if (thumb) thumb.style.left = '3px';
-    document.getElementById('verifyWarning').style.display = 'none';
-    document.getElementById('verifyInfoSection').style.display = 'none';
-    document.getElementById('editUserId').value = docId;
-    document.getElementById('editUserPsid').value = u.psid || '';
-    document.getElementById('editUserDiscordId').value = u.discordId || docId;
-    document.getElementById('editUserPoints').value = u.points || 0;
-    document.getElementById('editUserAdmin').value = u.isAdmin ? 'true' : 'false';
-    const gradeSel = document.getElementById('editUserGrade');
-    gradeSel.innerHTML = '<option value="">유저 등급 선택해주세요.</option>' +
-      grades.map(g => `<option value="${g.id}" ${u.grade === g.id ? 'selected' : ''}>${esc(g.name)}</option>`).join('');
-    document.getElementById('editUserRealName').value = u.realName || '';
-    document.getElementById('editUserPhone').value = u.phone || '';
-    document.getElementById('editUserBirth').value = u.birth || '';
-    openModal('modalUserEdit');
-  }
-
-  function toggleVerifyInfo() {
-    _verifyOn = !_verifyOn;
-    const tog = document.getElementById('verifyToggle');
-    const thumb = document.getElementById('verifyThumb');
-    if (tog) tog.style.background = _verifyOn ? '#4ade80' : '#333';
-    if (thumb) thumb.style.left = _verifyOn ? '23px' : '3px';
-    document.getElementById('verifyWarning').style.display = _verifyOn ? 'block' : 'none';
-    document.getElementById('verifyInfoSection').style.display = _verifyOn ? 'block' : 'none';
-  }
-
-  async function saveUserEdit() {
-    const docId = document.getElementById('editUserId').value;
-    const psid = document.getElementById('editUserPsid').value.trim();
-    const points = parseInt(document.getElementById('editUserPoints').value) || 0;
-    const isAdmin = document.getElementById('editUserAdmin').value === 'true';
-    const grade = document.getElementById('editUserGrade').value;
-    const guildId = currentLicense.guildId;
-    try {
-      const { doc, setDoc } = firestoreOps;
-      const u = allUsers.find(x => x._docId === docId) || {};
-      await setDoc(doc(_dbRef, 'guilds', guildId, 'users', docId), {
-        ...u, psid, points, isAdmin, grade, _docId: undefined
-      });
-      const idx = allUsers.findIndex(x => x._docId === docId);
-      if (idx >= 0) allUsers[idx] = { ...allUsers[idx], psid, points, isAdmin, grade };
-      closeModal('modalUserEdit');
-      showToast('✅ 유저 정보가 저장되었습니다!');
-      renderUserTable(allUsers);
-    } catch(e) { console.error(e); showToast('❌ 저장 실패', true); }
-  }
-
-  async function openPurchaseLog(docId) {
-    const u = allUsers.find(x => x._docId === docId);
-    const guildId = currentLicense.guildId;
-    const el = document.getElementById('purchaseLogContent');
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3);font-family:JetBrains Mono,monospace;">로딩 중...</div>';
-    openModal('modalPurchaseLog');
-    try {
-      const { collection, getDocs } = firestoreOps;
-      const snap = await getDocs(collection(_dbRef, 'guilds', guildId, 'purchaseLogs'));
-      const logs = [];
-      snap.forEach(d => { const data = d.data(); if (data.userId === docId || data.discordId === (u?.discordId||docId)) logs.push(data); });
-      if (!logs.length) {
-        el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text3);font-family:JetBrains Mono,monospace;">구매 기록이 없습니다</div>';
-        return;
-      }
-      logs.sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
-      el.innerHTML = logs.map(l => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
-          <div>
-            <div style="font-size:13px;font-weight:600;">${esc(l.productName||'알 수 없음')}</div>
-            <div style="font-size:11px;color:var(--text3);font-family:JetBrains Mono,monospace;margin-top:2px;">${l.timestamp ? new Date(l.timestamp).toLocaleString('ko-KR') : '-'}</div>
-          </div>
-          <div style="font-family:JetBrains Mono,monospace;font-size:13px;color:var(--success);">${(l.price||0).toLocaleString()}원</div>
-        </div>`).join('');
-    } catch(e) { el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--danger);">로드 실패</div>'; }
-  }
-
-  /* ── GRADES ── */
+  /* GRADES */
   let grades = [];
+  async function loadGrades() { const guildId=currentLicense?.guildId; if(!guildId) return; const{collection,getDocs}=firestoreOps; try{const snap=await getDocs(collection(_dbRef,'guilds',guildId,'grades'));grades=[];snap.forEach(d=>grades.push({...d.data(),id:d.id}));}catch(e){} }
+  function buildGradesPage() { const items=grades.map(g=>{const role=discordRoles.find(r=>r.id===g.roleId);return `<div class="list-item"><div style="width:14px;height:14px;border-radius:50%;background:${g.color||'#4ade80'};flex-shrink:0;"></div><div style="flex:1;"><div class="item-name">${esc(g.name)}</div><div class="item-meta">${role?'@ '+esc(role.name):'역할 없음'} · 할인 ${g.discount||0}% · 승급조건 ${g.required?(g.required).toLocaleString()+'원 이상':'없음'}</div></div><button class="btn btn-ghost btn-sm" onclick="openGradeEdit('${g.id}')">✏️ 편집</button><button class="btn btn-red-ghost btn-sm" onclick="deleteGrade('${g.id}')">삭제</button></div>`;}).join(''); return `<div class="page-header"><div class="page-title">🏅 등급 관리</div><div class="page-sub">// 유저 등급과 역할 · 할인율을 설정합니다</div></div><div class="card"><div class="card-header"><div class="card-title">🏅 등급 목록 <span class="tag">${grades.length}개</span></div><button class="btn btn-white btn-sm" onclick="openGradeAdd()">+ 등급 추가</button></div>${grades.length?items:emptyState('🏅','등급이 없습니다','등급을 추가해주세요')}</div>`; }
+  function openGradeAdd() { document.getElementById('gradeModalTitle').textContent='🏅 등급 추가'; document.getElementById('editGradeId').value=''; document.getElementById('gradeNameInput').value=''; document.getElementById('gradeDiscountInput').value=''; document.getElementById('gradeColorInput').value='#4ade80'; document.getElementById('gradeRequiredInput').value=''; const sel=document.getElementById('gradeRoleSel'); sel.innerHTML='<option value="">역할 없음</option>'+discordRoles.map(r=>`<option value="${r.id}">@ ${esc(r.name)}</option>`).join(''); openModal('modalGrade'); }
+  function openGradeEdit(id) { const g=grades.find(x=>x.id===id); if(!g) return; document.getElementById('gradeModalTitle').textContent='✏️ 등급 편집'; document.getElementById('editGradeId').value=id; document.getElementById('gradeNameInput').value=g.name||''; document.getElementById('gradeDiscountInput').value=g.discount||0; document.getElementById('gradeColorInput').value=g.color||'#4ade80'; document.getElementById('gradeRequiredInput').value=g.required||0; const sel=document.getElementById('gradeRoleSel'); sel.innerHTML='<option value="">역할 없음</option>'+discordRoles.map(r=>`<option value="${r.id}" ${r.id===g.roleId?'selected':''}>@ ${esc(r.name)}</option>`).join(''); openModal('modalGrade'); }
+  async function saveGrade() { const id=document.getElementById('editGradeId').value||Date.now().toString(); const name=document.getElementById('gradeNameInput').value.trim(); const roleId=document.getElementById('gradeRoleSel').value; const discount=parseInt(document.getElementById('gradeDiscountInput').value)||0; const color=document.getElementById('gradeColorInput').value; const required=parseInt(document.getElementById('gradeRequiredInput').value)||0; if(!name){showToast('⚠️ 등급 이름을 입력하세요',true);return;} const guildId=currentLicense.guildId; const data={id,name,roleId,discount,color,required}; try{const{doc,setDoc}=firestoreOps;await setDoc(doc(_dbRef,'guilds',guildId,'grades',id),data);const idx=grades.findIndex(g=>g.id===id);if(idx>=0) grades[idx]=data;else grades.push(data);closeModal('modalGrade');showToast('✅ 등급이 저장되었습니다!');showPage('grades');}catch(e){showToast('❌ 저장 실패',true);} }
+  async function deleteGrade(id) { if(!confirm('이 등급을 삭제할까요?')) return; const guildId=currentLicense.guildId; try{const{doc,deleteDoc}=firestoreOps;await deleteDoc(doc(_dbRef,'guilds',guildId,'grades',id));grades=grades.filter(g=>g.id!==id);showToast('🗑️ 삭제되었습니다');showPage('grades');}catch(e){showToast('❌ 삭제 실패',true);} }
 
-  async function loadGrades() {
-    const guildId = currentLicense?.guildId;
-    if (!guildId) return;
-    const { collection, getDocs } = firestoreOps;
-    try {
-      const snap = await getDocs(collection(_dbRef, 'guilds', guildId, 'grades'));
-      grades = [];
-      snap.forEach(d => grades.push({ ...d.data(), id: d.id }));
-    } catch(e) {}
-  }
-
-  function buildGradesPage() {
-    const items = grades.map(g => {
-      const role = discordRoles.find(r => r.id === g.roleId);
-      return `
-        <div class="list-item">
-          <div style="width:14px;height:14px;border-radius:50%;background:${g.color||'#4ade80'};flex-shrink:0;"></div>
-          <div style="flex:1;">
-            <div class="item-name">${esc(g.name)}</div>
-            <div class="item-meta">${role ? '@ '+esc(role.name) : '역할 없음'} · 할인 ${g.discount||0}% · 승급조건 ${g.required ? (g.required).toLocaleString()+'원 이상' : '없음'}</div>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="openGradeEdit('${g.id}')">✏️ 편집</button>
-          <button class="btn btn-red-ghost btn-sm" onclick="deleteGrade('${g.id}')">삭제</button>
-        </div>`;
-    }).join('');
-    return `
-      <div class="page-header">
-        <div class="page-title">🏅 등급 관리</div>
-        <div class="page-sub">// 유저 등급과 역할 · 할인율을 설정합니다</div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">🏅 등급 목록 <span class="tag">${grades.length}개</span></div>
-          <button class="btn btn-white btn-sm" onclick="openGradeAdd()">+ 등급 추가</button>
-        </div>
-        ${grades.length ? items : emptyState('🏅','등급이 없습니다','등급을 추가해주세요')}
-      </div>`;
-  }
-
-  function openGradeAdd() {
-    document.getElementById('gradeModalTitle').textContent = '🏅 등급 추가';
-    document.getElementById('editGradeId').value = '';
-    document.getElementById('gradeNameInput').value = '';
-    document.getElementById('gradeDiscountInput').value = '';
-    document.getElementById('gradeColorInput').value = '#4ade80';
-    document.getElementById('gradeRequiredInput').value = '';
-    const sel = document.getElementById('gradeRoleSel');
-    sel.innerHTML = '<option value="">역할 없음</option>' +
-      discordRoles.map(r => `<option value="${r.id}">@ ${esc(r.name)}</option>`).join('');
-    openModal('modalGrade');
-  }
-
-  function openGradeEdit(id) {
-    const g = grades.find(x => x.id === id);
-    if (!g) return;
-    document.getElementById('gradeModalTitle').textContent = '✏️ 등급 편집';
-    document.getElementById('editGradeId').value = id;
-    document.getElementById('gradeNameInput').value = g.name || '';
-    document.getElementById('gradeDiscountInput').value = g.discount || 0;
-    document.getElementById('gradeColorInput').value = g.color || '#4ade80';
-    document.getElementById('gradeRequiredInput').value = g.required || 0;
-    const sel = document.getElementById('gradeRoleSel');
-    sel.innerHTML = '<option value="">역할 없음</option>' +
-      discordRoles.map(r => `<option value="${r.id}" ${r.id === g.roleId ? 'selected' : ''}>@ ${esc(r.name)}</option>`).join('');
-    openModal('modalGrade');
-  }
-
-  async function saveGrade() {
-    const id = document.getElementById('editGradeId').value || Date.now().toString();
-    const name = document.getElementById('gradeNameInput').value.trim();
-    const roleId = document.getElementById('gradeRoleSel').value;
-    const discount = parseInt(document.getElementById('gradeDiscountInput').value) || 0;
-    const color = document.getElementById('gradeColorInput').value;
-    const required = parseInt(document.getElementById('gradeRequiredInput').value) || 0;
-    if (!name) { showToast('⚠️ 등급 이름을 입력하세요', true); return; }
-    const guildId = currentLicense.guildId;
-    const data = { id, name, roleId, discount, color, required };
-    try {
-      const { doc, setDoc } = firestoreOps;
-      await setDoc(doc(_dbRef, 'guilds', guildId, 'grades', id), data);
-      const idx = grades.findIndex(g => g.id === id);
-      if (idx >= 0) grades[idx] = data; else grades.push(data);
-      closeModal('modalGrade');
-      showToast('✅ 등급이 저장되었습니다!');
-      showPage('grades');
-    } catch(e) { showToast('❌ 저장 실패', true); }
-  }
-
-  async function deleteGrade(id) {
-    if (!confirm('이 등급을 삭제할까요?')) return;
-    const guildId = currentLicense.guildId;
-    try {
-      const { doc, deleteDoc } = firestoreOps;
-      await deleteDoc(doc(_dbRef, 'guilds', guildId, 'grades', id));
-      grades = grades.filter(g => g.id !== id);
-      showToast('🗑️ 삭제되었습니다');
-      showPage('grades');
-    } catch(e) { showToast('❌ 삭제 실패', true); }
-  }
-
-  document.querySelectorAll('.modal-overlay').forEach(o => {
-    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
-  });
+  document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); }); });
 </script>
 </body>
 </html>
