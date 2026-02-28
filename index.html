@@ -112,59 +112,19 @@
       transition:all 0.25s ease;
       transform-origin:center;
     }
-    .hamburger-btn.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
-    .hamburger-btn.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
-    .hamburger-btn.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
-
-    /* SIDEBAR OVERLAY (mobile) - 시각적 효과만, 클릭 이벤트 없음 */
-    .sidebar-overlay {
+        .drawer-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.78);
-      backdrop-filter: blur(6px);
-      z-index: 998;
-      animation: fadeIn 0.25s ease;
-      pointer-events: none;
-      touch-action: none;           /* 모바일 터치 지연 방지 */
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      z-index: 300;
+      animation: fadeIn 0.2s ease;
     }
-
-    .sidebar-overlay.open {
-      display: block;
-      pointer-events: auto;
-      touch-action: manipulation;   /* 터치 즉시 반응 */
-      z-index: 998;
-    }
-
-    /* 사이드바 외부 클릭 캐처 - 사이드바 오른쪽 영역만 */
-    .sidebar-click-catcher {
-      display:none;
-      position:fixed;
-      top:0;
-      left:var(--sidebar-w);
-      right:0;
-      bottom:0;
-      z-index:999;
-      cursor:pointer;
-      background:transparent;
-    }
-    .sidebar-click-catcher.open {
-      display:block;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-      width:var(--sidebar-w);
-      flex-shrink:0;
-      background:var(--surface);
-      border-right:1px solid var(--border);
-      display:flex;
-      flex-direction:column;
-      padding:20px 0;
-      overflow-y:auto;
-      height:100%;
-      transition:transform 0.3s ease;
-    }
+    .drawer-overlay.open { display: block; }
+    .hamburger-btn.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger-btn.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+    .hamburger-btn.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
     .sidebar-brand { display:flex; align-items:center; gap:10px; padding:0 16px 18px; border-bottom:1px solid var(--border); margin-bottom:10px; }
     .sidebar-brand-icon { width:30px; height:30px; border-radius:7px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
     .sidebar-brand-icon img { width:100%; height:100%; object-fit:cover; }
@@ -400,20 +360,19 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width:780px) {
-      .sidebar {
-        position: fixed;
-        top: 0; left: 0;
-        height: 100vh;
-        width: 280px;                 /* 조금 더 넓게 (선택) */
-        z-index: 1000;                /* overlay(998)보다 확실히 위 */
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-        box-shadow: 8px 0 40px rgba(0,0,0,0.65);
-        touch-action: none;
-      }
-      .sidebar.open {
-        transform: translateX(0);
-      }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 100%;
+      z-index: 400;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      border-right: 1px solid var(--border2);
+      box-shadow: 8px 0 32px rgba(0,0,0,0.5);
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
       .main-inner { padding:20px 16px; padding-top:70px; }
       .dash-grid { grid-template-columns:1fr 1fr; }
       .dash-row { grid-template-columns:1fr; }
@@ -470,10 +429,7 @@
   <span></span>
 </button>
 
-<!-- SIDEBAR OVERLAY (mobile backdrop - 시각효과만) -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-<!-- SIDEBAR CLICK CATCHER (사이드바 외부 클릭 감지용) -->
-<div class="sidebar-click-catcher" id="sidebarClickCatcher"></div>
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeSidebar()"></div>
 
 <!-- DASHBOARD -->
 <div id="dashScreen" class="screen">
@@ -847,30 +803,24 @@ function updateHamburgerVisibility() {
 
 function toggleSidebar() {
   const sidebar = document.getElementById('mainSidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const catcher = document.getElementById('sidebarClickCatcher');
+  const overlay = document.getElementById('drawerOverlay');
   const btn = document.getElementById('hamburgerBtn');
-
-  const willOpen = !sidebar.classList.contains('open');
-
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('open');
-  if (catcher) catcher.classList.toggle('open');
-  btn.classList.toggle('open');
-
-  // 배경 스크롤 막기
-  document.body.style.overflow = willOpen ? 'hidden' : '';
+  const isOpen = sidebar.classList.contains('open');
+  if (isOpen) closeSidebar();
+  else {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    btn.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 function closeSidebar() {
   const sidebar = document.getElementById('mainSidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const catcher = document.getElementById('sidebarClickCatcher');
+  const overlay = document.getElementById('drawerOverlay');
   const btn = document.getElementById('hamburgerBtn');
-
   sidebar.classList.remove('open');
   overlay.classList.remove('open');
-  if (catcher) catcher.classList.remove('open');
   btn.classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -2483,31 +2433,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (SUPABASE_URL && SUPABASE_KEY) initSupabase(SUPABASE_URL, SUPABASE_KEY);
   const btn = document.getElementById('hamburgerBtn');
   if (btn) btn.style.display = 'none';
-
-  // overlay 클릭/터치로 닫기 (모바일 완전 해결)
-  const overlay = document.getElementById('sidebarOverlay');
-  if (overlay) {
-    overlay.addEventListener('click', e => { if (e.target === overlay) closeSidebar(); });
-    overlay.addEventListener('touchstart', e => { 
-      if (e.target === overlay) { e.preventDefault(); closeSidebar(); }
-    }, { passive: false });
-  }
-
-  // click-catcher
-  const catcher = document.getElementById('sidebarClickCatcher');
-  if (catcher) {
-    catcher.addEventListener('click', () => closeSidebar());
-    catcher.addEventListener('touchstart', () => closeSidebar());
-  }
-
-  // 햄버거 버튼 터치 강화 (더블탭/줌 방지)
-  const hamburger = document.getElementById('hamburgerBtn');
-  if (hamburger) {
-    hamburger.addEventListener('touchstart', e => {
-      e.preventDefault();
-      toggleSidebar();
-    }, { passive: false });
-  }
 });
 </script>
 </body>
