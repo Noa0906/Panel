@@ -1100,12 +1100,12 @@ function buildProdSection() {
   if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
   const items = products.map(p => {
     const cat = categories.find(c => c.id === p.category_id);
-    const st  = stockItems.find(s => s.product_id === p.id);
+    const stList = stockItems.filter(s => s.product_id === p.id);
     let badge;
     if (p.unlimited) {
       badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);">♾ 무제한</span>`;
-    } else if (st) {
-      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);">재고 있음</span>`;
+    } else if (stList.length > 0) {
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);">재고 ${stList.length}개</span>`;
     } else {
       badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.25);">품절</span>`;
     }
@@ -1775,8 +1775,8 @@ function openStockModal(prodId) {
   if (!prod) return;
   document.getElementById('stockModalTitle').textContent = `📦 ${prod.name} — 재고 설정`;
   document.getElementById('stockTargetProdId').value = prodId;
-  const existing = stockItems.find(s => s.product_id == prodId);
-  document.getElementById('stockItemsInput').value = existing?.note || '';
+  const existingList = stockItems.filter(s => s.product_id == prodId);
+  document.getElementById('stockItemsInput').value = existingList.map(s => s.note).join('\n');
   _stockUnlimited = !!prod.unlimited;
   const cb = document.getElementById('unlimitedCheckbox');
   if (cb) {
@@ -1871,27 +1871,30 @@ async function deleteProduct(id) {
 ══════════════════════════════════════════════ */
 async function saveStock() {
   const product_id = parseInt(document.getElementById('stockTargetProdId').value);
-  const note       = document.getElementById('stockItemsInput').value.trim();
+  const raw        = document.getElementById('stockItemsInput').value;
   const unlimited  = _stockUnlimited;
-  if (!unlimited && !note) { showToast('⚠️ 재고 내용을 입력하거나 무제한을 체크하세요', true); return; }
+  // 줄바꿈 기준으로 분리, 빈 줄 제거
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (!unlimited && !lines.length) { showToast('⚠️ 재고 내용을 입력하거나 무제한을 체크하세요', true); return; }
   try {
     // 제품에 unlimited 플래그 저장
     await _sb.from('inventory_products').update({ unlimited }).eq('id', product_id);
     const pi = products.findIndex(p => p.id == product_id);
     if (pi >= 0) products[pi].unlimited = unlimited;
-    // 기존 재고 삭제 후 새 재고 1개 저장
+    // 기존 재고 삭제 후 줄 단위로 각각 저장
     await _sb.from('inventory_stock').delete().eq('product_id', product_id);
     stockItems = stockItems.filter(s => s.product_id != product_id);
-    if (note) {
-      const result = await sbInsert('inventory_stock', {
+    if (lines.length) {
+      const rows = lines.map(note => ({
         guild_id: currentLicense.guildId,
         product_id,
         note,
-      });
-      stockItems.push(result);
+      }));
+      const { data: inserted } = await _sb.from('inventory_stock').insert(rows).select();
+      if (inserted) stockItems.push(...inserted);
     }
     closeModal('modalStock');
-    showToast(unlimited ? '✅ 무제한 재고로 설정되었습니다!' : '✅ 재고가 저장되었습니다!');
+    showToast(unlimited ? '✅ 무제한 재고로 설정되었습니다!' : `✅ 재고 ${lines.length}개가 저장되었습니다!`);
     showPage('inventory');
     setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
@@ -2235,10 +2238,6 @@ async function initUsersPage() {
     const userRows     = ul || [];
 
     const userMap = {};
-    // users 테이블을 먼저 반영하여 points/grade_id 초기화 (누락 방지)
-    userRows.forEach(u => {
-      userMap[u.user_id] = { user_id: u.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
-    });
     purchaseLogs.forEach(l => {
       if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: null, grade_id: null };
       userMap[l.user_id].totalPurchase += (l.price||0);
@@ -2248,6 +2247,15 @@ async function initUsersPage() {
       if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: l.psid||'', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: null, grade_id: null };
       if (l.psid) userMap[l.user_id].psid = l.psid;
       if (l.status === 'confirmed') userMap[l.user_id].totalCharged += (l.amount||0);
+    });
+    // users 테이블에서 현재 보유금액 및 등급 반영
+    userRows.forEach(u => {
+      if (userMap[u.user_id]) {
+        userMap[u.user_id].points   = u.points ?? null;
+        userMap[u.user_id].grade_id = u.grade_id || null;
+      } else {
+        userMap[u.user_id] = { user_id: u.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
+      }
     });
     allUsers = Object.values(userMap);
   } catch(e) { console.error(e); allUsers = []; }
