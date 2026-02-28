@@ -2512,7 +2512,6 @@ async function openPurchaseLog(userId) {
    ※ grades 전용 테이블 없음
    → panel_tasks (task_type='gradesConfig')에 JSONB로 저장
 ══════════════════════════════════════════════ */
-let grades = [];
 
 async function loadGrades(guildId) {
   guildId = guildId || currentLicense?.guildId;
