@@ -2235,6 +2235,10 @@ async function initUsersPage() {
     const userRows     = ul || [];
 
     const userMap = {};
+    // users 테이블을 먼저 반영하여 points/grade_id 초기화 (누락 방지)
+    userRows.forEach(u => {
+      userMap[u.user_id] = { user_id: u.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
+    });
     purchaseLogs.forEach(l => {
       if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: null, grade_id: null };
       userMap[l.user_id].totalPurchase += (l.price||0);
@@ -2244,15 +2248,6 @@ async function initUsersPage() {
       if (!userMap[l.user_id]) userMap[l.user_id] = { user_id: l.user_id, psid: l.psid||'', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: null, grade_id: null };
       if (l.psid) userMap[l.user_id].psid = l.psid;
       if (l.status === 'confirmed') userMap[l.user_id].totalCharged += (l.amount||0);
-    });
-    // users 테이블에서 현재 보유금액 및 등급 반영
-    userRows.forEach(u => {
-      if (userMap[u.user_id]) {
-        userMap[u.user_id].points   = u.points ?? null;
-        userMap[u.user_id].grade_id = u.grade_id || null;
-      } else {
-        userMap[u.user_id] = { user_id: u.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
-      }
     });
     allUsers = Object.values(userMap);
   } catch(e) { console.error(e); allUsers = []; }
