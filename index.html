@@ -1572,19 +1572,19 @@ function buildSettingsPage() {
           </div>
           <div class="form-field">
             <label>🤖 자판기 메시지 채널</label>
-            <select id="cfg_vendingCh"><option value="">채널 선택</option>${chOptions(vendingSettings.vendingChannelId)}</select>
+            <select id="cfg_vendingCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.vendingChannelId)}</select>
           </div>
           <div class="form-field">
             <label>📦 입고 알림 채널</label>
-            <select id="cfg_stockCh"><option value="">채널 선택</option>${chOptions(vendingSettings.stockAlertChannelId)}</select>
+            <select id="cfg_stockCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.stockAlertChannelId)}</select>
           </div>
           <div class="form-field">
             <label>🔔 입고 알림 핑 역할</label>
-            <select id="cfg_stockRole"><option value="">역할 없음</option>${roleOptions(vendingSettings.stockAlertRoleId)}</select>
+            <select id="cfg_stockRole"><option value="">역할 설정 안함</option>${roleOptions(vendingSettings.stockAlertRoleId)}</select>
           </div>
           <div class="form-field">
             <label>🧾 구매 로그 채널</label>
-            <select id="cfg_buyCh"><option value="">채널 선택</option>${chOptions(vendingSettings.buyLogChannelId)}</select>
+            <select id="cfg_buyCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.buyLogChannelId)}</select>
           </div>
           <hr class="divider"/>
           <div class="actions-bar">
@@ -1696,17 +1696,17 @@ async function saveServerConfig() {
   const s = document.getElementById('cfg_stockCh');
   const r = document.getElementById('cfg_stockRole');
   const b = document.getElementById('cfg_buyCh');
-  if (v) vendingSettings.vendingChannelId    = v.value;
-  if (s) vendingSettings.stockAlertChannelId = s.value;
-  if (r) vendingSettings.stockAlertRoleId    = r.value;
-  if (b) vendingSettings.buyLogChannelId     = b.value;
+  if (v) vendingSettings.vendingChannelId    = v.value || null;
+  if (s) vendingSettings.stockAlertChannelId = s.value || null;
+  if (r) vendingSettings.stockAlertRoleId    = r.value || null;
+  if (b) vendingSettings.buyLogChannelId     = b.value || null;
   try {
     await sbUpsert('vending_settings', {
       guild_id:              currentLicense.guildId,
-      vending_channel_id:    vendingSettings.vendingChannelId,
-      stock_alert_channel_id: vendingSettings.stockAlertChannelId,
-      stock_alert_role_id:   vendingSettings.stockAlertRoleId,
-      buy_log_channel_id:    vendingSettings.buyLogChannelId,
+      vending_channel_id:    vendingSettings.vendingChannelId    || null,
+      stock_alert_channel_id: vendingSettings.stockAlertChannelId || null,
+      stock_alert_role_id:   vendingSettings.stockAlertRoleId    || null,
+      buy_log_channel_id:    vendingSettings.buyLogChannelId     || null,
       updated_at:            new Date().toISOString(),
     });
     Object.assign(serverConfig, {
