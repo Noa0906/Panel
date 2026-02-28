@@ -1024,9 +1024,11 @@ async function recordLoginLog(panelId, guildId) {
       user_agent: navigator.userAgent,
       logged_at: new Date().toISOString(),
     };
-    await sbInsert('login_logs', log);
+    // sbInsert는 .single()을 쓰므로 직접 insert 사용 (여러 행 허용)
+    if (!_sb) throw new Error('Supabase 미연결');
+    const { error } = await _sb.from('login_logs').insert(log);
+    if (error) throw error;
   } catch(e) {
-    // login_logs 테이블이 없어도 조용히 실패
     console.warn('로그인 로그 기록 실패:', e);
   }
 }
@@ -1189,7 +1191,11 @@ async function loadVendingSettings(guildId) {
   try {
     const row = await sbSelectOne('panel_tasks', { guild_id: guildId, task_type: 'vendingConfig' });
     if (row?.payload) {
-      try { Object.assign(vendingSettings, row.payload); } catch(e) {}
+      try {
+        // 채널/역할 필드는 vending_settings 테이블에서 별도로 관리하므로 덮어쓰지 않음
+        const { vendingChannelId, stockAlertChannelId, stockAlertRoleId, buyLogChannelId, ...rest } = row.payload;
+        Object.assign(vendingSettings, rest);
+      } catch(e) {}
     }
   } catch(e) {}
 }
@@ -1841,14 +1847,16 @@ async function saveVending() {
   vendingSettings.desc   = document.getElementById('vs_desc')?.value   || vendingSettings.desc;
   vendingSettings.notice = document.getElementById('vs_notice')?.value ?? '';
   try {
+    // 채널/역할은 vending_settings 테이블에서 별도 관리 → panel_tasks 저장 시 제외
+    const { vendingChannelId, stockAlertChannelId, stockAlertRoleId, buyLogChannelId, ...payloadToSave } = vendingSettings;
     const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'vendingConfig' });
     if (existing) {
-      await sbUpdate('panel_tasks', existing.id, { payload: vendingSettings, done: true });
+      await sbUpdate('panel_tasks', existing.id, { payload: payloadToSave, done: true });
     } else {
       await sbInsert('panel_tasks', {
         guild_id: currentLicense.guildId,
         task_type: 'vendingConfig',
-        payload: vendingSettings,
+        payload: payloadToSave,
         done: true,
       });
     }
@@ -1861,10 +1869,10 @@ async function saveServerConfig() {
   const s = document.getElementById('cfg_stockCh');
   const r = document.getElementById('cfg_stockRole');
   const b = document.getElementById('cfg_buyCh');
-  if (v) vendingSettings.vendingChannelId    = v.value || null;
-  if (s) vendingSettings.stockAlertChannelId = s.value || null;
-  if (r) vendingSettings.stockAlertRoleId    = r.value || null;
-  if (b) vendingSettings.buyLogChannelId     = b.value || null;
+  if (v) vendingSettings.vendingChannelId    = v.value || '';
+  if (s) vendingSettings.stockAlertChannelId = s.value || '';
+  if (r) vendingSettings.stockAlertRoleId    = r.value || '';
+  if (b) vendingSettings.buyLogChannelId     = b.value || '';
   try {
     await sbUpsert('vending_settings', {
       guild_id:              currentLicense.guildId,
