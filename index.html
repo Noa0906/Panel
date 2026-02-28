@@ -1715,18 +1715,31 @@ async function saveServerConfig() {
   if (b) vendingSettings.buyLogChannelId     = b.value;
   try {
     await sbUpsert('vending_settings', {
-      guild_id:              currentLicense.guildId,
-      vending_channel_id:    vendingSettings.vendingChannelId,
+      guild_id:               currentLicense.guildId,
+      vending_channel_id:     vendingSettings.vendingChannelId,
       stock_alert_channel_id: vendingSettings.stockAlertChannelId,
-      stock_alert_role_id:   vendingSettings.stockAlertRoleId,
-      buy_log_channel_id:    vendingSettings.buyLogChannelId,
-      updated_at:            new Date().toISOString(),
+      stock_alert_role_id:    vendingSettings.stockAlertRoleId,
+      buy_log_channel_id:     vendingSettings.buyLogChannelId,
+      updated_at:             new Date().toISOString(),
     });
+
+    if (vendingSettings.stockAlertChannelId || vendingSettings.stockAlertRoleId) {
+      await sbInsert('panel_tasks', {
+        guild_id:  currentLicense.guildId,
+        task_type: 'setRestockConfig',
+        payload: {
+          channelId: vendingSettings.stockAlertChannelId || null,
+          roleId:    vendingSettings.stockAlertRoleId    || null,
+        },
+        done: false,
+      });
+    }
+
     Object.assign(serverConfig, {
-      vendingChannelId:    vendingSettings.vendingChannelId,
-      stockAlertChannelId: vendingSettings.stockAlertChannelId,
-      stockAlertRoleId:    vendingSettings.stockAlertRoleId,
-      buyLogChannelId:     vendingSettings.buyLogChannelId,
+      vendingChannelId:     vendingSettings.vendingChannelId,
+      stockAlertChannelId:  vendingSettings.stockAlertChannelId,
+      stockAlertRoleId:     vendingSettings.stockAlertRoleId,
+      buyLogChannelId:      vendingSettings.buyLogChannelId,
     });
     showToast('✅ 채널 설정이 저장되었습니다!');
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
