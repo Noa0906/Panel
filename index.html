@@ -116,14 +116,11 @@
     .hamburger-btn.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
     .hamburger-btn.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
 
-    /* SIDEBAR OVERLAY (mobile) - 사이드바 오른쪽 영역만 덮음 */
+    /* SIDEBAR OVERLAY (mobile) */
     .sidebar-overlay {
       display:none;
       position:fixed;
-      top:0;
-      left:var(--sidebar-w); /* 사이드바 너비만큼 오른쪽에서 시작 → 사이드바 위를 덮지 않음 */
-      right:0;
-      bottom:0;
+      inset:0;
       background:rgba(0,0,0,0.6);
       backdrop-filter:blur(2px);
       z-index:999;
@@ -145,6 +142,9 @@
       overflow-y:auto;
       height:100%;
       transition:transform 0.3s ease;
+      /* 반드시 오버레이보다 위 */
+      position:relative;
+      z-index:1000;
     }
     .sidebar-brand { display:flex; align-items:center; gap:10px; padding:0 16px 18px; border-bottom:1px solid var(--border); margin-bottom:10px; }
     .sidebar-brand-icon { width:30px; height:30px; border-radius:7px; overflow:hidden; background:var(--surface3); flex-shrink:0; }
@@ -385,7 +385,7 @@
         position:fixed;
         top:0; left:0;
         height:100vh;
-        z-index:1000;
+        z-index:1000; /* 오버레이(999)보다 반드시 위 */
         transform:translateX(-100%);
         transition:transform 0.3s ease;
         box-shadow:4px 0 30px rgba(0,0,0,0.5);
@@ -450,7 +450,7 @@
 </button>
 
 <!-- SIDEBAR OVERLAY (mobile backdrop) -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- DASHBOARD -->
 <div id="dashScreen" class="screen">
@@ -2459,6 +2459,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // 처음엔 로그인 화면이므로 햄버거 버튼 반드시 숨김
   const btn = document.getElementById('hamburgerBtn');
   if (btn) btn.style.display = 'none';
+
+  // 오버레이 클릭 시 사이드바 닫기
+  // (오버레이가 사이드바 뒤에 있으므로 오버레이 클릭 = 사이드바 외부 클릭)
+  const overlay = document.getElementById('sidebarOverlay');
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      closeSidebar();
+    });
+  }
+
+  // 사이드바 내부 클릭 시 이벤트 버블링 차단 (오버레이로 전파 안 되게)
+  const sidebar = document.getElementById('mainSidebar');
+  if (sidebar) {
+    sidebar.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
 });
 </script>
 </body>
