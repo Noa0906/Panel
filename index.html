@@ -1100,7 +1100,7 @@ function buildProdSection() {
   if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
   const items = products.map(p => {
     const cat = categories.find(c => c.id === p.category_id);
-    const stList = stockItems.filter(s => s.product_id === p.id);
+    const stList = stockItems.filter(s => String(s.product_id) === String(p.id));
     let badge;
     if (p.unlimited) {
       badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);">♾ 무제한</span>`;
@@ -1775,7 +1775,7 @@ function openStockModal(prodId) {
   if (!prod) return;
   document.getElementById('stockModalTitle').textContent = `📦 ${prod.name} — 재고 설정`;
   document.getElementById('stockTargetProdId').value = prodId;
-  const existingList = stockItems.filter(s => s.product_id == prodId);
+  const existingList = stockItems.filter(s => String(s.product_id) === String(prodId));
   document.getElementById('stockItemsInput').value = existingList.map(s => s.note).join('\n');
   _stockUnlimited = !!prod.unlimited;
   const cb = document.getElementById('unlimitedCheckbox');
@@ -1883,7 +1883,7 @@ async function saveStock() {
     if (pi >= 0) products[pi].unlimited = unlimited;
     // 기존 재고 삭제 후 줄 단위로 각각 저장
     await _sb.from('inventory_stock').delete().eq('product_id', product_id);
-    stockItems = stockItems.filter(s => s.product_id != product_id);
+    stockItems = stockItems.filter(s => String(s.product_id) !== String(product_id));
     if (lines.length) {
       const rows = lines.map(note => ({
         guild_id: currentLicense.guildId,
