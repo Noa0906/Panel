@@ -421,7 +421,7 @@
     </div>
     <!-- CAPTCHA (hCaptcha) -->
     <div id="captchaField" style="margin-bottom:6px;">
-      <div id="hcaptcha-container" class="h-captcha" data-sitekey="ec527246-2792-4aa0-b9e8-32b641e615fc" data-theme="dark" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
+      <div id="hcaptcha-container" class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-000000000001" data-theme="dark" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
     </div>
     <!-- REMEMBER ME -->
     <div onclick="toggleRememberMe()" id="rememberMeRow" style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;user-select:none;margin-bottom:2px;">
@@ -2711,6 +2711,10 @@ async function saveUserManage() {
   const pointsNum = parseInt(points);
   if (isNaN(pointsNum) || pointsNum < 0) { showToast('⚠️ 보유금액은 0 이상의 숫자여야 합니다', true); return; }
   try {
+    // ⭐ 기존 포인트 기록 (수동 충전 로그용)
+    const prevUser = allUsers.find(u => u.user_id === userId);
+    const prevPoints = prevUser?.points ?? 0;
+
     // users 테이블 upsert
     await _sb.from('users').upsert({
       guild_id: currentLicense.guildId,
@@ -2719,6 +2723,28 @@ async function saveUserManage() {
       grade_id: gradeId || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'guild_id,user_id' });
+
+    // ⭐ 포인트가 변경된 경우 수동 충전 로그 태스크 생성 (봇이 채널로 전송)
+    if (pointsNum !== prevPoints) {
+      try {
+        await _sb.from('panel_tasks').insert({
+          guild_id:  currentLicense.guildId,
+          task_type: 'manualCharge',
+          payload: {
+            targetUserId: userId,
+            prevPoints:   prevPoints,
+            newPoints:    pointsNum,
+            changeAmount: pointsNum - prevPoints,
+            adminId:      null,
+            source:       'webpanel',
+          },
+          done: false,
+        });
+      } catch (logErr) {
+        console.warn('수동 충전 로그 태스크 생성 실패:', logErr.message);
+      }
+    }
+
     // 로컬 allUsers 업데이트
     const idx = allUsers.findIndex(u => u.user_id === userId);
     if (idx >= 0) {
