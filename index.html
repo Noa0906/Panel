@@ -718,6 +718,10 @@ let _sb = null;
 function initSupabase(url, key) {
   if (!url || !key) return false;
   try {
+    if (typeof supabase === 'undefined' || !supabase.createClient) {
+      console.error('Supabase CDN이 로드되지 않았습니다.');
+      return false;
+    }
     _sb = supabase.createClient(url, key);
     return true;
   } catch(e) {
@@ -900,7 +904,7 @@ async function doLogin() {
 
   if (!_sb) {
     if (!initSupabase(SUPABASE_URL, SUPABASE_KEY)) {
-      errEl.textContent = '❌ Supabase가 연결되지 않았습니다. 아래 설정 버튼을 눌러주세요.';
+      errEl.textContent = '❌ Supabase 연결 실패. 페이지를 새로고침하거나 설정을 확인해주세요.';
       errEl.style.display = 'block';
       openModal('modalSupabase');
       return;
@@ -909,29 +913,30 @@ async function doLogin() {
 
   btn.disabled = true;
   btnText.innerHTML = '<div class="spinner"></div>';
+  const restoreBtn = () => { btn.disabled = false; btnText.textContent = '로그인'; };
 
   try {
     const rows = await sbSelect('licenses', { panel_id: panelId });
     if (!rows.length) {
       errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
-      errEl.style.display = 'block'; return;
+      errEl.style.display = 'block'; restoreBtn(); return;
     }
     const found = rows[0];
 
     if (!found.is_active) {
       errEl.textContent = '❌ 비활성화된 라이선스입니다.';
-      errEl.style.display = 'block'; return;
+      errEl.style.display = 'block'; restoreBtn(); return;
     }
 
     if (found.expires_at && new Date(found.expires_at) < new Date()) {
       errEl.textContent = '❌ 만료된 라이선스입니다.';
-      errEl.style.display = 'block'; return;
+      errEl.style.display = 'block'; restoreBtn(); return;
     }
 
     const inputHash = await sha256(password);
     if (!found.password_hash || inputHash !== found.password_hash) {
       errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
-      errEl.style.display = 'block'; return;
+      errEl.style.display = 'block'; restoreBtn(); return;
     }
 
     if (found.expires_at) {
@@ -956,9 +961,9 @@ async function doLogin() {
     console.error('로그인 오류:', e);
     errEl.textContent = '❌ 오류: ' + (e.message || '알 수 없는 오류');
     errEl.style.display = 'block';
+    restoreBtn();
   } finally {
-    btn.disabled = false;
-    btnText.textContent = '로그인';
+    // restoreBtn은 각 분기에서 호출
   }
 }
 
@@ -2261,19 +2266,19 @@ function renderUserTable(users) {
     const pointsHtml = u.points !== null
       ? `<span style="color:#fbbf24;font-weight:600;">${Number(u.points).toLocaleString()}원</span>`
       : `<span style="color:var(--text3);">-</span>`;
-    return \`
+    return `
     <tr style="border-bottom:1px solid var(--border);">
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">\${esc(u.user_id)}</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2);">\${esc(u.psid||'-')}</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">\${pointsHtml}</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);">\${(u.totalCharged||0).toLocaleString()}원</td>
-      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--success);">\${(u.totalPurchase||0).toLocaleString()}원 (\${u.purchaseCount||0}건)</td>
-      <td style="padding:12px 16px;">\${gradeHtml}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${esc(u.user_id)}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2);">${esc(u.psid||'-')}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;">${pointsHtml}</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);">${(u.totalCharged||0).toLocaleString()}원</td>
+      <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--success);">${(u.totalPurchase||0).toLocaleString()}원 (${u.purchaseCount||0}건)</td>
+      <td style="padding:12px 16px;">${gradeHtml}</td>
       <td style="padding:12px 16px;white-space:nowrap;display:flex;gap:6px;">
-        <button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('\${esc(u.user_id)}')">🛒 구매기록</button>
-        <button class="btn btn-sm" style="background:#1a1f2a;color:#60a5fa;border:1px solid #2a3a50;" onclick="openUserManage('\${esc(u.user_id)}')">⚙️ 관리</button>
+        <button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('${esc(u.user_id)}')">🛒 구매기록</button>
+        <button class="btn btn-sm" style="background:#1a1f2a;color:#60a5fa;border:1px solid #2a3a50;" onclick="openUserManage('${esc(u.user_id)}')">⚙️ 관리</button>
       </td>
-    </tr>\`;
+    </tr>`;
   }).join('');
 }
 
