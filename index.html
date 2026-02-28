@@ -962,10 +962,10 @@ async function doLogin() {
       expiresAt: found.expires_at,
     };
 
-    // 로그인 IP 기록
-    recordLoginLog(found.panel_id, found.guild_id);
-
     await loadAllData(currentLicense.guildId);
+
+    // 로그인 IP 기록 (loadAllData 이후 - _sb 연결 보장 후)
+    recordLoginLog(found.panel_id, found.guild_id);
     enterDashboard(currentLicense);
     // 로그인 성공 시 버튼 상태는 대시보드 전환으로 가려지므로 복원 불필요
     return;
@@ -1015,19 +1015,25 @@ async function getClientIP() {
 }
 
 async function recordLoginLog(panelId, guildId) {
+  if (!_sb) return;
   try {
-    const ip = await getClientIP();
-    const log = {
-      panel_id: panelId,
-      guild_id: guildId,
-      ip_address: ip,
-      user_agent: navigator.userAgent,
-      logged_at: new Date().toISOString(),
+    // IP 조회 전에 먼저 로그 행 insert (실패해도 기록 보장)
+    const logBase = {
+      panel_id:   panelId,
+      guild_id:   guildId,
+      ip_address: '조회 중...',
+      user_agent: navigator.userAgent.substring(0, 500),
+      logged_at:  new Date().toISOString(),
     };
-    // sbInsert는 .single()을 쓰므로 직접 insert 사용 (여러 행 허용)
-    if (!_sb) throw new Error('Supabase 미연결');
-    const { error } = await _sb.from('login_logs').insert(log);
-    if (error) throw error;
+    const { data: inserted, error: insertErr } = await _sb.from('login_logs').insert(logBase).select('id').single();
+    if (insertErr) { console.warn('로그인 로그 insert 실패:', insertErr); return; }
+
+    // 비동기로 IP 조회 후 업데이트 (느려도 로그인 흐름 안 막음)
+    getClientIP().then(ip => {
+      if (inserted?.id && ip && ip !== '조회 중...') {
+        _sb.from('login_logs').update({ ip_address: ip }).eq('id', inserted.id).then(() => {});
+      }
+    }).catch(() => {});
   } catch(e) {
     console.warn('로그인 로그 기록 실패:', e);
   }
@@ -1067,7 +1073,7 @@ async function initLoginLogPage() {
 
     if (!logs || !logs.length) {
       countEl.textContent = '0건';
-      wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-family:\'JetBrains Mono\',monospace;">로그인 기록이 없습니다<br/><span style="font-size:11px;margin-top:6px;display:block;">다음 로그인부터 자동으로 기록됩니다</span></div>';
+      wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-family:\'JetBrains Mono\',monospace;">로그인 기록이 없습니다<br/><span style="font-size:11px;margin-top:6px;display:block;">로그아웃 후 다시 로그인하면 기록됩니다</span></div>';
       return;
     }
 
@@ -1140,7 +1146,10 @@ async function initLoginLogPage() {
           &nbsp;&nbsp;ip_address text,<br/>
           &nbsp;&nbsp;user_agent text,<br/>
           &nbsp;&nbsp;logged_at timestamptz DEFAULT now()<br/>
-          );
+          );<br/><br/>
+          -- RLS 정책 (필수! 없으면 insert/select 모두 차단됨)<br/>
+          ALTER TABLE login_logs ENABLE ROW LEVEL SECURITY;<br/>
+          CREATE POLICY \"allow_all\" ON login_logs FOR ALL USING (true) WITH CHECK (true);
         </div>
       </div>`;
   }
