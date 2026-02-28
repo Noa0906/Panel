@@ -778,6 +778,8 @@ let vendingSettings = {
 };
 
 let _rtChannel = null;
+let _inventoryPollTimer = null;  // 재고 폴링 타이머
+let _lastStockSnapshot = '';     // 재고 변경 감지용 스냅샷
 
 /* ══════════════════════════════════════════════
    MOBILE SIDEBAR
@@ -980,9 +982,52 @@ async function doLogin() {
   }
 }
 
+
+/* ══════════════════════════════════════════════
+   INVENTORY POLLING (3초마다 재고 변경 감지)
+══════════════════════════════════════════════ */
+function startInventoryPolling() {
+  stopInventoryPolling();
+  const guildId = currentLicense?.guildId;
+  if (!guildId) return;
+
+  async function poll() {
+    if (!currentLicense || !_sb) return;
+    try {
+      const [newProds, newStock] = await Promise.all([
+        sbSelect('inventory_products', { guild_id: guildId }),
+        sbSelect('inventory_stock',    { guild_id: guildId }),
+      ]);
+      // 스냅샷으로 변경 여부 비교
+      const snapshot = JSON.stringify(newStock.map(s => s.id).sort());
+      if (snapshot !== _lastStockSnapshot) {
+        _lastStockSnapshot = snapshot;
+        products   = newProds;
+        stockItems = newStock;
+        // 재고 관리 페이지가 열려있으면 즉시 UI 갱신
+        const navInv = document.getElementById('nav-inventory');
+        if (navInv && navInv.classList.contains('active')) {
+          const mc = document.getElementById('mainContent');
+          if (mc) mc.innerHTML = buildInventoryPage();
+        }
+      }
+    } catch(e) { /* 폴링 에러는 무시 */ }
+  }
+
+  _inventoryPollTimer = setInterval(poll, 3000);
+}
+
+function stopInventoryPolling() {
+  if (_inventoryPollTimer) {
+    clearInterval(_inventoryPollTimer);
+    _inventoryPollTimer = null;
+  }
+  _lastStockSnapshot = '';
+}
 function enterDashboard(license) {
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('dashScreen').classList.add('active');
+  startInventoryPolling();
   const name = license.guildName || '알 수 없는 서버';
   document.getElementById('serverNameBadge').textContent = name;
   document.getElementById('sidebarGuildName').textContent = name;
@@ -1165,6 +1210,7 @@ async function clearLoginLogs() {
 }
 
 function doLogout() {
+  stopInventoryPolling();
   if (_rtChannel) { try { _sb?.removeChannel(_rtChannel); } catch(e){} _rtChannel = null; }
   currentLicense = null;
   categories = []; products = []; stockItems = [];
@@ -1183,6 +1229,25 @@ function doLogout() {
 /* ══════════════════════════════════════════════
    DATA LOADING
 ══════════════════════════════════════════════ */
+async function loadInventoryData(guildId) {
+  guildId = guildId || currentLicense?.guildId;
+  if (!guildId || !_sb) return false;
+  try {
+    const [newCats, newProds, newStock] = await Promise.all([
+      sbSelect('inventory_categories', { guild_id: guildId }),
+      sbSelect('inventory_products',   { guild_id: guildId }),
+      sbSelect('inventory_stock',      { guild_id: guildId }),
+    ]);
+    categories = newCats;
+    products   = newProds;
+    stockItems = newStock;
+    return true;
+  } catch(e) {
+    console.warn('재고 재로드 오류:', e);
+    return false;
+  }
+}
+
 async function loadAllData(guildId) {
   try {
     categories = await sbSelect('inventory_categories', { guild_id: guildId });
@@ -1223,7 +1288,14 @@ function showPage(page) {
   if (navEl) navEl.classList.add('active');
   const mc = document.getElementById('mainContent');
   if (page === 'dashboard')  { mc.innerHTML = buildDashboardPage(); initDashboard(); }
-  if (page === 'inventory')  mc.innerHTML = buildInventoryPage();
+  if (page === 'inventory')  {
+    loadInventoryData().then(() => {
+      if (document.getElementById('nav-inventory')?.classList.contains('active')) {
+        mc.innerHTML = buildInventoryPage();
+      }
+    });
+    mc.innerHTML = buildInventoryPage(); // 즉시 캐시 데이터로 먼저 렌더
+  }
   if (page === 'settings')   mc.innerHTML = buildSettingsPage();
   if (page === 'users')      { mc.innerHTML = buildUsersPage(); initUsersPage(); }
   if (page === 'grades')     mc.innerHTML = buildGradesPage();
