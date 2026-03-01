@@ -2744,6 +2744,62 @@ function toDatetimeLocal(iso) {
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
+function buildEventLogPreview() {
+  const ch = discordChannels.find(c => c.id === eventConfig.log_channel_id);
+  const chName = ch ? '#' + ch.name : '#invite-log';
+  const pts = Number(eventConfig.points_per_invite || 100).toLocaleString();
+  return `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header" style="margin-bottom:14px;">
+        <div class="card-title">💬 로그 채널 메시지 미리보기 <span class="tag">Components V2</span></div>
+        <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${chName}</span>
+      </div>
+      <div style="background:#313338;border-radius:10px;overflow:hidden;padding:16px;">
+        <div style="display:flex;gap:12px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#5865f2;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">Core <span style="font-size:11px;font-weight:400;color:#949ba4;">앱 · 지금</span></div>
+            <!-- Components V2: Container -->
+            <div style="background:#2b2d31;border:1px solid #3f4147;border-radius:8px;overflow:hidden;">
+              <!-- Section: 헤더 -->
+              <div style="padding:12px 14px 8px;border-bottom:1px solid #3f4147;">
+                <div style="font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;">
+                  🎉 <span>초대 이벤트 포인트 지급</span>
+                </div>
+              </div>
+              <!-- Section: 본문 -->
+              <div style="padding:10px 14px 12px;">
+                <div style="font-size:13px;color:#dbdee1;line-height:1.6;">
+                  <span style="color:#a78bfa;font-weight:600;">@초대된 멤버</span>님이 서버에 입장했습니다.<br/>
+                  초대자 <span style="color:#60a5fa;font-weight:600;">@초대한 유저</span>에게 포인트가 지급되었습니다.
+                </div>
+                <!-- Separator -->
+                <div style="height:1px;background:#3f4147;margin:10px 0;"></div>
+                <!-- Fields Row -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div style="background:#1e1f22;border-radius:6px;padding:8px 10px;">
+                    <div style="font-size:10px;color:#949ba4;font-family:'JetBrains Mono',monospace;margin-bottom:3px;">💎 지급 포인트</div>
+                    <div style="font-size:15px;font-weight:700;color:#a78bfa;">+${pts}P</div>
+                  </div>
+                  <div style="background:#1e1f22;border-radius:6px;padding:8px 10px;">
+                    <div style="font-size:10px;color:#949ba4;font-family:'JetBrains Mono',monospace;margin-bottom:3px;">📊 총 초대 횟수</div>
+                    <div style="font-size:15px;font-weight:700;color:#4ade80;">1회</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Action Row: Components V2 Button -->
+              <div style="padding:0 14px 12px;display:flex;align-items:center;gap:4px;">
+                <div style="font-size:10px;color:#4e5058;font-family:'JetBrains Mono',monospace;margin-right:4px;">— Action Row —</div>
+                <div style="display:inline-flex;align-items:center;gap:5px;background:#4e5058;border-radius:4px;padding:5px 12px;font-size:12px;color:#dbdee1;font-weight:500;">👤 초대한 유저 정보</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">// 실제 메시지는 봇이 전송합니다 · 위 미리보기는 Components V2 기반 레이아웃 예시입니다</div>
+    </div>`;
+}
+
 function buildEventsPage() {
   const status   = getEventStatus();
   const statusLabelMap = { on:'ACTIVE', off:'INACTIVE', expired:'EXPIRED' };
@@ -2779,7 +2835,7 @@ function buildEventsPage() {
         <div style="flex:1;min-width:160px;">
           <div class="ev-hero-label">Invite Event System</div>
           <div class="ev-hero-title">초대 이벤트 관리</div>
-          <div class="ev-hero-desc">// 설정값은 Supabase에 저장 → 디스코드 봇이 읽어서 포인트 지급 처리</div>
+          <div class="ev-hero-desc">// 초대 이벤트 설정 및 포인트 지급 관리</div>
         </div>
         <div class="ev-status-badge ${status}">
           <div class="ev-status-dot"></div>${statusLabel}
@@ -2857,19 +2913,22 @@ function buildEventsPage() {
 
       <div class="form-field">
         <label>📢 이벤트 로그 채널 <span style="color:var(--text3);font-size:10px;">(초대 시 봇이 로그 전송)</span></label>
-        <select id="ev_logCh">${logChOpts}</select>
+        <select id="ev_logCh" onchange="onEvLogChChange(this.value)">${logChOpts}</select>
       </div>
 
       <!-- 안내 박스 -->
       <div class="ev-info-box">
         <div class="ev-info-box-title">💡 동작 방식 안내</div>
         <div class="ev-info-box-desc">
-          1. 웹패널에서 설정 저장 → <span>Supabase panel_tasks</span> 테이블에 기록됨<br/>
-          2. 디스코드 봇이 <span>inviteEventConfig</span> 태스크를 읽어 이벤트 설정 적용<br/>
-          3. 멤버가 초대 링크로 서버 입장 시 봇이 <span>초대자에게 포인트 지급</span><br/>
-          4. 종료 일시가 지나면 봇이 자동으로 <span>포인트 지급 중단</span><br/>
-          5. 유저당 최대 초대 수 설정 시 해당 인원 초과 시 <span>지급 안 됨</span>
+          1. 멤버가 초대 링크로 서버 입장 시 봇이 <span>초대자에게 포인트 지급</span><br/>
+          2. 종료 일시가 지나면 봇이 자동으로 <span>포인트 지급 중단</span><br/>
+          3. 유저당 최대 초대 수 설정 시 해당 인원 초과 시 <span>지급 안 됨</span>
         </div>
+      </div>
+
+      <!-- 로그 채널 디스코드 미리보기 -->
+      <div id="evLogPreviewWrap" style="display:${eventConfig.log_channel_id ? 'block' : 'none'}">
+        ${eventConfig.log_channel_id ? buildEventLogPreview() : ''}
       </div>
 
       <hr class="divider"/>
@@ -2900,6 +2959,19 @@ function toggleEvSwitch() {
     const st = getEventStatus();
     badge.className = 'ev-status-badge ' + st;
     badge.innerHTML = `<div class="ev-status-dot"></div>${{on:'ACTIVE',off:'INACTIVE',expired:'EXPIRED'}[st]}`;
+  }
+}
+
+function onEvLogChChange(val) {
+  eventConfig.log_channel_id = val;
+  const previewWrap = document.getElementById('evLogPreviewWrap');
+  if (!previewWrap) return;
+  if (val) {
+    previewWrap.innerHTML = buildEventLogPreview();
+    previewWrap.style.display = 'block';
+  } else {
+    previewWrap.innerHTML = '';
+    previewWrap.style.display = 'none';
   }
 }
 
