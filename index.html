@@ -359,6 +359,45 @@
     /* 최소충전액 배지 */
     .min-charge-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:var(--accent); font-size:11px; font-family:'JetBrains Mono',monospace; }
 
+    /* ── EVENT PAGE ── */
+    .ev-hero { border-radius:14px; padding:26px 28px; background:linear-gradient(135deg,#120b22 0%,#1a0f2e 60%,#0d0d0d 100%); border:1px solid #3d1f6e; position:relative; overflow:hidden; margin-bottom:18px; }
+    .ev-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; background:radial-gradient(circle,rgba(167,139,250,0.1) 0%,transparent 70%); pointer-events:none; }
+    .ev-hero-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .ev-hero-icon { width:48px; height:48px; border-radius:13px; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+    .ev-hero-label { font-size:11px; color:rgba(167,139,250,0.7); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
+    .ev-hero-title { font-size:18px; font-weight:700; color:#fff; margin-bottom:3px; }
+    .ev-hero-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+    .ev-status-badge { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace; border:1px solid; flex-shrink:0; }
+    .ev-status-badge.on  { background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.4); color:#a78bfa; }
+    .ev-status-badge.off { background:rgba(255,255,255,0.04); border-color:var(--border2); color:var(--text3); }
+    .ev-status-badge.expired { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--danger); }
+    .ev-status-dot { width:6px; height:6px; border-radius:50%; }
+    .ev-status-badge.on .ev-status-dot  { background:#a78bfa; animation:blink 1.5s infinite; }
+    .ev-status-badge.off .ev-status-dot { background:var(--text3); }
+    .ev-status-badge.expired .ev-status-dot { background:var(--danger); }
+    .ev-progress-bar { height:6px; border-radius:3px; background:var(--surface3); overflow:hidden; margin-top:14px; }
+    .ev-progress-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#7c3aed,#a78bfa); transition:width .5s ease; }
+    .ev-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:18px; }
+    .ev-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
+    .ev-stat-label { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-bottom:8px; }
+    .ev-stat-value { font-size:22px; font-weight:700; letter-spacing:-0.02em; color:#a78bfa; }
+    .ev-stat-sub { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:5px; }
+    .ev-info-box { background:rgba(167,139,250,0.06); border:1px solid rgba(167,139,250,0.18); border-radius:10px; padding:14px 16px; margin-bottom:16px; }
+    .ev-info-box-title { font-size:12px; font-weight:600; color:#a78bfa; margin-bottom:7px; display:flex; align-items:center; gap:6px; }
+    .ev-info-box-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; line-height:1.8; }
+    .ev-info-box-desc span { color:var(--text2); }
+    /* ── END EVENT PAGE ── */
+
+    /* ── DISCORD PREVIEW V2 ── */
+    .discord-mock-v2 { padding:16px; background:#313338; }
+    .discord-component-section { margin-top:6px; }
+    .discord-action-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+    .discord-v2-btn { display:inline-flex; align-items:center; gap:5px; background:#4e5058; border-radius:4px; padding:6px 14px; font-size:13px; color:#dbdee1; font-weight:500; border:none; cursor:default; }
+    .discord-v2-btn.primary { background:#5865f2; color:#fff; }
+    .discord-embed-image { width:100%; border-radius:4px; margin-top:10px; object-fit:cover; max-height:180px; }
+    .discord-embed-image-placeholder { width:100%; height:80px; border-radius:4px; margin-top:10px; background:var(--surface3); border:1px dashed var(--border2); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
+    /* ── END DISCORD PREVIEW V2 ── */
+
     /* ── RESPONSIVE ── */
     @media (max-width:780px) {
     .sidebar {
@@ -470,6 +509,9 @@
       </div>
       <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge">
         <span class="nav-icon">💳</span> 자동충전
+      </div>
+      <div class="nav-item" onclick="showPage('events')" id="nav-events">
+        <span class="nav-icon">🎉</span> 초대 이벤트
       </div>
       <div class="nav-item" onclick="showPage('loginlog')" id="nav-loginlog">
         <span class="nav-icon">🔐</span> 로그인 로그
@@ -773,6 +815,7 @@ let serverConfig = {};
 let vendingSettings = {
   title: 'Vending | 구매하기',
   desc: '아래 버튼을 눌러 자판기를 이용해주세요!',
+  imageUrl: '',
   buttons: [
     {emoji:'🖊️', label:'구매'},
     {emoji:'🧭', label:'제품'},
@@ -1346,6 +1389,7 @@ async function loadAllData(guildId) {
   await loadGrades(guildId);
   await loadAutoChargeData(guildId);
   await loadVendingSettings(guildId);
+  await loadEventConfig(guildId);
 }
 
 async function loadVendingSettings(guildId) {
@@ -1388,6 +1432,7 @@ function showPage(page) {
   if (page === 'grades')     mc.innerHTML = buildGradesPage();
   if (page === 'autocharge') { mc.innerHTML = buildAutoChargePage(); initAutoCharge(); }
   if (page === 'loginlog')   { mc.innerHTML = buildLoginLogPage(); initLoginLogPage(); }
+  if (page === 'events')     { mc.innerHTML = buildEventsPage(); initEventsPage(); }
   const main = document.querySelector('.main');
   if (main) main.scrollTop = 0;
 }
@@ -1898,6 +1943,8 @@ function buildSettingsPage() {
     ? `<span class="tag" style="color:var(--success);border-color:rgba(74,222,128,0.3);">✓ 동기화됨 · ${discordChannels.length}개 채널</span>`
     : `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⚠️ 봇 미동기화</span>`;
 
+  const imgVal = vendingSettings.imageUrl || '';
+
   return `
     <div class="page-header">
       <div class="page-title">설정</div>
@@ -1937,7 +1984,7 @@ function buildSettingsPage() {
         </div>
 
         <div class="card">
-          <div class="card-header"><div class="card-title">🤖 자판기 메시지 내용</div></div>
+          <div class="card-header"><div class="card-title">🤖 자판기 메시지 내용</div><span class="tag" style="color:#a78bfa;border-color:rgba(167,139,250,0.3);">Components V2</span></div>
           <div class="form-field">
             <label>임베드 제목</label>
             <input type="text" id="vs_title" value="${esc(vendingSettings.title)}" placeholder="Vending | 구매하기" oninput="livePreview()"/>
@@ -1946,7 +1993,29 @@ function buildSettingsPage() {
             <label>임베드 설명</label>
             <textarea id="vs_desc" placeholder="설명..." oninput="livePreview()">${esc(vendingSettings.desc)}</textarea>
           </div>
-          <div class="form-field" style="margin-bottom:6px;"><label>버튼 목록</label></div>
+
+          <!-- 이미지 섹션 -->
+          <div class="form-field">
+            <label>🖼️ 임베드 이미지 <span style="color:var(--text3);font-size:10px;font-weight:400;">GIF · PNG · JPG 지원</span></label>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <!-- URL 입력 -->
+              <div style="position:relative;">
+                <input type="text" id="vs_imageUrl" value="${esc(imgVal)}" placeholder="https://example.com/image.gif  (직접 링크 입력)" oninput="livePreview()" style="padding-right:80px;"/>
+                ${imgVal ? `<button onclick="clearVsImage()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;">✕ 제거</button>` : ''}
+              </div>
+              <!-- 파일 업로드 -->
+              <div style="display:flex;align-items:center;gap:8px;">
+                <label for="vs_imageFile" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif;font-weight:600;" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='var(--border2)'">
+                  📁 파일에서 선택
+                </label>
+                <input type="file" id="vs_imageFile" accept="image/*,.gif" style="display:none;" onchange="onImageFileSelect(this)"/>
+                <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;" id="vs_imageFileName">파일 선택 안 됨</span>
+              </div>
+              <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">// 파일 선택 시 Base64로 미리보기 · 봇은 URL 기준으로 전송합니다</div>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-bottom:6px;"><label>🔘 버튼 목록 <span style="color:var(--text3);font-size:10px;font-weight:400;">(Components V2 · Action Row)</span></label></div>
           <div id="btnRows">${btnRows}</div>
           <hr class="divider"/>
           <div class="actions-bar">
@@ -1978,7 +2047,7 @@ function buildSettingsPage() {
       </div>
       <div class="vending-preview">
         <div class="preview-header">
-          <div class="preview-dot"></div>Discord 미리보기
+          <div class="preview-dot"></div>Discord 미리보기 (Components V2)
         </div>
         <div class="discord-mock">
           <div id="discordPreview">${buildPreview()}</div>
@@ -1989,9 +2058,18 @@ function buildSettingsPage() {
 }
 
 function buildPreview() {
-  const btns = vendingSettings.buttons.map(b =>
-    `<div class="discord-btn">${b.emoji ? b.emoji+' ' : ''}${esc(b.label)}</div>`
+  // 이미지: 파일 base64 우선, 없으면 URL
+  const imgSrc = window._previewImageBase64 || vendingSettings.imageUrl || '';
+
+  const imgHtml = imgSrc
+    ? `<img src="${imgSrc}" class="discord-embed-image" alt="embed image" onerror="this.style.display='none'"/>`
+    : `<div class="discord-embed-image-placeholder">🖼️ 이미지 없음</div>`;
+
+  // V2 버튼 행 (최대 5개 한 행)
+  const btnHtml = vendingSettings.buttons.map(b =>
+    `<div class="discord-v2-btn">${b.emoji ? b.emoji + ' ' : ''}${esc(b.label)}</div>`
   ).join('');
+
   return `
     <div class="discord-msg">
       <div class="discord-avatar">🤖</div>
@@ -2000,7 +2078,11 @@ function buildPreview() {
         <div class="discord-embed">
           <div class="discord-embed-title">${esc(vendingSettings.title)}</div>
           <div class="discord-embed-desc">${esc(vendingSettings.desc)}</div>
-          <div class="discord-buttons">${btns}</div>
+          ${imgHtml}
+        </div>
+        <div class="discord-component-section">
+          <div style="font-size:10px;color:#4e5058;font-family:'JetBrains Mono',monospace;margin-bottom:4px;">— Components V2 · Action Row —</div>
+          <div class="discord-action-row">${btnHtml}</div>
         </div>
       </div>
     </div>`;
@@ -2009,16 +2091,52 @@ function buildPreview() {
 function livePreview() {
   const t = document.getElementById('vs_title');
   const d = document.getElementById('vs_desc');
-  if (t) vendingSettings.title = t.value;
-  if (d) vendingSettings.desc  = d.value;
+  const u = document.getElementById('vs_imageUrl');
+  if (t) vendingSettings.title    = t.value;
+  if (d) vendingSettings.desc     = d.value;
+  if (u) vendingSettings.imageUrl = u.value.trim();
+  // URL이 입력되면 파일 base64 미리보기 초기화
+  if (u && u.value.trim()) window._previewImageBase64 = '';
   const p = document.getElementById('discordPreview');
   if (p) p.innerHTML = buildPreview();
 }
 
+function onImageFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const nameEl = document.getElementById('vs_imageFileName');
+  if (nameEl) nameEl.textContent = file.name;
+  // URL 입력란 비우기
+  const urlInput = document.getElementById('vs_imageUrl');
+  if (urlInput) { urlInput.value = ''; vendingSettings.imageUrl = ''; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    window._previewImageBase64 = e.target.result;
+    const p = document.getElementById('discordPreview');
+    if (p) p.innerHTML = buildPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearVsImage() {
+  vendingSettings.imageUrl = '';
+  window._previewImageBase64 = '';
+  const urlInput = document.getElementById('vs_imageUrl');
+  if (urlInput) urlInput.value = '';
+  const fileInput = document.getElementById('vs_imageFile');
+  if (fileInput) fileInput.value = '';
+  const nameEl = document.getElementById('vs_imageFileName');
+  if (nameEl) nameEl.textContent = '파일 선택 안 됨';
+  const p = document.getElementById('discordPreview');
+  if (p) p.innerHTML = buildPreview();
+  showPage('settings'); // 제거 버튼 재렌더
+}
+
 async function saveVending() {
-  vendingSettings.title  = document.getElementById('vs_title')?.value  || vendingSettings.title;
-  vendingSettings.desc   = document.getElementById('vs_desc')?.value   || vendingSettings.desc;
-  vendingSettings.notice = document.getElementById('vs_notice')?.value ?? '';
+  vendingSettings.title    = document.getElementById('vs_title')?.value    || vendingSettings.title;
+  vendingSettings.desc     = document.getElementById('vs_desc')?.value     || vendingSettings.desc;
+  vendingSettings.notice   = document.getElementById('vs_notice')?.value   ?? '';
+  vendingSettings.imageUrl = document.getElementById('vs_imageUrl')?.value?.trim() ?? vendingSettings.imageUrl;
   try {
     // 채널/역할은 vending_settings 테이블에서 별도 관리 → panel_tasks 저장 시 제외
     const { vendingChannelId, stockAlertChannelId, stockAlertRoleId, buyLogChannelId, ...payloadToSave } = vendingSettings;
@@ -2564,6 +2682,273 @@ async function initDashboard() {
         </div>`).join('');
     }
   }
+}
+
+/* ══════════════════════════════════════════════
+   INVITE EVENT PAGE
+══════════════════════════════════════════════ */
+let eventConfig = {
+  enabled: false,
+  points_per_invite: 100,
+  start_at: '',
+  end_at: '',
+  max_invites_per_user: 0,
+  log_channel_id: '',
+};
+
+async function loadEventConfig(guildId) {
+  guildId = guildId || currentLicense?.guildId;
+  if (!guildId || !_sb) return;
+  try {
+    const row = await sbSelectOne('panel_tasks', { guild_id: guildId, task_type: 'inviteEventConfig' });
+    if (row?.payload) Object.assign(eventConfig, row.payload);
+  } catch(e) { console.warn('이벤트 설정 로드 오류:', e); }
+}
+
+function getEventStatus() {
+  if (!eventConfig.enabled) return 'off';
+  const now = Date.now();
+  const start = eventConfig.start_at ? new Date(eventConfig.start_at).getTime() : 0;
+  const end   = eventConfig.end_at   ? new Date(eventConfig.end_at).getTime()   : Infinity;
+  if (start && now < start) return 'off'; // 아직 시작 전
+  if (end !== Infinity && now > end) return 'expired';
+  return 'on';
+}
+
+function getEventTimeRemaining() {
+  if (!eventConfig.end_at) return null;
+  const diff = new Date(eventConfig.end_at).getTime() - Date.now();
+  if (diff <= 0) return '종료됨';
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (d > 0) return `${d}일 ${h}시간 ${m}분 남음`;
+  if (h > 0) return `${h}시간 ${m}분 남음`;
+  return `${m}분 남음`;
+}
+
+function getEventProgress() {
+  if (!eventConfig.start_at || !eventConfig.end_at) return 0;
+  const s = new Date(eventConfig.start_at).getTime();
+  const e = new Date(eventConfig.end_at).getTime();
+  const n = Date.now();
+  if (n <= s) return 0;
+  if (n >= e) return 100;
+  return Math.round((n - s) / (e - s) * 100);
+}
+
+function toDatetimeLocal(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function buildEventsPage() {
+  const status   = getEventStatus();
+  const statusLabelMap = { on:'ACTIVE', off:'INACTIVE', expired:'EXPIRED' };
+  const statusLabel = statusLabelMap[status];
+  const remaining = getEventTimeRemaining();
+  const progress  = getEventProgress();
+
+  const startFmt = eventConfig.start_at ? new Date(eventConfig.start_at).toLocaleString('ko-KR') : '설정 안 됨';
+  const endFmt   = eventConfig.end_at   ? new Date(eventConfig.end_at).toLocaleString('ko-KR')   : '설정 안 됨';
+
+  const progressBar = (eventConfig.start_at && eventConfig.end_at) ? `
+    <div class="ev-progress-bar"><div class="ev-progress-fill" style="width:${progress}%"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;">
+      <span>시작: ${startFmt}</span><span>종료: ${endFmt}</span>
+    </div>` : '';
+
+  const logChOpts = discordChannels.length
+    ? `<option value="">채널 설정 안함</option>` + discordChannels.map(ch =>
+        `<option value="${ch.id}" ${ch.id === (eventConfig.log_channel_id||'') ? 'selected' : ''}># ${esc(ch.name)}</option>`
+      ).join('')
+    : `<option value="">채널이 없습니다</option>`;
+
+  return `
+    <div class="page-header">
+      <div class="page-title">🎉 초대 이벤트</div>
+      <div class="page-sub">// 디스코드 초대 링크로 초대 시 포인트 자동 지급 · 웹패널 설정만 담당</div>
+    </div>
+
+    <!-- 히어로 배너 -->
+    <div class="ev-hero">
+      <div class="ev-hero-row">
+        <div class="ev-hero-icon">🎉</div>
+        <div style="flex:1;min-width:160px;">
+          <div class="ev-hero-label">Invite Event System</div>
+          <div class="ev-hero-title">초대 이벤트 관리</div>
+          <div class="ev-hero-desc">// 설정값은 Supabase에 저장 → 디스코드 봇이 읽어서 포인트 지급 처리</div>
+        </div>
+        <div class="ev-status-badge ${status}">
+          <div class="ev-status-dot"></div>${statusLabel}
+        </div>
+      </div>
+      ${progressBar ? `<div style="margin-top:14px;">${progressBar}</div>` : ''}
+    </div>
+
+    <!-- 상태 카드 -->
+    <div class="ev-grid">
+      <div class="ev-stat-card">
+        <div class="ev-stat-label">💎 초대 1명당 포인트</div>
+        <div class="ev-stat-value">${Number(eventConfig.points_per_invite||0).toLocaleString()}</div>
+        <div class="ev-stat-sub">포인트 지급 기준</div>
+      </div>
+      <div class="ev-stat-card">
+        <div class="ev-stat-label">⏳ 남은 시간</div>
+        <div class="ev-stat-value" style="font-size:16px;">${remaining || (eventConfig.end_at ? '종료됨' : '기간 미설정')}</div>
+        <div class="ev-stat-sub">${status === 'on' ? '이벤트 진행 중' : status === 'expired' ? '기간 만료 — 지급 중단' : '비활성 상태'}</div>
+      </div>
+      <div class="ev-stat-card">
+        <div class="ev-stat-label">🔒 유저당 최대 초대수</div>
+        <div class="ev-stat-value">${eventConfig.max_invites_per_user > 0 ? eventConfig.max_invites_per_user + '명' : '무제한'}</div>
+        <div class="ev-stat-sub">${eventConfig.max_invites_per_user > 0 ? '최대 초대 수 제한 있음' : '제한 없음'}</div>
+      </div>
+    </div>
+
+    <!-- 설정 카드 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚙️ 이벤트 설정</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="tag" style="${status==='on'?'color:var(--success);border-color:rgba(74,222,128,0.3);':status==='expired'?'color:var(--danger);border-color:rgba(248,113,113,0.3);':''}">${statusLabel}</span>
+        </div>
+      </div>
+
+      <!-- 활성화 토글 -->
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:4px 14px;margin-bottom:16px;">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">🎉 이벤트 활성화</div>
+            <div class="toggle-desc">비활성화 시 봇이 포인트 지급을 중단합니다</div>
+          </div>
+          <div class="toggle-switch" id="ev_ts_enabled" onclick="toggleEvSwitch()" style="background:${eventConfig.enabled?'#a78bfa':'#333'};">
+            <div class="toggle-thumb" style="left:${eventConfig.enabled?'23px':'3px'};"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>💎 초대 1명당 지급 포인트</label>
+          <input type="number" id="ev_points" value="${eventConfig.points_per_invite||100}" min="1" placeholder="예) 100"/>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 초대한 사람 기준으로 지급됩니다</div>
+        </div>
+        <div class="form-field">
+          <label>🔒 유저당 최대 초대 수 <span style="color:var(--text3);font-size:10px;">(0 = 무제한)</span></label>
+          <input type="number" id="ev_maxInvites" value="${eventConfig.max_invites_per_user||0}" min="0" placeholder="0"/>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 포인트를 받을 수 있는 최대 초대 인원 수</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>📅 이벤트 시작 일시</label>
+          <input type="datetime-local" id="ev_startAt" value="${toDatetimeLocal(eventConfig.start_at)}"/>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 빈 칸이면 즉시 시작</div>
+        </div>
+        <div class="form-field">
+          <label>⏰ 이벤트 종료 일시 <span style="color:var(--danger);font-size:10px;">*필수</span></label>
+          <input type="datetime-local" id="ev_endAt" value="${toDatetimeLocal(eventConfig.end_at)}"/>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 종료 시 봇이 자동으로 포인트 지급 중단</div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>📢 이벤트 로그 채널 <span style="color:var(--text3);font-size:10px;">(초대 시 봇이 로그 전송)</span></label>
+        <select id="ev_logCh">${logChOpts}</select>
+      </div>
+
+      <!-- 안내 박스 -->
+      <div class="ev-info-box">
+        <div class="ev-info-box-title">💡 동작 방식 안내</div>
+        <div class="ev-info-box-desc">
+          1. 웹패널에서 설정 저장 → <span>Supabase panel_tasks</span> 테이블에 기록됨<br/>
+          2. 디스코드 봇이 <span>inviteEventConfig</span> 태스크를 읽어 이벤트 설정 적용<br/>
+          3. 멤버가 초대 링크로 서버 입장 시 봇이 <span>초대자에게 포인트 지급</span><br/>
+          4. 종료 일시가 지나면 봇이 자동으로 <span>포인트 지급 중단</span><br/>
+          5. 유저당 최대 초대 수 설정 시 해당 인원 초과 시 <span>지급 안 됨</span>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+      <div class="actions-bar">
+        <button class="btn btn-ghost btn-md" onclick="resetEventConfig()">🗑️ 이벤트 초기화</button>
+        <button class="btn btn-white btn-md" onclick="saveEventConfig()">💾 설정 저장</button>
+      </div>
+    </div>
+  `;
+}
+
+async function initEventsPage() {
+  await loadEventConfig(currentLicense?.guildId);
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.innerHTML = buildEventsPage();
+}
+
+function toggleEvSwitch() {
+  eventConfig.enabled = !eventConfig.enabled;
+  const sw    = document.getElementById('ev_ts_enabled');
+  const thumb = sw?.querySelector('.toggle-thumb');
+  if (!sw || !thumb) return;
+  sw.style.background = eventConfig.enabled ? '#a78bfa' : '#333';
+  thumb.style.left    = eventConfig.enabled ? '23px' : '3px';
+  // 히어로 배지 업데이트
+  const badge = document.querySelector('.ev-status-badge');
+  if (badge) {
+    const st = getEventStatus();
+    badge.className = 'ev-status-badge ' + st;
+    badge.innerHTML = `<div class="ev-status-dot"></div>${{on:'ACTIVE',off:'INACTIVE',expired:'EXPIRED'}[st]}`;
+  }
+}
+
+async function saveEventConfig() {
+  const startVal = document.getElementById('ev_startAt')?.value;
+  const endVal   = document.getElementById('ev_endAt')?.value;
+  const points   = parseInt(document.getElementById('ev_points')?.value) || 100;
+  const maxInv   = parseInt(document.getElementById('ev_maxInvites')?.value) || 0;
+  const logCh    = document.getElementById('ev_logCh')?.value || '';
+
+  if (!endVal) { showToast('⚠️ 이벤트 종료 일시는 필수입니다', true); return; }
+  if (startVal && endVal && new Date(startVal) >= new Date(endVal)) {
+    showToast('⚠️ 종료 일시가 시작 일시보다 늦어야 합니다', true); return;
+  }
+
+  eventConfig.points_per_invite    = points;
+  eventConfig.max_invites_per_user = maxInv;
+  eventConfig.start_at             = startVal ? new Date(startVal).toISOString() : '';
+  eventConfig.end_at               = endVal   ? new Date(endVal).toISOString()   : '';
+  eventConfig.log_channel_id       = logCh;
+
+  try {
+    const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'inviteEventConfig' });
+    if (existing) {
+      await sbUpdate('panel_tasks', existing.id, { payload: { ...eventConfig }, done: false });
+    } else {
+      await sbInsert('panel_tasks', {
+        guild_id:  currentLicense.guildId,
+        task_type: 'inviteEventConfig',
+        payload:   { ...eventConfig },
+        done:      false,
+      });
+    }
+    showToast('✅ 이벤트 설정이 저장되었습니다!');
+    showPage('events');
+  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+}
+
+async function resetEventConfig() {
+  if (!confirm('이벤트 설정을 초기화할까요?\n이벤트가 비활성화되고 봇의 포인트 지급이 중단됩니다.')) return;
+  eventConfig = { enabled: false, points_per_invite: 100, start_at: '', end_at: '', max_invites_per_user: 0, log_channel_id: '' };
+  try {
+    const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'inviteEventConfig' });
+    if (existing) {
+      await sbUpdate('panel_tasks', existing.id, { payload: { ...eventConfig }, done: false });
+    }
+    showToast('🗑️ 이벤트가 초기화되었습니다');
+    showPage('events');
+  } catch(e) { showToast('❌ 초기화 실패: ' + e.message, true); }
 }
 
 /* ── HELPERS ── */
