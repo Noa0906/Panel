@@ -2961,9 +2961,10 @@ function buildEventsPage() {
       </div>
 
       <hr class="divider"/>
+      <div id="ev_botStatus" style="display:none;"></div>
       <div class="actions-bar">
         <button class="btn btn-ghost btn-md" onclick="resetEventConfig()">🗑️ 이벤트 초기화</button>
-        <button class="btn btn-white btn-md" onclick="saveEventConfig()">💾 설정 저장</button>
+        <button class="btn btn-white btn-md" onclick="saveEventConfig()">💾 봇에 저장·반영</button>
       </div>
     </div>
   `;
@@ -3022,45 +3023,92 @@ async function saveEventConfig() {
   eventConfig.end_at               = endVal   ? new Date(endVal).toISOString()   : '';
   eventConfig.log_channel_id       = logCh;
 
+  function setBotStatus(state, msg) {
+    const el = document.getElementById('ev_botStatus');
+    if (!el) return;
+    const styles = {
+      sending: { bg:'rgba(96,165,250,0.1)',  border:'rgba(96,165,250,0.3)',  color:'#60a5fa', dot:'#60a5fa', anim:'blink 1.2s infinite' },
+      ok:      { bg:'rgba(74,222,128,0.1)',  border:'rgba(74,222,128,0.3)',  color:'#4ade80', dot:'#4ade80', anim:'none' },
+      error:   { bg:'rgba(248,113,113,0.1)', border:'rgba(248,113,113,0.3)', color:'#f87171', dot:'#f87171', anim:'none' },
+    };
+    const s = styles[state] || styles.sending;
+    el.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;background:${s.bg};border:1px solid ${s.border};color:${s.color};font-size:12px;font-family:'JetBrains Mono',monospace;margin-top:10px;transition:all 0.3s;`;
+    el.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${s.dot};flex-shrink:0;animation:${s.anim};display:inline-block;"></span>${msg}`;
+  }
+
+  setBotStatus('sending', '봇에 전송 중...');
+
   try {
-    const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'inviteEventConfig' });
-    if (existing) {
-      await sbUpdate('panel_tasks', existing.id, { payload: { ...eventConfig }, done: false });
-    } else {
-      await sbInsert('panel_tasks', {
-        guild_id:  currentLicense.guildId,
-        task_type: 'inviteEventConfig',
-        payload:   { ...eventConfig },
-        done:      false,
-      });
+    if (!_sb) throw new Error('Supabase 미연결');
+    // ⭐ DELETE + INSERT 방식 → Realtime INSERT 이벤트가 확실히 발생
+    // UPDATE 방식은 일부 호스팅 환경에서 Realtime 이벤트가 누락될 수 있음
+    await _sb.from('panel_tasks')
+      .delete()
+      .eq('guild_id', currentLicense.guildId)
+      .eq('task_type', 'inviteEventConfig');
+
+    await sbInsert('panel_tasks', {
+      guild_id:  currentLicense.guildId,
+      task_type: 'inviteEventConfig',
+      payload:   { ...eventConfig },
+      done:      false,
+    });
+
+    setBotStatus('sending', '봇 수신 확인 중...');
+
+    // 봇이 수신해서 done: true로 마킹했는지 최대 6초 확인
+    let received = false;
+    for (let i = 0; i < 6; i++) {
+      await new Promise(r => setTimeout(r, 1000));
+      try {
+        const { data: check } = await _sb.from('panel_tasks')
+          .select('done')
+          .eq('guild_id', currentLicense.guildId)
+          .eq('task_type', 'inviteEventConfig')
+          .maybeSingle();
+        if (check?.done) { received = true; break; }
+      } catch(_) { break; }
     }
+
+    if (received) {
+      setBotStatus('ok', '✓ 봇에 설정이 반영되었습니다!');
+    } else {
+      setBotStatus('error', '⚠️ 저장됨 — 봇 응답 없음 (5초 폴링으로 곧 처리)');
+    }
+
     showToast('✅ 이벤트 설정이 저장되었습니다!');
-    showPage('events');
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+    // 상태 배지 즉시 갱신 (페이지 전환 없이)
+    const badge = document.querySelector('.ev-status-badge');
+    if (badge) {
+      const st = getEventStatus();
+      badge.className = 'ev-status-badge ' + st;
+      badge.innerHTML = `<div class="ev-status-dot"></div>${{on:'ACTIVE',off:'INACTIVE',expired:'EXPIRED'}[st]}`;
+    }
+  } catch(e) {
+    setBotStatus('error', '❌ 저장 실패: ' + (e.message || '오류'));
+    showToast('❌ 저장 실패: ' + e.message, true);
+  }
 }
 
 async function resetEventConfig() {
   if (!confirm('이벤트 설정을 초기화할까요?\n이벤트가 비활성화되고 봇의 포인트 지급이 중단됩니다.')) return;
   eventConfig = { enabled: false, points_per_invite: 100, start_at: '', end_at: '', max_invites_per_user: 0, log_channel_id: '' };
   try {
-    const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'inviteEventConfig' });
-    if (existing) {
-      await sbUpdate('panel_tasks', existing.id, { payload: { ...eventConfig }, done: false });
-    }
-    showToast('🗑️ 이벤트가 초기화되었습니다');
+    if (!_sb) throw new Error('Supabase 미연결');
+    await _sb.from('panel_tasks')
+      .delete()
+      .eq('guild_id', currentLicense.guildId)
+      .eq('task_type', 'inviteEventConfig');
+    await sbInsert('panel_tasks', {
+      guild_id:  currentLicense.guildId,
+      task_type: 'inviteEventConfig',
+      payload:   { ...eventConfig },
+      done:      false,
+    });
+    showToast('\uD83D\uDDD1\uFE0F 이벤트가 초기화되었습니다');
     showPage('events');
-  } catch(e) { showToast('❌ 초기화 실패: ' + e.message, true); }
+  } catch(e) { showToast('\u274C 초기화 실패: ' + e.message, true); }
 }
-
-/* ── HELPERS ── */
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ══════════════════════════════════════════════
-   USERS PAGE
-══════════════════════════════════════════════ */
-let allUsers = [];
 
 async function initUsersPage() {
   const guildId = currentLicense?.guildId;
