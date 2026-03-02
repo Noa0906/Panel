@@ -410,9 +410,11 @@
       transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
       border-right: 1px solid var(--border2);
       box-shadow: 8px 0 32px rgba(0,0,0,0.5);
+      pointer-events: none;
     }
     .sidebar.open {
       transform: translateX(0);
+      pointer-events: auto;
     }
       .main-inner { padding:20px 16px; padding-top:70px; }
       .dash-grid { grid-template-columns:1fr 1fr; }
@@ -843,6 +845,7 @@ let vendingSettings = {
 };
 
 let _rtChannel = null;
+let _inventoryTab = 'cat'; // 재고관리 현재 탭 기억
 let _inventoryPollTimer = null;  // 재고 폴링 타이머
 let _lastStockSnapshot = '';     // 재고 변경 감지용 스냅샷
 
@@ -918,9 +921,9 @@ async function sbSelectOne(table, filters = {}) {
 
 async function sbInsert(table, data) {
   if (!_sb) throw new Error('Supabase 미연결');
-  const { data: result, error } = await _sb.from(table).insert(data).select().single();
+  const { data: result, error } = await _sb.from(table).insert(data).select();
   if (error) throw error;
-  return result;
+  return (result && result[0]) || null;
 }
 
 async function sbUpsert(table, data) {
@@ -1241,6 +1244,8 @@ async function initLoginLogPage() {
   const wrap = document.getElementById('loginLogTableWrap');
   const countEl = document.getElementById('loginLogCount');
   if (!wrap || !_sb) return;
+  // 로딩 상태 표시
+  wrap.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text3);font-family:\'JetBrains Mono\',monospace;">⏳ 로드 중...</div>';
   try {
     const { data: logs, error } = await _sb
       .from('login_logs')
@@ -1250,6 +1255,9 @@ async function initLoginLogPage() {
       .limit(200);
 
     if (error) throw error;
+
+    // 페이지가 이미 전환된 경우 중단
+    if (!document.getElementById('loginLogTableWrap')) return;
 
     if (!logs || !logs.length) {
       countEl.textContent = '0건';
@@ -1419,8 +1427,25 @@ async function loadVendingSettings(guildId) {
 /* ══════════════════════════════════════════════
    ROUTING
 ══════════════════════════════════════════════ */
+let _currentPage = '';
+
+function isPageStillActive(page) {
+  return document.getElementById('nav-' + page)?.classList.contains('active');
+}
+
+function safeRender(page, buildFn) {
+  const mc = document.getElementById('mainContent');
+  if (!mc) return;
+  try { mc.innerHTML = buildFn(); }
+  catch(e) {
+    console.error('[' + page + '] 렌더 오류:', e);
+    mc.innerHTML = '<div style="padding:30px;color:var(--danger);font-family:JetBrains Mono,monospace;font-size:13px;">❌ 페이지 로드 오류: ' + e.message + '</div>';
+  }
+}
+
 function showPage(page) {
   closeSidebar();
+  _currentPage = page;
   if (page !== 'dashboard' && _rtChannel) {
     try { _sb?.removeChannel(_rtChannel); } catch(e) {}
     _rtChannel = null;
@@ -1428,22 +1453,21 @@ function showPage(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const navEl = document.getElementById('nav-' + page);
   if (navEl) navEl.classList.add('active');
-  const mc = document.getElementById('mainContent');
-  if (page === 'dashboard')  { mc.innerHTML = buildDashboardPage(); initDashboard(); }
-  if (page === 'inventory')  {
+
+  if (page === 'dashboard')       { safeRender(page, buildDashboardPage); initDashboard(); }
+  else if (page === 'inventory')  {
+    safeRender(page, buildInventoryPage);
     loadInventoryData().then(() => {
-      if (document.getElementById('nav-inventory')?.classList.contains('active')) {
-        mc.innerHTML = buildInventoryPage();
-      }
+      if (isPageStillActive('inventory')) safeRender(page, buildInventoryPage);
     });
-    mc.innerHTML = buildInventoryPage(); // 즉시 캐시 데이터로 먼저 렌더
   }
-  if (page === 'settings')   mc.innerHTML = buildSettingsPage();
-  if (page === 'users')      { mc.innerHTML = buildUsersPage(); initUsersPage(); }
-  if (page === 'grades') { try { mc.innerHTML = buildGradesPage(); } catch(e) { mc.innerHTML = `<div style="padding:30px;color:var(--danger);font-family:'JetBrains Mono',monospace;font-size:13px;">❌ 등급 페이지 로드 오류: ${e.message}</div>`; console.error('grades 페이지 오류:', e); } }
-  if (page === 'autocharge') { mc.innerHTML = buildAutoChargePage(); initAutoCharge(); }
-  if (page === 'loginlog')   { mc.innerHTML = buildLoginLogPage(); initLoginLogPage(); }
-  if (page === 'events')     { mc.innerHTML = buildEventsPage(); initEventsPage(); }
+  else if (page === 'settings')   { safeRender(page, buildSettingsPage); }
+  else if (page === 'users')      { safeRender(page, buildUsersPage); initUsersPage(); }
+  else if (page === 'grades')     { safeRender(page, buildGradesPage); }
+  else if (page === 'autocharge') { safeRender(page, buildAutoChargePage); initAutoCharge(); }
+  else if (page === 'loginlog')   { safeRender(page, buildLoginLogPage); initLoginLogPage(); }
+  else if (page === 'events')     { safeRender(page, buildEventsPage); initEventsPage(); }
+
   const main = document.querySelector('.main');
   if (main) main.scrollTop = 0;
 }
@@ -1458,11 +1482,11 @@ function buildInventoryPage() {
       <div class="page-sub">// 카테고리 → 제품 → 재고 순서로 추가하세요</div>
     </div>
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('cat',this)">📂 카테고리</div>
-      <div class="tab" onclick="switchTab('prod',this)">📦 제품</div>
+      <div class="tab ${_inventoryTab==='cat'?'active':''}" onclick="switchTab('cat',this)">📂 카테고리</div>
+      <div class="tab ${_inventoryTab==='prod'?'active':''}" onclick="switchTab('prod',this)">📦 제품</div>
     </div>
-    <div class="tab-section active" id="tab-cat">${buildCatSection()}</div>
-    <div class="tab-section" id="tab-prod">${buildProdSection()}</div>
+    <div class="tab-section ${_inventoryTab==='cat'?'active':''}" id="tab-cat">${buildCatSection()}</div>
+    <div class="tab-section ${_inventoryTab==='prod'?'active':''}" id="tab-prod">${buildProdSection()}</div>
   `;
 }
 
@@ -1471,6 +1495,7 @@ function switchTab(id, el) {
   document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tab-' + id).classList.add('active');
+  _inventoryTab = id;
 }
 
 function buildCatSection() {
@@ -1712,8 +1737,8 @@ function switchAcTab(id, el) {
 
 async function initAutoCharge() {
   await loadAutoChargeData(currentLicense?.guildId);
-  const mc = document.getElementById('mainContent');
-  if (mc) mc.innerHTML = buildAutoChargePage();
+  if (!isPageStillActive('autocharge')) return;
+  safeRender('autocharge', buildAutoChargePage);
 }
 
 async function refreshChargeData() {
@@ -2315,11 +2340,12 @@ async function saveCategory() {
       guild_id: currentLicense.guildId,
       name,
     });
-    categories.push(result);
+    if (result) categories.push(result);
     closeModal('modalCat');
     document.getElementById('catNameInput').value = '';
     document.getElementById('catEmojiInput').value = '';
     showToast('✅ 카테고리가 추가되었습니다!');
+    _inventoryTab = 'cat';
     showPage('inventory');
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
@@ -2333,6 +2359,7 @@ async function deleteCategory(id) {
     products   = products.filter(p => p.category_id != id);
     stockItems = stockItems.filter(s => !deletedProdIds.includes(s.product_id));
     showToast('🗑️ 삭제되었습니다');
+    _inventoryTab = 'cat';
     showPage('inventory');
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
@@ -2357,8 +2384,8 @@ async function saveProduct() {
     products.push(result);
     closeModal('modalProd');
     showToast('✅ 제품이 추가되었습니다!');
+    _inventoryTab = 'prod';
     showPage('inventory');
-    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
 
@@ -2369,8 +2396,8 @@ async function deleteProduct(id) {
     stockItems = stockItems.filter(s => s.product_id != id);
     products   = products.filter(p => p.id != id);
     showToast('🗑️ 삭제되었습니다');
+    _inventoryTab = 'prod';
     showPage('inventory');
-    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
@@ -2403,8 +2430,8 @@ async function saveStock() {
     }
     closeModal('modalStock');
     showToast(unlimited ? '✅ 무제한 재고로 설정되었습니다!' : `✅ 재고 ${lines.length}개가 저장되었습니다!`);
+    _inventoryTab = 'prod';
     showPage('inventory');
-    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
 
@@ -2413,8 +2440,8 @@ async function deleteStock(id) {
     await sbDelete('inventory_stock', id);
     stockItems = stockItems.filter(s => s.id != id);
     showToast('🗑️ 삭제되었습니다');
+    _inventoryTab = 'prod';
     showPage('inventory');
-    setTimeout(() => { const tabs = document.querySelectorAll('.tab'); if(tabs[1]) tabs[1].click(); }, 80);
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
@@ -2983,8 +3010,8 @@ function buildEventsPage() {
 
 async function initEventsPage() {
   await loadEventConfig(currentLicense?.guildId);
-  const mc = document.getElementById('mainContent');
-  if (mc) mc.innerHTML = buildEventsPage();
+  if (!isPageStillActive('events')) return;
+  safeRender('events', buildEventsPage);
 }
 
 function toggleEvSwitch() {
@@ -3154,6 +3181,7 @@ async function initUsersPage() {
     });
     allUsers = Object.values(userMap);
   } catch(e) { console.error(e); allUsers = []; }
+  if (!isPageStillActive('users')) return;
   renderUserTable(allUsers);
 }
 
