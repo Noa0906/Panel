@@ -1498,6 +1498,14 @@ function switchTab(id, el) {
   _inventoryTab = id;
 }
 
+function refreshInventoryTab() {
+  // 현재 탭 내용만 갱신 (탭 전환 없이)
+  const catEl = document.getElementById('tab-cat');
+  const prodEl = document.getElementById('tab-prod');
+  if (catEl) catEl.innerHTML = buildCatSection();
+  if (prodEl) prodEl.innerHTML = buildProdSection();
+}
+
 function buildCatSection() {
   const items = categories.map(cat => `
     <div class="list-item">
@@ -2345,8 +2353,7 @@ async function saveCategory() {
     document.getElementById('catNameInput').value = '';
     document.getElementById('catEmojiInput').value = '';
     showToast('✅ 카테고리가 추가되었습니다!');
-    _inventoryTab = 'cat';
-    showPage('inventory');
+    refreshInventoryTab();
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
 
@@ -2359,8 +2366,7 @@ async function deleteCategory(id) {
     products   = products.filter(p => p.category_id != id);
     stockItems = stockItems.filter(s => !deletedProdIds.includes(s.product_id));
     showToast('🗑️ 삭제되었습니다');
-    _inventoryTab = 'cat';
-    showPage('inventory');
+    refreshInventoryTab();
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
@@ -2384,8 +2390,7 @@ async function saveProduct() {
     products.push(result);
     closeModal('modalProd');
     showToast('✅ 제품이 추가되었습니다!');
-    _inventoryTab = 'prod';
-    showPage('inventory');
+    refreshInventoryTab();
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
 
@@ -2396,8 +2401,7 @@ async function deleteProduct(id) {
     stockItems = stockItems.filter(s => s.product_id != id);
     products   = products.filter(p => p.id != id);
     showToast('🗑️ 삭제되었습니다');
-    _inventoryTab = 'prod';
-    showPage('inventory');
+    refreshInventoryTab();
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
@@ -2430,8 +2434,7 @@ async function saveStock() {
     }
     closeModal('modalStock');
     showToast(unlimited ? '✅ 무제한 재고로 설정되었습니다!' : `✅ 재고 ${lines.length}개가 저장되었습니다!`);
-    _inventoryTab = 'prod';
-    showPage('inventory');
+    refreshInventoryTab();
   } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
 }
 
@@ -2440,8 +2443,7 @@ async function deleteStock(id) {
     await sbDelete('inventory_stock', id);
     stockItems = stockItems.filter(s => s.id != id);
     showToast('🗑️ 삭제되었습니다');
-    _inventoryTab = 'prod';
-    showPage('inventory');
+    refreshInventoryTab();
   } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
