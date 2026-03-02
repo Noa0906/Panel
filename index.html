@@ -770,6 +770,17 @@ let SUPABASE_URL = HARDCODED_URL || localStorage.getItem('sb_url') || '';
 let SUPABASE_KEY = HARDCODED_KEY || localStorage.getItem('sb_key') || '';
 let _sb = null;
 
+/* HTML 특수문자 이스케이프 유틸 */
+function esc(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function initSupabase(url, key) {
   if (!url || !key) return false;
   try {
@@ -1429,7 +1440,7 @@ function showPage(page) {
   }
   if (page === 'settings')   mc.innerHTML = buildSettingsPage();
   if (page === 'users')      { mc.innerHTML = buildUsersPage(); initUsersPage(); }
-  if (page === 'grades')     mc.innerHTML = buildGradesPage();
+  if (page === 'grades') { try { mc.innerHTML = buildGradesPage(); } catch(e) { mc.innerHTML = `<div style="padding:30px;color:var(--danger);font-family:'JetBrains Mono',monospace;font-size:13px;">❌ 등급 페이지 로드 오류: ${e.message}</div>`; console.error('grades 페이지 오류:', e); } }
   if (page === 'autocharge') { mc.innerHTML = buildAutoChargePage(); initAutoCharge(); }
   if (page === 'loginlog')   { mc.innerHTML = buildLoginLogPage(); initLoginLogPage(); }
   if (page === 'events')     { mc.innerHTML = buildEventsPage(); initEventsPage(); }
