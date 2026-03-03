@@ -3172,13 +3172,17 @@ async function initUsersPage() {
       if (l.psid) userMap[l.user_id].psid = l.psid;
       if (l.status === 'confirmed') userMap[l.user_id].totalCharged += (l.amount||0);
     });
-    // users 테이블에서 현재 보유금액 및 등급 반영
     userRows.forEach(u => {
-      if (userMap[u.user_id]) {
-        userMap[u.user_id].points   = u.points ?? null;
-        userMap[u.user_id].grade_id = u.grade_id || null;
+      const uid = String(u.user_id).trim();
+      const matchKey = userMap[uid]
+        ? uid
+        : Object.keys(userMap).find(k => k.trim().toLowerCase() === uid.toLowerCase());
+
+      if (matchKey) {
+        userMap[matchKey].points   = u.points ?? null;
+        userMap[matchKey].grade_id = u.grade_id || null;
       } else {
-        userMap[u.user_id] = { user_id: u.user_id, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
+        userMap[uid] = { user_id: uid, psid: '', totalPurchase: 0, purchaseCount: 0, totalCharged: 0, points: u.points ?? null, grade_id: u.grade_id || null };
       }
     });
     allUsers = Object.values(userMap);
