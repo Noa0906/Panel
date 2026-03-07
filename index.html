@@ -1572,8 +1572,8 @@ async function loadAutoChargeData(guildId) {
     chargeLogs = await sbSelect('charge_logs', { guild_id: guildId }, { order: 'created_at', asc: false });
     const cfg = await sbSelectOne('autocharge_config', { guild_id: guildId });
     if (cfg) autoChargeConfig = cfg;
-    const accRow = await sbSelectOne('panel_tasks', { guild_id: guildId, task_type: 'chargeAccounts' });
-    chargeAccounts = accRow?.payload?.accounts || [];
+    const accRows = await sbSelect('charge_accounts', { guild_id: guildId });
+    chargeAccounts = accRows || [];
   } catch(e) { console.error('자동충전 로드 오류:', e); }
 }
 
@@ -1788,19 +1788,20 @@ async function saveAccount() {
   if (!account_number) { showToast('⚠️ 계좌번호를 입력하세요', true); return; }
   if (!holder)         { showToast('⚠️ 예금주를 입력하세요', true); return; }
 
-  const newAcc = { bank_name, account_number, holder, min_amount };
-  const arr = [...chargeAccounts];
-  if (rawId === 'new') { arr.push(newAcc); }
-  else { const idx = parseInt(rawId); if (!isNaN(idx)) arr[idx] = newAcc; }
-
   try {
-    const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'chargeAccounts' });
-    if (existing) {
-      await sbUpdate('panel_tasks', existing.id, { payload: { accounts: arr }, done: true });
+    if (rawId === 'new') {
+      const inserted = await sbInsert('charge_accounts', {
+        guild_id: currentLicense.guildId, bank_name, account_number, holder, min_amount
+      });
+      if (inserted) chargeAccounts.push(inserted);
     } else {
-      await sbInsert('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'chargeAccounts', payload: { accounts: arr }, done: true });
+      const idx = parseInt(rawId);
+      if (!isNaN(idx) && chargeAccounts[idx]) {
+        const accId = chargeAccounts[idx].id;
+        await sbUpdate('charge_accounts', accId, { bank_name, account_number, holder, min_amount });
+        chargeAccounts[idx] = { ...chargeAccounts[idx], bank_name, account_number, holder, min_amount };
+      }
     }
-    chargeAccounts = arr;
     closeModal('modalAccount');
     showToast('✅ 계좌가 저장되었습니다!');
     showPage('autocharge');
@@ -1810,19 +1811,15 @@ async function saveAccount() {
 
 async function deleteAccount(idx) {
   if (!confirm('이 계좌를 삭제할까요?')) return;
-  const arr = chargeAccounts.filter((_,i) => i !== idx);
   try {
-    const existing = await sbSelectOne('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'chargeAccounts' });
-    if (existing) {
-      await sbUpdate('panel_tasks', existing.id, { payload: { accounts: arr }, done: true });
-    } else {
-      await sbInsert('panel_tasks', { guild_id: currentLicense.guildId, task_type: 'chargeAccounts', payload: { accounts: arr }, done: true });
-    }
-    chargeAccounts = arr;
+    const acc = chargeAccounts[idx];
+    if (!acc) return;
+    await sbDelete('charge_accounts', acc.id);
+    chargeAccounts = chargeAccounts.filter((_,i) => i !== idx);
     showToast('🗑️ 삭제되었습니다');
     showPage('autocharge');
     setTimeout(() => { const tabs = document.querySelectorAll('.tabs .tab'); if(tabs[1]) tabs[1].click(); }, 100);
-  } catch(e) { showToast('❌ 삭제 실패', true); }
+  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
 }
 
 function openChargeDetail(id) {
