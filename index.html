@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Core Web Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window._sbLoadFailed=true;console.error('Supabase CDN 로드 실패');"></script>
@@ -21,14 +21,14 @@
       --text: #f0f0f0;
       --text2: #909090;
       --text3: #555555;
-      --success: #4ade80;
-      --danger: #f87171;
-      --warning: #fbbf24;
-      --accent: #60a5fa;
+      --success: #7ba889;
+      --danger: #c1584c;
+      --warning: #c99a52;
+      --accent: #b6905c;
       --sidebar-w: 220px;
     }
 
-    html, body { height: 100%; overflow: hidden; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
+    html, body { height: 100%; overflow: hidden; font-family: 'Instrument Sans', sans-serif; background: var(--bg); color: var(--text); }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -71,12 +71,12 @@
     .field input { width:100%; background:var(--surface2); border:1px solid var(--border2); border-radius:9px; padding:12px 14px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px; outline:none; transition:border-color 0.15s,box-shadow 0.15s; }
     .field input:focus { border-color:rgba(255,255,255,0.35); box-shadow:0 0 0 3px rgba(255,255,255,0.04); }
     .field input::placeholder { color:var(--text3); }
-    .btn-login { width:100%; padding:13px; background:var(--text); border:none; border-radius:9px; color:#000; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; margin-top:6px; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .btn-login { width:100%; padding:13px; background:var(--text); border:none; border-radius:9px; color:#000; font-family:'Instrument Sans',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.15s; margin-top:6px; display:flex; align-items:center; justify-content:center; gap:8px; }
     .btn-login:hover { background:#d8d8d8; }
     .btn-login:disabled { opacity:0.5; cursor:not-allowed; }
     .alert { border-radius:8px; padding:10px 13px; font-size:12px; margin-bottom:14px; display:none; font-family:'JetBrains Mono',monospace; }
-    .alert-error { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.25); color:var(--danger); }
-    .alert-warn { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.25); color:var(--warning); }
+    .alert-error { background:rgba(193,88,76,0.08); border:1px solid rgba(193,88,76,0.25); color:var(--danger); }
+    .alert-warn { background:rgba(201,154,82,0.08); border:1px solid rgba(201,154,82,0.25); color:var(--warning); }
     .spinner { width:15px; height:15px; border:2px solid rgba(0,0,0,0.2); border-top-color:#000; border-radius:50%; animation:spin 0.6s linear infinite; }
 
     #dashScreen { flex-direction:row; overflow:hidden; }
@@ -146,7 +146,7 @@
     .user-avatar { width:30px; height:30px; border-radius:50%; flex-shrink:0; background:var(--surface3); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:1px solid var(--border2); }
     .user-name { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .user-role { font-size:10px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
-    .btn-logout { width:100%; padding:8px; background:transparent; border:1px solid var(--border); border-radius:7px; color:var(--text3); font-family:'Outfit',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
+    .btn-logout { width:100%; padding:8px; background:transparent; border:1px solid var(--border); border-radius:7px; color:var(--text3); font-family:'Instrument Sans',sans-serif; font-size:12px; cursor:pointer; transition:all 0.15s; }
     .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
     .main { flex:1; overflow-y:auto; background:#181818; height:100%; }
@@ -173,7 +173,7 @@
     .form-field textarea { resize:vertical; min-height:80px; }
 
     /* BUTTONS */
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:8px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; transition:all 0.15s; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:8px; cursor:pointer; font-family:'Instrument Sans',sans-serif; font-weight:600; transition:all 0.15s; }
     .btn:disabled { opacity:0.4; cursor:not-allowed; }
     .btn-sm { padding:6px 13px; font-size:12px; }
     .btn-md { padding:9px 18px; font-size:13px; }
@@ -183,7 +183,7 @@
     .btn-ghost:hover:not(:disabled) { border-color:rgba(255,255,255,0.3); color:var(--text); }
     .btn-red-ghost { background:transparent; color:var(--text3); border:1px solid var(--border); }
     .btn-red-ghost:hover:not(:disabled) { border-color:var(--danger); color:var(--danger); }
-    .btn-dashed { padding:9px; background:var(--surface2); border:1px dashed var(--border2); border-radius:8px; color:var(--text2); font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .btn-dashed { padding:9px; background:var(--surface2); border:1px dashed var(--border2); border-radius:8px; color:var(--text2); font-family:'Instrument Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:6px; }
     .btn-dashed:hover { border-color:rgba(255,255,255,0.25); color:var(--text); }
 
     /* LIST */
@@ -243,23 +243,23 @@
 
     /* ── DASHBOARD ── */
     .dash-hero { border-radius:14px; padding:28px; background:linear-gradient(135deg,#071a0d 0%,#0a1a10 60%,#0d0d0d 100%); border:1px solid #1e3d26; position:relative; overflow:hidden; margin-bottom:16px; }
-    .dash-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:200px; height:200px; background:radial-gradient(circle,rgba(74,222,128,0.08) 0%,transparent 70%); pointer-events:none; }
-    .dash-hero-icon { width:44px; height:44px; border-radius:12px; background:rgba(74,222,128,0.18); border:1px solid rgba(74,222,128,0.3); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; }
-    .dash-hero-label { font-size:11px; color:rgba(74,222,128,0.6); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; }
-    .dash-hero-value { font-size:36px; font-weight:800; letter-spacing:-0.03em; color:#4ade80; }
+    .dash-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:200px; height:200px; background:radial-gradient(circle,rgba(123,168,137,0.08) 0%,transparent 70%); pointer-events:none; }
+    .dash-hero-icon { width:44px; height:44px; border-radius:12px; background:rgba(123,168,137,0.18); border:1px solid rgba(123,168,137,0.3); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:14px; }
+    .dash-hero-label { font-size:11px; color:rgba(123,168,137,0.6); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; }
+    .dash-hero-value { font-size:36px; font-weight:800; letter-spacing:-0.03em; color:#7ba889; }
     .dash-hero-sub { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-top:6px; }
     .dash-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
     .dash-stat { border-radius:12px; padding:20px 22px; position:relative; overflow:hidden; border:1px solid; transition:transform 0.15s; }
     .dash-stat:hover { transform:translateY(-1px); }
-    .dash-stat.blue { background:linear-gradient(135deg,#080d1f,#0d0d18); border-color:#1a2550; }
-    .dash-stat.purple { background:linear-gradient(135deg,#0e0820,#0d0d18); border-color:#2a1850; }
-    .dash-stat.orange { background:linear-gradient(135deg,#1a0e00,#120d00); border-color:#3d2200; }
+    .dash-stat.blue { background:linear-gradient(135deg,#1c150a,#14120f); border-color:#463a22; }
+    .dash-stat.purple { background:linear-gradient(135deg,#171310,#14110f); border-color:#3a2e26; }
+    .dash-stat.orange { background:linear-gradient(135deg,#151608,#12120f); border-color:#3a3722; }
     .dash-stat-label { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
     .dash-stat-dollar { font-size:18px; opacity:0.4; }
     .dash-stat-value { font-size:24px; font-weight:700; letter-spacing:-0.02em; }
     .dash-stat-change { font-size:11px; font-family:'JetBrains Mono',monospace; margin-top:8px; display:flex; align-items:center; gap:5px; }
-    .dash-stat-change.up { color:#4ade80; }
-    .dash-stat-change.down { color:#f87171; }
+    .dash-stat-change.up { color:#7ba889; }
+    .dash-stat-change.down { color:#c1584c; }
     .dash-stat-change.neutral { color:var(--text3); }
     .chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
     .chart-label { font-size:13px; font-weight:600; color:var(--text2); margin-bottom:18px; }
@@ -276,7 +276,7 @@
     .rt-log-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
     .rt-log-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
     .rt-log-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
-    .rt-live-dot { width:7px; height:7px; border-radius:50%; background:#f87171; animation:pulse 1.2s infinite; flex-shrink:0; }
+    .rt-live-dot { width:7px; height:7px; border-radius:50%; background:#c1584c; animation:pulse 1.2s infinite; flex-shrink:0; }
     .rt-log-list { max-height:320px; overflow-y:auto; }
     .rt-log-item { display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; margin-bottom:7px; animation:slideIn 0.3s ease; }
     .rt-log-item:last-child { margin-bottom:0; }
@@ -293,18 +293,18 @@
 
     /* ── AUTO CHARGE PAGE ── */
     .ac-hero { border-radius:14px; padding:26px 28px; background:linear-gradient(135deg,#050e1f 0%,#071020 60%,#0d0d0d 100%); border:1px solid #1a2a50; position:relative; overflow:hidden; margin-bottom:18px; }
-    .ac-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%); pointer-events:none; }
+    .ac-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; background:radial-gradient(circle,rgba(182,144,92,0.08) 0%,transparent 70%); pointer-events:none; }
     .ac-hero-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-    .ac-hero-icon { width:48px; height:48px; border-radius:13px; background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+    .ac-hero-icon { width:48px; height:48px; border-radius:13px; background:rgba(182,144,92,0.15); border:1px solid rgba(182,144,92,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
     .ac-hero-info { flex:1; min-width:160px; }
-    .ac-hero-label { font-size:11px; color:rgba(96,165,250,0.6); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
+    .ac-hero-label { font-size:11px; color:rgba(182,144,92,0.6); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
     .ac-hero-title { font-size:18px; font-weight:700; color:#fff; margin-bottom:3px; }
     .ac-hero-desc { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; }
     .ac-status-badge { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace; border:1px solid; flex-shrink:0; }
-    .ac-status-badge.on { background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.3); color:#4ade80; }
+    .ac-status-badge.on { background:rgba(123,168,137,0.1); border-color:rgba(123,168,137,0.3); color:#7ba889; }
     .ac-status-badge.off { background:rgba(255,255,255,0.05); border-color:var(--border2); color:var(--text3); }
     .ac-status-dot { width:6px; height:6px; border-radius:50%; animation:blink 1.5s infinite; }
-    .ac-status-badge.on .ac-status-dot { background:#4ade80; }
+    .ac-status-badge.on .ac-status-dot { background:#7ba889; }
     .ac-status-badge.off .ac-status-dot { background:var(--text3); animation:none; }
     .ac-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
     .ac-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
@@ -319,14 +319,14 @@
     .charge-log-table tr:last-child td { border-bottom:none; }
     .charge-log-table tr:hover td { background:rgba(255,255,255,0.02); }
     .log-status-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px; font-size:11px; font-family:'JetBrains Mono',monospace; border:1px solid; }
-    .log-status-badge.pending { background:rgba(251,191,36,0.1); border-color:rgba(251,191,36,0.3); color:var(--warning); }
-    .log-status-badge.confirmed { background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.3); color:var(--success); }
-    .log-status-badge.rejected { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--danger); }
+    .log-status-badge.pending { background:rgba(201,154,82,0.1); border-color:rgba(201,154,82,0.3); color:var(--warning); }
+    .log-status-badge.confirmed { background:rgba(123,168,137,0.1); border-color:rgba(123,168,137,0.3); color:var(--success); }
+    .log-status-badge.rejected { background:rgba(193,88,76,0.1); border-color:rgba(193,88,76,0.3); color:var(--danger); }
 
     /* 계좌 카드 */
     .account-card { background:var(--surface2); border:1px solid var(--border2); border-radius:10px; padding:16px 18px; margin-bottom:10px; display:flex; align-items:center; gap:14px; transition:border-color 0.15s; flex-wrap:wrap; }
-    .account-card:hover { border-color:rgba(96,165,250,0.25); }
-    .account-card-icon { width:38px; height:38px; border-radius:9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .account-card:hover { border-color:rgba(182,144,92,0.25); }
+    .account-card-icon { width:38px; height:38px; border-radius:9px; background:rgba(182,144,92,0.1); border:1px solid rgba(182,144,92,0.2); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
     .account-card-info { flex:1; min-width:120px; }
     .account-card-bank { font-size:13px; font-weight:600; margin-bottom:3px; }
     .account-card-num { font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text2); }
@@ -343,7 +343,7 @@
     .api-key-status.idle { color:var(--text3); }
 
     /* Pushbullet 도움말 */
-    .pb-help { background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    .pb-help { background:rgba(182,144,92,0.05); border:1px solid rgba(182,144,92,0.15); border-radius:8px; padding:12px 14px; margin-top:10px; }
     .pb-help-title { font-size:12px; font-weight:600; color:var(--accent); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
     .pb-help-steps { font-size:11px; color:var(--text3); font-family:'JetBrains Mono',monospace; line-height:1.8; }
     .pb-help-steps span { color:var(--text2); }
@@ -357,7 +357,7 @@
     .toggle-thumb { position:absolute; left:3px; top:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left 0.2s; }
 
     /* 최소충전액 배지 */
-    .min-charge-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:var(--accent); font-size:11px; font-family:'JetBrains Mono',monospace; }
+    .min-charge-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:5px; background:rgba(182,144,92,0.1); border:1px solid rgba(182,144,92,0.2); color:var(--accent); font-size:11px; font-family:'JetBrains Mono',monospace; }
 
     /* ── EVENT PAGE ── */
     .ev-hero { border-radius:14px; padding:26px 28px; background:linear-gradient(135deg,#120b22 0%,#1a0f2e 60%,#0d0d0d 100%); border:1px solid #3d1f6e; position:relative; overflow:hidden; margin-bottom:18px; }
@@ -370,7 +370,7 @@
     .ev-status-badge { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace; border:1px solid; flex-shrink:0; }
     .ev-status-badge.on  { background:rgba(167,139,250,0.12); border-color:rgba(167,139,250,0.4); color:#a78bfa; }
     .ev-status-badge.off { background:rgba(255,255,255,0.04); border-color:var(--border2); color:var(--text3); }
-    .ev-status-badge.expired { background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--danger); }
+    .ev-status-badge.expired { background:rgba(193,88,76,0.1); border-color:rgba(193,88,76,0.3); color:var(--danger); }
     .ev-status-dot { width:6px; height:6px; border-radius:50%; }
     .ev-status-badge.on .ev-status-dot  { background:#a78bfa; animation:blink 1.5s infinite; }
     .ev-status-badge.off .ev-status-dot { background:var(--text3); }
@@ -486,7 +486,7 @@
   <div class="sidebar" id="mainSidebar">
     <div class="sidebar-brand">
       <div class="sidebar-brand-icon">
-        <img src="logo.gif" onerror="this.parentElement.textContent='⚙️'" style="width:100%;height:100%;object-fit:cover;border-radius:7px;"/>
+        <img src="logo.gif" onerror="this.parentElement.textContent=''" style="width:100%;height:100%;object-fit:cover;border-radius:7px;"/>
       </div>
       <div class="sidebar-brand-name">Core Web<span>Panel</span></div>
     </div>
@@ -498,28 +498,28 @@
     <div class="nav-section">
       <div class="nav-section-label">메뉴</div>
       <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
-        <span class="nav-icon">📊</span> 대시보드
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 12.5V7M6 12.5V3.5M10 12.5V9M14 12.5V5.5"/></svg></span>대시보드
       </div>
       <div class="nav-item" onclick="showPage('inventory')" id="nav-inventory">
-        <span class="nav-icon">📦</span> 재고 관리
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M2 4.8 8 2l6 2.8v6.4L8 14 2 11.2z"/><path d="M2 4.8 8 7.6l6-2.8M8 7.6v6.4" stroke-linecap="round"/></svg></span>재고 관리
       </div>
       <div class="nav-item" onclick="showPage('users')" id="nav-users">
-        <span class="nav-icon">👥</span> 유저 목록
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2.3"/><path d="M1.6 13.2c.5-2.6 2.3-4 4.4-4s3.9 1.4 4.4 4"/><circle cx="12.2" cy="5.3" r="1.7"/><path d="M10.7 9.4c1.7.1 3 1.3 3.4 3.5"/></svg></span>유저 목록
       </div>
       <div class="nav-item" onclick="showPage('grades')" id="nav-grades">
-        <span class="nav-icon">🏅</span> 등급 관리
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 1.6 9.6 5l3.7.5-2.7 2.6.6 3.7L8 10 4.8 11.8l.6-3.7-2.7-2.6L6.4 5z"/></svg></span>등급 관리
       </div>
       <div class="nav-item" onclick="showPage('autocharge')" id="nav-autocharge">
-        <span class="nav-icon">💳</span> 자동충전
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.6" y="3.6" width="12.8" height="8.8" rx="1.4"/><path d="M1.6 6.4h12.8" stroke-linecap="round"/></svg></span>자동충전
       </div>
       <div class="nav-item" onclick="showPage('events')" id="nav-events">
-        <span class="nav-icon">🎉</span> 초대 이벤트
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><rect x="2" y="6.4" width="12" height="7" rx="1"/><path d="M2 6.4h12M8 6.4v7M8 6.4C6.6 6.4 5 5.6 5 4.2A1.8 1.8 0 0 1 8 3a1.8 1.8 0 0 1 3 1.2c0 1.4-1.6 2.2-3 2.2Z"/></svg></span>초대 이벤트
       </div>
       <div class="nav-item" onclick="showPage('loginlog')" id="nav-loginlog">
-        <span class="nav-icon">🔐</span> 로그인 로그
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><rect x="3.4" y="7" width="9.2" height="6.6" rx="1.2"/><path d="M5.4 7V4.8a2.6 2.6 0 0 1 5.2 0V7"/></svg></span>로그인 로그
       </div>
       <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
-        <span class="nav-icon">⚙️</span> 설정
+        <span class="nav-icon"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><circle cx="8" cy="8" r="2"/><path d="M8 1.8v1.6M8 12.6v1.6M14.2 8h-1.6M3.4 8H1.8M12.3 3.7l-1.1 1.1M4.8 11.2l-1.1 1.1M12.3 12.3l-1.1-1.1M4.8 4.8 3.7 3.7"/></svg></span>설정
       </div>
     </div>
     <div class="sidebar-footer">
@@ -552,7 +552,7 @@
     </div>
     <div class="form-field">
       <label>이모지 (선택)</label>
-      <input type="text" id="catEmojiInput" placeholder="예) 💎"/>
+      <input type="text" id="catEmojiInput" placeholder="예) "/>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalCat')">취소</button>
@@ -614,26 +614,26 @@
 <!-- MODAL: 유저 관리 -->
 <div class="modal-overlay" id="modalUserEdit">
   <div class="modal" style="max-width:460px;">
-    <div class="modal-title">⚙️ 유저 관리</div>
+    <div class="modal-title">유저 관리</div>
     <input type="hidden" id="editUserId"/>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:18px;">
       <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;">유저 ID</div>
       <div style="font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;" id="editUserIdDisplay">-</div>
     </div>
     <div class="form-field">
-      <label>💰 보유금액 (현재잔액)</label>
+      <label>보유금액 (현재잔액)</label>
       <input type="number" id="editUserPoints" placeholder="보유금액을 입력하세요" min="0"/>
       <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;" id="editUserPointsHint"></div>
     </div>
     <div class="form-field" style="margin-bottom:0;">
-      <label>🏅 등급</label>
+      <label>등급</label>
       <select id="editUserGrade">
         <option value="">등급 없음</option>
       </select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalUserEdit')">취소</button>
-      <button class="btn btn-white btn-md" onclick="saveUserManage()">💾 저장</button>
+      <button class="btn btn-white btn-md" onclick="saveUserManage()">저장</button>
     </div>
   </div>
 </div>
@@ -641,7 +641,7 @@
 <!-- MODAL: 구매기록 -->
 <div class="modal-overlay" id="modalPurchaseLog">
   <div class="modal" style="max-width:600px;">
-    <div class="modal-title">🛒 구매기록</div>
+    <div class="modal-title">구매기록</div>
     <div id="purchaseLogContent" style="max-height:400px;overflow-y:auto;margin-bottom:16px;"></div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalPurchaseLog')">닫기</button>
@@ -652,7 +652,7 @@
 <!-- MODAL: 등급 추가/편집 -->
 <div class="modal-overlay" id="modalGrade">
   <div class="modal">
-    <div class="modal-title" id="gradeModalTitle">🏅 등급 추가</div>
+    <div class="modal-title" id="gradeModalTitle">등급 추가</div>
     <input type="hidden" id="editGradeId"/>
     <div class="form-field">
       <label>등급 이름</label>
@@ -670,7 +670,7 @@
     </div>
     <div class="form-field">
       <label>색상 (뱃지 색)</label>
-      <input type="color" id="gradeColorInput" value="#4ade80" style="height:40px;padding:4px 8px;width:100%;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;"/>
+      <input type="color" id="gradeColorInput" value="#7ba889" style="height:40px;padding:4px 8px;width:100%;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;"/>
     </div>
     <div class="form-field">
       <label>승급 조건 — 누적 구매금액 (원)</label>
@@ -686,7 +686,7 @@
 <!-- MODAL: 계좌 추가/편집 -->
 <div class="modal-overlay" id="modalAccount">
   <div class="modal">
-    <div class="modal-title" id="accountModalTitle">💳 계좌 추가</div>
+    <div class="modal-title" id="accountModalTitle">계좌 추가</div>
     <input type="hidden" id="editAccountId"/>
     <div class="form-field">
       <label>은행명</label>
@@ -728,7 +728,7 @@
 <!-- MODAL: 충전로그 상세 -->
 <div class="modal-overlay" id="modalChargeDetail">
   <div class="modal" style="max-width:480px;">
-    <div class="modal-title">💳 충전 요청 상세</div>
+    <div class="modal-title">충전 요청 상세</div>
     <div id="chargeDetailContent" style="margin-bottom:16px;"></div>
     <div class="modal-footer" id="chargeDetailFooter">
       <button class="btn btn-ghost btn-md" onclick="closeModal('modalChargeDetail')">닫기</button>
@@ -739,7 +739,7 @@
 <!-- MODAL: Supabase 설정 -->
 <div class="modal-overlay" id="modalSupabase">
   <div class="modal" style="max-width:480px;">
-    <div class="modal-title">🗄️ Supabase 연결 설정</div>
+    <div class="modal-title">Supabase 연결 설정</div>
     <p style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:18px;">Supabase 프로젝트의 URL과 anon key를 입력하세요.</p>
     <div class="form-field">
       <label>Supabase URL</label>
@@ -749,8 +749,8 @@
       <label>Supabase Anon Key</label>
       <input type="text" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."/>
     </div>
-    <div style="background:rgba(96,165,250,0.05);border:1px solid rgba(96,165,250,0.15);border-radius:8px;padding:12px 14px;margin-top:4px;">
-      <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px;">📖 설정 방법</div>
+    <div style="background:rgba(182,144,92,0.05);border:1px solid rgba(182,144,92,0.15);border-radius:8px;padding:12px 14px;margin-top:4px;">
+      <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:6px;">설정 방법</div>
       <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.8;">
         1. <span style="color:var(--text2);">supabase.com</span> 접속 후 프로젝트 선택<br/>
         2. <span style="color:var(--text2);">Settings → API</span> 메뉴 클릭<br/>
@@ -765,6 +765,8 @@
 </div>
 
 <script>
+const eyeSvg = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M1.4 8S3.8 3.4 8 3.4 14.6 8 14.6 8 12.2 12.6 8 12.6 1.4 8 1.4 8Z"/><circle cx="8" cy="8" r="2"/></svg>';
+const eyeOffSvg = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M1.4 8S3.8 3.4 8 3.4 14.6 8 14.6 8 12.2 12.6 8 12.6 1.4 8 1.4 8Z"/><circle cx="8" cy="8" r="2"/><path d="M2 2l12 12"/></svg>';
 const HARDCODED_URL = 'https://txueuybqroiatppjsoxl.supabase.co';
 const HARDCODED_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4dWV1eWJxcm9pYXRwcGpzb3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyODQ2NjEsImV4cCI6MjA4Nzg2MDY2MX0.PsYt-m_GxPG5wx9Zjmtq1pBh2sT_ddRuQGcvTkCtnmU';
 
@@ -801,14 +803,14 @@ function initSupabase(url, key) {
 function saveSupabaseConfig() {
   const url = document.getElementById('sbUrlInput').value.trim();
   const key = document.getElementById('sbKeyInput').value.trim();
-  if (!url || !key) { showToast('⚠️ URL과 Key를 모두 입력하세요', true); return; }
-  if (!url.startsWith('https://')) { showToast('⚠️ URL은 https://로 시작해야 합니다', true); return; }
+  if (!url || !key) { showToast('URL과 Key를 모두 입력하세요', true); return; }
+  if (!url.startsWith('https://')) { showToast('URL은 https://로 시작해야 합니다', true); return; }
   localStorage.setItem('sb_url', url);
   localStorage.setItem('sb_key', key);
   SUPABASE_URL = url; SUPABASE_KEY = key;
   initSupabase(url, key);
   closeModal('modalSupabase');
-  showToast('✅ Supabase 연결 설정이 저장되었습니다!');
+  showToast('Supabase 연결 설정이 저장되었습니다!');
 }
 
 /* ══════════════════════════════════════════════
@@ -830,11 +832,11 @@ let vendingSettings = {
   desc: '아래 버튼을 눌러 자판기를 이용해주세요!',
   imageUrl: '',
   buttons: [
-    {emoji:'🖊️', label:'구매'},
-    {emoji:'🧭', label:'제품'},
-    {emoji:'🎁', label:'충전'},
-    {emoji:'👤', label:'정보'},
-    {emoji:'📢', label:'공지'},
+    {emoji:'', label:'구매'},
+    {emoji:'', label:'제품'},
+    {emoji:'', label:'충전'},
+    {emoji:'', label:'정보'},
+    {emoji:'', label:'공지'},
   ],
   notice: '',
   vendingChannelId: '',
@@ -1032,24 +1034,24 @@ async function doLogin() {
   errEl.style.display = 'none';
   warnEl.style.display = 'none';
 
-  if (!panelId)  { errEl.textContent = '❌ 아이디를 입력하세요.';   errEl.style.display = 'block'; return; }
-  if (!password) { errEl.textContent = '❌ 비밀번호를 입력하세요.'; errEl.style.display = 'block'; return; }
+  if (!panelId)  { errEl.textContent = '아이디를 입력하세요.';   errEl.style.display = 'block'; return; }
+  if (!password) { errEl.textContent = '비밀번호를 입력하세요.'; errEl.style.display = 'block'; return; }
 
   // hCaptcha 검증
   if (!_captchaToken) {
-    errEl.textContent = '❌ 보안 인증을 완료해주세요.';
+    errEl.textContent = '보안 인증을 완료해주세요.';
     errEl.style.display = 'block';
     return;
   }
 
   if (!_sb) {
     if (window._sbLoadFailed) {
-      errEl.textContent = '❌ Supabase 라이브러리 로드 실패. 네트워크 연결을 확인하고 페이지를 새로고침해주세요.';
+      errEl.textContent = 'Supabase 라이브러리 로드 실패. 네트워크 연결을 확인하고 페이지를 새로고침해주세요.';
       errEl.style.display = 'block';
       return;
     }
     if (!initSupabase(SUPABASE_URL, SUPABASE_KEY)) {
-      errEl.textContent = '❌ Supabase 연결 실패. 페이지를 새로고침하거나 설정을 확인해주세요.';
+      errEl.textContent = 'Supabase 연결 실패. 페이지를 새로고침하거나 설정을 확인해주세요.';
       errEl.style.display = 'block';
       openModal('modalSupabase');
       return;
@@ -1063,31 +1065,31 @@ async function doLogin() {
   try {
     const rows = await sbSelect('licenses', { panel_id: panelId });
     if (!rows.length) {
-      errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
+      errEl.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
       errEl.style.display = 'block'; return;
     }
     const found = rows[0];
 
     if (!found.is_active) {
-      errEl.textContent = '❌ 비활성화된 라이선스입니다.';
+      errEl.textContent = '비활성화된 라이선스입니다.';
       errEl.style.display = 'block'; return;
     }
 
     if (found.expires_at && new Date(found.expires_at) < new Date()) {
-      errEl.textContent = '❌ 만료된 라이선스입니다.';
+      errEl.textContent = '만료된 라이선스입니다.';
       errEl.style.display = 'block'; return;
     }
 
     const inputHash = await sha256(password);
     if (!found.password_hash || inputHash !== found.password_hash) {
-      errEl.textContent = '❌ 아이디 또는 비밀번호가 올바르지 않습니다.';
+      errEl.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
       errEl.style.display = 'block'; return;
     }
 
     if (found.expires_at) {
       const daysLeft = Math.ceil((new Date(found.expires_at) - new Date()) / 86400000);
       if (daysLeft <= 7) {
-        warnEl.textContent = `⚠️ ${daysLeft}일 후 라이선스가 만료됩니다.`;
+        warnEl.textContent = ` ${daysLeft}일 후 라이선스가 만료됩니다.`;
         warnEl.style.display = 'block';
       }
     }
@@ -1112,7 +1114,7 @@ async function doLogin() {
 
   } catch(e) {
     console.error('로그인 오류:', e);
-    errEl.textContent = '❌ 오류: ' + (e.message || '알 수 없는 오류');
+    errEl.textContent = '오류: ' + (e.message || '알 수 없는 오류');
     errEl.style.display = 'block';
   } finally {
     // 항상 버튼 복원 (성공 시에는 화면이 전환되므로 문제 없음)
@@ -1225,13 +1227,13 @@ async function recordLoginLog(panelId, guildId) {
 function buildLoginLogPage() {
   return `
     <div class="page-header">
-      <div class="page-title">🔐 로그인 로그</div>
+      <div class="page-title">로그인 로그</div>
       <div class="page-sub">// 이 패널에 로그인한 기록과 IP 주소를 확인합니다</div>
     </div>
     <div class="card">
       <div class="card-header">
-        <div class="card-title">🔐 로그인 기록 <span class="tag" id="loginLogCount">로드 중...</span></div>
-        <button class="btn btn-red-ghost btn-sm" onclick="clearLoginLogs()">🗑️ 전체 삭제</button>
+        <div class="card-title">로그인 기록 <span class="tag" id="loginLogCount">로드 중...</span></div>
+        <button class="btn btn-red-ghost btn-sm" onclick="clearLoginLogs()">전체 삭제</button>
       </div>
       <div id="loginLogTableWrap">
         <div style="text-align:center;padding:32px;color:var(--text3);font-family:'JetBrains Mono',monospace;">로딩 중...</div>
@@ -1321,7 +1323,7 @@ async function initLoginLogPage() {
     countEl.textContent = '오류';
     wrap.innerHTML = `
       <div style="text-align:center;padding:32px;color:var(--danger);font-family:'JetBrains Mono',monospace;">
-        ⚠️ 로드 실패: ${esc(e.message)}<br/>
+         로드 실패: ${esc(e.message)}<br/>
         <div style="margin-top:12px;font-size:11px;color:var(--text3);">
           Supabase에 <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;">login_logs</code> 테이블이 필요합니다.<br/>
           아래 SQL로 테이블을 생성해주세요:
@@ -1347,9 +1349,9 @@ async function clearLoginLogs() {
   if (!confirm('모든 로그인 기록을 삭제할까요?')) return;
   try {
     await _sb.from('login_logs').delete().eq('guild_id', currentLicense.guildId);
-    showToast('🗑️ 로그인 기록이 삭제되었습니다');
+    showToast('로그인 기록이 삭제되었습니다');
     showPage('loginlog');
-  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
+  } catch(e) { showToast('삭제 실패: ' + e.message, true); }
 }
 
 function doLogout() {
@@ -1439,7 +1441,7 @@ function safeRender(page, buildFn) {
   try { mc.innerHTML = buildFn(); }
   catch(e) {
     console.error('[' + page + '] 렌더 오류:', e);
-    mc.innerHTML = '<div style="padding:30px;color:var(--danger);font-family:JetBrains Mono,monospace;font-size:13px;">❌ 페이지 로드 오류: ' + e.message + '</div>';
+    mc.innerHTML = '<div style="padding:30px;color:var(--danger);font-family:JetBrains Mono,monospace;font-size:13px;">페이지 로드 오류: ' + e.message + '</div>';
   }
 }
 
@@ -1482,8 +1484,8 @@ function buildInventoryPage() {
       <div class="page-sub">// 카테고리 → 제품 → 재고 순서로 추가하세요</div>
     </div>
     <div class="tabs">
-      <div class="tab ${_inventoryTab==='cat'?'active':''}" onclick="switchTab('cat',this)">📂 카테고리</div>
-      <div class="tab ${_inventoryTab==='prod'?'active':''}" onclick="switchTab('prod',this)">📦 제품</div>
+      <div class="tab ${_inventoryTab==='cat'?'active':''}" onclick="switchTab('cat',this)">카테고리</div>
+      <div class="tab ${_inventoryTab==='prod'?'active':''}" onclick="switchTab('prod',this)">제품</div>
     </div>
     <div class="tab-section ${_inventoryTab==='cat'?'active':''}" id="tab-cat">${buildCatSection()}</div>
     <div class="tab-section ${_inventoryTab==='prod'?'active':''}" id="tab-prod">${buildProdSection()}</div>
@@ -1509,7 +1511,7 @@ function refreshInventoryTab() {
 function buildCatSection() {
   const items = categories.map(cat => `
     <div class="list-item">
-      <span style="font-size:17px">📁</span>
+      <span style="display:inline-flex;color:var(--text3);"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M1.8 4.2c0-.7.6-1.2 1.2-1.2h2.8l1.2 1.4h6c.7 0 1.2.5 1.2 1.2v6.2c0 .7-.5 1.2-1.2 1.2H3c-.7 0-1.2-.5-1.2-1.2z"/></svg></span>
       <div class="item-name">${esc(cat.name)}</div>
       <div class="item-meta">${products.filter(p=>p.category_id===cat.id).length}개 제품</div>
       <button class="btn btn-red-ghost btn-sm" onclick="deleteCategory(${cat.id})">삭제</button>
@@ -1517,25 +1519,25 @@ function buildCatSection() {
   return `
     <div class="card">
       <div class="card-header">
-        <div class="card-title">📂 카테고리 <span class="tag">${categories.length}개</span></div>
+        <div class="card-title">카테고리 <span class="tag">${categories.length}개</span></div>
         <button class="btn btn-white btn-sm" onclick="openModal('modalCat')">+ 추가</button>
       </div>
-      ${categories.length ? items : emptyState('📂','카테고리가 없습니다','카테고리를 먼저 추가하세요')}
+      ${categories.length ? items : emptyState('','카테고리가 없습니다','카테고리를 먼저 추가하세요')}
     </div>`;
 }
 
 function buildProdSection() {
-  if (!categories.length) return `<div class="card">${emptyState('⚠️','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
+  if (!categories.length) return `<div class="card">${emptyState('','카테고리를 먼저 추가해주세요','카테고리 탭에서 추가하세요')}</div>`;
   const items = products.map(p => {
     const cat = categories.find(c => c.id === p.category_id);
     const stList = stockItems.filter(s => String(s.product_id) === String(p.id));
     let badge;
     if (p.unlimited) {
-      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);">♾ 무제한</span>`;
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(182,144,92,0.12);color:#b6905c;border:1px solid rgba(182,144,92,0.3);">무제한</span>`;
     } else if (stList.length > 0) {
-      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.25);">재고 ${stList.length}개</span>`;
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(123,168,137,0.1);color:#7ba889;border:1px solid rgba(123,168,137,0.25);">재고 ${stList.length}개</span>`;
     } else {
-      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.25);">품절</span>`;
+      badge = `<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:rgba(193,88,76,0.1);color:#c1584c;border:1px solid rgba(193,88,76,0.25);">품절</span>`;
     }
     return `
       <div class="list-item">
@@ -1544,23 +1546,23 @@ function buildProdSection() {
           <div class="item-meta" style="margin-top:2px;">${esc(cat?.name||'-')}${p.price ? ` · ${Number(p.price).toLocaleString()}원` : ''}</div>
         </div>
         ${badge}
-        <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id})">✏️ 재고</button>
+        <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id})">재고</button>
         <button class="btn btn-red-ghost btn-sm" onclick="deleteProduct(${p.id})">삭제</button>
       </div>`;
   }).join('');
   return `
     <div class="card">
       <div class="card-header">
-        <div class="card-title">📦 제품 <span class="tag">${products.length}개</span></div>
+        <div class="card-title">제품 <span class="tag">${products.length}개</span></div>
         <button class="btn btn-white btn-sm" onclick="openModalProd()">+ 추가</button>
       </div>
-      ${products.length ? items : emptyState('📭','제품이 없습니다','제품을 추가해주세요')}
+      ${products.length ? items : emptyState('','제품이 없습니다','제품을 추가해주세요')}
     </div>`;
 }
 
 
 function emptyState(icon, title, desc) {
-  return `<div class="empty-state"><div class="empty-icon">${icon}</div><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`;
+  return `<div class="empty-state"><div class="empty-title">${title}</div><div class="empty-desc">${desc}</div></div>`;
 }
 
 /* ══════════════════════════════════════════════
@@ -1598,8 +1600,8 @@ function buildAutoChargePage() {
         <td>
           <button class="btn btn-ghost btn-sm" onclick="openChargeDetail(${l.id})">상세</button>
           ${statusClass==='pending' ? `
-            <button class="btn btn-sm" style="background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.3);margin-left:4px;" onclick="updateChargeStatus(${l.id},'confirmed')">승인</button>
-            <button class="btn btn-sm" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);margin-left:4px;" onclick="updateChargeStatus(${l.id},'rejected')">거절</button>
+            <button class="btn btn-sm" style="background:rgba(123,168,137,0.1);color:#7ba889;border:1px solid rgba(123,168,137,0.3);margin-left:4px;" onclick="updateChargeStatus(${l.id},'confirmed')">승인</button>
+            <button class="btn btn-sm" style="background:rgba(193,88,76,0.1);color:#c1584c;border:1px solid rgba(193,88,76,0.3);margin-left:4px;" onclick="updateChargeStatus(${l.id},'rejected')">거절</button>
           ` : ''}
         </td>
       </tr>`;
@@ -1607,14 +1609,14 @@ function buildAutoChargePage() {
 
   const accountCards = chargeAccounts.map((acc, idx) => `
     <div class="account-card">
-      <div class="account-card-icon">🏦</div>
+      <div class="account-card-icon"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M2 6.2 8 2.4l6 3.8"/><path d="M2.6 6.2h10.8v6.4H2.6z"/><path d="M2 13.6h12M5 8.6v3.4M8 8.6v3.4M11 8.6v3.4"/></svg></div>
       <div class="account-card-info">
         <div class="account-card-bank">${esc(acc.bank_name||'-')}</div>
         <div class="account-card-num">${esc(acc.account_number||'-')}</div>
         <div class="account-card-holder">예금주: ${esc(acc.holder||'-')} ${acc.min_amount ? `&nbsp;·&nbsp;<span class="min-charge-badge">최소 ${Number(acc.min_amount).toLocaleString()}원</span>` : ''}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;">
-        <button class="btn btn-ghost btn-sm" onclick="openAccountEdit(${idx})">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="openAccountEdit(${idx})">편집</button>
         <button class="btn btn-red-ghost btn-sm" onclick="deleteAccount(${idx})">삭제</button>
       </div>
     </div>`).join('');
@@ -1624,12 +1626,12 @@ function buildAutoChargePage() {
 
   return `
     <div class="page-header">
-      <div class="page-title">💳 자동충전</div>
+      <div class="page-title">자동충전</div>
       <div class="page-sub">// 충전 계좌 관리 · Pushbullet 연동 · 충전 로그 확인</div>
     </div>
     <div class="ac-hero">
       <div class="ac-hero-row">
-        <div class="ac-hero-icon">💳</div>
+        <div class="ac-hero-icon"><svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="1.6" y="3.6" width="12.8" height="8.8" rx="1.4"/><path d="M1.6 6.4h12.8" stroke-linecap="round"/></svg></div>
         <div class="ac-hero-info">
           <div class="ac-hero-label">Auto Charge System</div>
           <div class="ac-hero-title">자동충전 관리</div>
@@ -1643,29 +1645,29 @@ function buildAutoChargePage() {
     </div>
     <div class="ac-grid">
       <div class="ac-stat-card">
-        <div class="ac-stat-label">📦 누적 충전금액</div>
+        <div class="ac-stat-label">누적 충전금액</div>
         <div class="ac-stat-value">${totalAmount.toLocaleString()}원</div>
         <div class="ac-stat-sub">승인된 충전 기준 · 총 ${chargeLogs.filter(l=>l.status==='confirmed').length}건</div>
       </div>
       <div class="ac-stat-card">
-        <div class="ac-stat-label">📅 오늘 충전금액</div>
+        <div class="ac-stat-label">오늘 충전금액</div>
         <div class="ac-stat-value">${todayAmount.toLocaleString()}원</div>
         <div class="ac-stat-sub">대기 중 ${pendingCount}건 남음</div>
       </div>
     </div>
     <div class="tabs" style="margin-bottom:20px;">
-      <div class="tab active" onclick="switchAcTab('logs',this)">📋 충전 로그</div>
-      <div class="tab" onclick="switchAcTab('accounts',this)">🏦 충전 계좌</div>
-      <div class="tab" onclick="switchAcTab('pushbullet',this)">🔔 Pushbullet 설정</div>
+      <div class="tab active" onclick="switchAcTab('logs',this)">충전 로그</div>
+      <div class="tab" onclick="switchAcTab('accounts',this)">충전 계좌</div>
+      <div class="tab" onclick="switchAcTab('pushbullet',this)">Pushbullet 설정</div>
     </div>
     <div class="tab-section active" id="ac-tab-logs">
       <div class="card" style="padding:0;overflow:hidden;">
         <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
           <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            📋 충전 로그 <span class="tag">${chargeLogs.length}건</span>
-            ${pendingCount > 0 ? `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⏳ 대기 ${pendingCount}건</span>` : ''}
+             충전 로그 <span class="tag">${chargeLogs.length}건</span>
+            ${pendingCount > 0 ? `<span class="tag" style="color:var(--warning);border-color:rgba(201,154,82,0.3);">⏳ 대기 ${pendingCount}건</span>` : ''}
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="refreshChargeData()">🔄 새로고침</button>
+          <button class="btn btn-ghost btn-sm" onclick="refreshChargeData()">새로고침</button>
         </div>
         <div style="overflow-x:auto;">
           ${chargeLogs.length ? `
@@ -1673,39 +1675,39 @@ function buildAutoChargePage() {
               <thead><tr><th>시간</th><th>유저</th><th>금액</th><th>계좌</th><th>상태</th><th>관리</th></tr></thead>
               <tbody>${logRows}</tbody>
             </table>
-          ` : `<div style="padding:40px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px;">📭 충전 기록이 없습니다</div>`}
+          ` : `<div style="padding:40px;text-align:center;color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:12px;">충전 기록이 없습니다</div>`}
         </div>
       </div>
     </div>
     <div class="tab-section" id="ac-tab-accounts">
       <div class="card">
         <div class="card-header">
-          <div class="card-title">🏦 충전 계좌 목록 <span class="tag">${chargeAccounts.length}개</span></div>
+          <div class="card-title">충전 계좌 목록 <span class="tag">${chargeAccounts.length}개</span></div>
           <button class="btn btn-white btn-sm" onclick="openAccountAdd()">+ 계좌 추가</button>
         </div>
-        ${chargeAccounts.length ? accountCards : emptyState('🏦','등록된 계좌가 없습니다','충전 계좌를 추가해주세요')}
+        ${chargeAccounts.length ? accountCards : emptyState('','등록된 계좌가 없습니다','충전 계좌를 추가해주세요')}
       </div>
     </div>
     <div class="tab-section" id="ac-tab-pushbullet">
       <div class="card">
         <div class="card-header">
-          <div class="card-title">🔔 Pushbullet API 설정</div>
-          <span class="tag" id="pbStatusTag" style="${apiKey ? 'color:var(--success);border-color:rgba(74,222,128,0.3);' : ''}">
-            ${apiKey ? '✓ 키 등록됨' : '미설정'}
+          <div class="card-title">Pushbullet API 설정</div>
+          <span class="tag" id="pbStatusTag" style="${apiKey ? 'color:var(--success);border-color:rgba(123,168,137,0.3);' : ''}">
+            ${apiKey ? '키 등록됨' : '미설정'}
           </span>
         </div>
         <div class="form-field">
           <label>Pushbullet API Key</label>
           <div class="api-key-field">
             <input type="password" id="pbApiKeyInput" value="${esc(apiKey)}" placeholder="o.xxxxxxxx..." oninput="onPbKeyChange()"/>
-            <button class="api-key-toggle" onclick="togglePbKeyVisibility()" id="pbToggleBtn">👁</button>
+            <button class="api-key-toggle" onclick="togglePbKeyVisibility()" id="pbToggleBtn"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M1.4 8S3.8 3.4 8 3.4 14.6 8 14.6 8 12.2 12.6 8 12.6 1.4 8 1.4 8Z"/><circle cx="8" cy="8" r="2"/></svg></button>
           </div>
           <div class="api-key-status idle" id="pbKeyStatus">
-            ${apiKey ? '✓ API 키가 등록되어 있습니다' : '// API 키를 입력해주세요'}
+            ${apiKey ? 'API 키가 등록되어 있습니다' : '// API 키를 입력해주세요'}
           </div>
         </div>
         <div class="pb-help">
-          <div class="pb-help-title">📖 Pushbullet API Key 발급 방법</div>
+          <div class="pb-help-title">Pushbullet API Key 발급 방법</div>
           <div class="pb-help-steps">
             1. <span>pushbullet.com</span> 접속 후 로그인<br/>
             2. 우측 상단 프로필 → <span>Settings</span> 클릭<br/>
@@ -1720,7 +1722,7 @@ function buildAutoChargePage() {
           <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:4px 14px;">
             <div class="toggle-row">
               <div><div class="toggle-label">자동충전 시스템 활성화</div><div class="toggle-desc">비활성화 시 봇이 SMS 처리를 중단합니다</div></div>
-              <div class="toggle-switch" id="ts_enabled" onclick="toggleAcSwitch('enabled')" style="background:${isOn?'#4ade80':'#333'};">
+              <div class="toggle-switch" id="ts_enabled" onclick="toggleAcSwitch('enabled')" style="background:${isOn?'#7ba889':'#333'};">
                 <div class="toggle-thumb" style="left:${isOn?'23px':'3px'};"></div>
               </div>
             </div>
@@ -1728,8 +1730,8 @@ function buildAutoChargePage() {
         </div>
         <hr class="divider"/>
         <div class="actions-bar">
-          <button class="btn btn-ghost btn-md" onclick="testPbConnection()">🔌 연결 테스트</button>
-          <button class="btn btn-white btn-md" onclick="savePushbulletConfig()">💾 설정 저장</button>
+          <button class="btn btn-ghost btn-md" onclick="testPbConnection()">연결 테스트</button>
+          <button class="btn btn-white btn-md" onclick="savePushbulletConfig()">설정 저장</button>
         </div>
       </div>
     </div>
@@ -1750,14 +1752,14 @@ async function initAutoCharge() {
 }
 
 async function refreshChargeData() {
-  showToast('🔄 새로고침 중...');
+  showToast('새로고침 중...');
   await loadAutoChargeData(currentLicense?.guildId);
   showPage('autocharge');
-  showToast('✅ 새로고침 완료!');
+  showToast('새로고침 완료!');
 }
 
 function openAccountAdd() {
-  document.getElementById('accountModalTitle').textContent = '💳 계좌 추가';
+  document.getElementById('accountModalTitle').textContent = '계좌 추가';
   document.getElementById('editAccountId').value = 'new';
   document.getElementById('accountBankSel').value = '';
   document.getElementById('accountNumberInput').value = '';
@@ -1769,7 +1771,7 @@ function openAccountAdd() {
 function openAccountEdit(idx) {
   const acc = chargeAccounts[idx];
   if (!acc) return;
-  document.getElementById('accountModalTitle').textContent = '✏️ 계좌 편집';
+  document.getElementById('accountModalTitle').textContent = '계좌 편집';
   document.getElementById('editAccountId').value = String(idx);
   document.getElementById('accountBankSel').value = acc.bank_name || '';
   document.getElementById('accountNumberInput').value = acc.account_number || '';
@@ -1784,9 +1786,9 @@ async function saveAccount() {
   const account_number = document.getElementById('accountNumberInput').value.trim();
   const holder      = document.getElementById('accountHolderInput').value.trim();
   const min_amount  = parseInt(document.getElementById('accountMinInput').value) || 0;
-  if (!bank_name)      { showToast('⚠️ 은행을 선택하세요', true); return; }
-  if (!account_number) { showToast('⚠️ 계좌번호를 입력하세요', true); return; }
-  if (!holder)         { showToast('⚠️ 예금주를 입력하세요', true); return; }
+  if (!bank_name)      { showToast('은행을 선택하세요', true); return; }
+  if (!account_number) { showToast('계좌번호를 입력하세요', true); return; }
+  if (!holder)         { showToast('예금주를 입력하세요', true); return; }
 
   try {
     if (rawId === 'new') {
@@ -1803,10 +1805,10 @@ async function saveAccount() {
       }
     }
     closeModal('modalAccount');
-    showToast('✅ 계좌가 저장되었습니다!');
+    showToast('계좌가 저장되었습니다!');
     showPage('autocharge');
     setTimeout(() => { const tabs = document.querySelectorAll('.tabs .tab'); if(tabs[1]) tabs[1].click(); }, 100);
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function deleteAccount(idx) {
@@ -1816,16 +1818,16 @@ async function deleteAccount(idx) {
     if (!acc) return;
     await sbDelete('charge_accounts', acc.id);
     chargeAccounts = chargeAccounts.filter((_,i) => i !== idx);
-    showToast('🗑️ 삭제되었습니다');
+    showToast('삭제되었습니다');
     showPage('autocharge');
     setTimeout(() => { const tabs = document.querySelectorAll('.tabs .tab'); if(tabs[1]) tabs[1].click(); }, 100);
-  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
+  } catch(e) { showToast('삭제 실패: ' + e.message, true); }
 }
 
 function openChargeDetail(id) {
   const l = chargeLogs.find(x => x.id == id);
   if (!l) return;
-  const statusMap = { pending:'⏳ 대기중', confirmed:'✅ 승인', rejected:'❌ 거절' };
+  const statusMap = { pending:'⏳ 대기중', confirmed:'승인', rejected:'거절' };
   const ts = l.created_at ? new Date(l.created_at).toLocaleString('ko-KR') : '-';
   document.getElementById('chargeDetailContent').innerHTML = `
     <div style="display:grid;gap:10px;">
@@ -1859,8 +1861,8 @@ function openChargeDetail(id) {
   footer.innerHTML = `<button class="btn btn-ghost btn-md" onclick="closeModal('modalChargeDetail')">닫기</button>`;
   if (l.status === 'pending') {
     footer.innerHTML += `
-      <button class="btn btn-md" style="background:rgba(248,113,113,0.1);color:#f87171;border:1px solid rgba(248,113,113,0.3);" onclick="updateChargeStatus(${id},'rejected');closeModal('modalChargeDetail');">❌ 거절</button>
-      <button class="btn btn-white btn-md" onclick="updateChargeStatus(${id},'confirmed');closeModal('modalChargeDetail');">✅ 승인</button>
+      <button class="btn btn-md" style="background:rgba(193,88,76,0.1);color:#c1584c;border:1px solid rgba(193,88,76,0.3);" onclick="updateChargeStatus(${id},'rejected');closeModal('modalChargeDetail');">거절</button>
+      <button class="btn btn-white btn-md" onclick="updateChargeStatus(${id},'confirmed');closeModal('modalChargeDetail');">승인</button>
     `;
   }
   openModal('modalChargeDetail');
@@ -1871,17 +1873,17 @@ async function updateChargeStatus(id, status) {
     await sbUpdate('charge_logs', id, { status });
     const idx = chargeLogs.findIndex(l => l.id == id);
     if (idx >= 0) chargeLogs[idx].status = status;
-    showToast(status === 'confirmed' ? '✅ 충전이 승인되었습니다!' : '❌ 충전이 거절되었습니다');
+    showToast(status === 'confirmed' ? '충전이 승인되었습니다!' : '충전이 거절되었습니다');
     showPage('autocharge');
-  } catch(e) { showToast('❌ 처리 실패: ' + e.message, true); }
+  } catch(e) { showToast('처리 실패: ' + e.message, true); }
 }
 
 function togglePbKeyVisibility() {
   const input = document.getElementById('pbApiKeyInput');
   const btn   = document.getElementById('pbToggleBtn');
   if (!input) return;
-  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
-  else { input.type = 'password'; btn.textContent = '👁'; }
+  if (input.type === 'password') { input.type = 'text'; btn.innerHTML = eyeOffSvg; }
+  else { input.type = 'password'; btn.innerHTML = eyeSvg; }
 }
 
 function onPbKeyChange() {
@@ -1889,8 +1891,8 @@ function onPbKeyChange() {
   const st  = document.getElementById('pbKeyStatus');
   if (!st) return;
   if (!val) { st.className = 'api-key-status idle'; st.textContent = '// API 키를 입력해주세요'; return; }
-  if (val.length < 20) { st.className = 'api-key-status err'; st.textContent = '⚠️ 키가 너무 짧습니다'; return; }
-  st.className = 'api-key-status ok'; st.textContent = '✓ 키 형식이 올바릅니다';
+  if (val.length < 20) { st.className = 'api-key-status err'; st.textContent = '키가 너무 짧습니다'; return; }
+  st.className = 'api-key-status ok'; st.textContent = '키 형식이 올바릅니다';
 }
 
 function toggleAcSwitch(key) {
@@ -1899,7 +1901,7 @@ function toggleAcSwitch(key) {
   const thumb = sw?.querySelector('.toggle-thumb');
   if (!sw || !thumb) return;
   const isOn  = autoChargeConfig[key];
-  const color = key === 'autoConfirm' ? (isOn ? '#f87171' : '#333') : (isOn ? '#4ade80' : '#333');
+  const color = key === 'autoConfirm' ? (isOn ? '#c1584c' : '#333') : (isOn ? '#7ba889' : '#333');
   sw.style.background = color;
   thumb.style.left = isOn ? '23px' : '3px';
   if (key === 'enabled') {
@@ -1913,10 +1915,10 @@ function toggleAcSwitch(key) {
 
 async function testPbConnection() {
   const key = document.getElementById('pbApiKeyInput')?.value?.trim();
-  if (!key) { showToast('⚠️ API 키를 먼저 입력하세요', true); return; }
-  showToast('🔌 연결 테스트 중...');
-  if (key.length >= 20) setTimeout(() => showToast('✅ API 키 형식이 올바릅니다'), 800);
-  else setTimeout(() => showToast('❌ API 키 형식이 올바르지 않습니다', true), 800);
+  if (!key) { showToast('API 키를 먼저 입력하세요', true); return; }
+  showToast('연결 테스트 중...');
+  if (key.length >= 20) setTimeout(() =>showToast('API 키 형식이 올바릅니다'), 800);
+  else setTimeout(() =>showToast('API 키 형식이 올바르지 않습니다', true), 800);
 }
 
 async function savePushbulletConfig() {
@@ -1929,9 +1931,9 @@ async function savePushbulletConfig() {
       enabled:            autoChargeConfig.enabled ?? true,
     });
     const tag = document.getElementById('pbStatusTag');
-    if (tag) { tag.style.color = 'var(--success)'; tag.style.borderColor = 'rgba(74,222,128,0.3)'; tag.textContent = '✓ 키 등록됨'; }
-    showToast('✅ Pushbullet 설정이 저장되었습니다!');
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+    if (tag) { tag.style.color = 'var(--success)'; tag.style.borderColor = 'rgba(123,168,137,0.3)'; tag.textContent = '키 등록됨'; }
+    showToast('Pushbullet 설정이 저장되었습니다!');
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 /* ══════════════════════════════════════════════
@@ -1976,13 +1978,13 @@ function roleOptions(selectedId) {
 function buildSettingsPage() {
   const btnRows = vendingSettings.buttons.map((b,i) => `
     <div class="btn-edit-row">
-      <input class="btn-edit-emoji" type="text" value="${esc(b.emoji)}" id="be${i}" placeholder="🔘" readonly/>
+      <input class="btn-edit-emoji" type="text" value="${esc(b.emoji)}" id="be${i}" placeholder="" readonly/>
       <input class="btn-edit-label" type="text" value="${esc(b.label)}" id="bl${i}" placeholder="버튼 이름" readonly/>
     </div>`).join('');
 
   const syncBadge = discordChannels.length
-    ? `<span class="tag" style="color:var(--success);border-color:rgba(74,222,128,0.3);">✓ 동기화됨 · ${discordChannels.length}개 채널</span>`
-    : `<span class="tag" style="color:var(--warning);border-color:rgba(251,191,36,0.3);">⚠️ 봇 미동기화</span>`;
+    ? `<span class="tag" style="color:var(--success);border-color:rgba(123,168,137,0.3);">동기화됨 · ${discordChannels.length}개 채널</span>`
+    : `<span class="tag" style="color:var(--warning);border-color:rgba(201,154,82,0.3);">봇 미동기화</span>`;
 
   const imgVal = vendingSettings.imageUrl || '';
 
@@ -1995,37 +1997,37 @@ function buildSettingsPage() {
       <div>
         <div class="card">
           <div class="card-header">
-            <div class="card-title">📡 서버 채널 설정 ${syncBadge}</div>
-            <button class="btn btn-ghost btn-sm" onclick="refreshDiscordData()">🔄 새로고침</button>
+            <div class="card-title">서버 채널 설정 ${syncBadge}</div>
+            <button class="btn btn-ghost btn-sm" onclick="refreshDiscordData()">새로고침</button>
           </div>
           <div class="form-field">
-            <label>🤖 자판기 메시지 채널</label>
+            <label>자판기 메시지 채널</label>
             <select id="cfg_vendingCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.vendingChannelId)}</select>
           </div>
           <div class="form-field">
-            <label>📦 입고 알림 채널</label>
+            <label>입고 알림 채널</label>
             <select id="cfg_stockCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.stockAlertChannelId)}</select>
           </div>
           <div class="form-field">
-            <label>🔔 입고 알림 핑 역할</label>
+            <label>입고 알림 핑 역할</label>
             <select id="cfg_stockRole"><option value="">역할 설정 안함</option>${roleOptions(vendingSettings.stockAlertRoleId)}</select>
           </div>
           <div class="form-field">
-            <label>🧾 구매 로그 채널</label>
+            <label>구매 로그 채널</label>
             <select id="cfg_buyCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.buyLogChannelId)}</select>
           </div>
           <div class="form-field">
-            <label>💳 충전 로그 채널</label>
+            <label>충전 로그 채널</label>
             <select id="cfg_chargeLogCh"><option value="">채널 설정 안함</option>${chOptions(vendingSettings.chargeLogChannelId)}</select>
           </div>
           <hr class="divider"/>
           <div class="actions-bar">
-            <button class="btn btn-white btn-md" onclick="saveServerConfig()">💾 채널 설정 저장</button>
+            <button class="btn btn-white btn-md" onclick="saveServerConfig()">채널 설정 저장</button>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><div class="card-title">🤖 자판기 메시지 내용</div><span class="tag" style="color:#a78bfa;border-color:rgba(167,139,250,0.3);">Components V2</span></div>
+          <div class="card-header"><div class="card-title">자판기 메시지 내용</div><span class="tag" style="color:#a78bfa;border-color:rgba(167,139,250,0.3);">Components V2</span></div>
           <div class="form-field">
             <label>임베드 제목</label>
             <input type="text" id="vs_title" value="${esc(vendingSettings.title)}" placeholder="Vending | 구매하기" oninput="livePreview()"/>
@@ -2037,17 +2039,17 @@ function buildSettingsPage() {
 
           <!-- 이미지 섹션 -->
           <div class="form-field">
-            <label>🖼️ 임베드 이미지 <span style="color:var(--text3);font-size:10px;font-weight:400;">GIF · PNG · JPG 지원</span></label>
+            <label>임베드 이미지 <span style="color:var(--text3);font-size:10px;font-weight:400;">GIF · PNG · JPG 지원</span></label>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <!-- URL 입력 + 제거 버튼 -->
               <div style="position:relative;">
                 <input type="text" id="vs_imageUrl" value="${esc(imgVal)}" placeholder="https://example.com/image.gif  (직접 링크 입력)" oninput="livePreview()" style="padding-right:80px;"/>
-                <button id="vs_imageClearBtn" onclick="clearVsImage()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;display:${imgVal ? 'block' : 'none'};">✕ 제거</button>
+                <button id="vs_imageClearBtn" onclick="clearVsImage()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(193,88,76,0.15);border:1px solid rgba(193,88,76,0.3);color:#c1584c;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;display:${imgVal ? 'block' : 'none'};">제거</button>
               </div>
               <!-- 파일 업로드 -->
               <div style="display:flex;align-items:center;gap:8px;">
-                <label for="vs_imageFile" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif;font-weight:600;" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='var(--border2)'">
-                  📁 파일에서 선택
+                <label for="vs_imageFile" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--surface2);border:1px dashed var(--border2);border-radius:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Instrument Sans',sans-serif;font-weight:600;" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.borderColor='var(--border2)'">
+                   파일에서 선택
                 </label>
                 <input type="file" id="vs_imageFile" accept="image/*,.gif" style="display:none;" onchange="onImageFileSelect(this)"/>
                 <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;" id="vs_imageFileName">${imgVal ? (imgVal.startsWith('data:') ? '파일 이미지 적용됨' : 'URL 이미지 적용됨') : '파일 선택 안 됨'}</span>
@@ -2056,33 +2058,33 @@ function buildSettingsPage() {
             </div>
           </div>
 
-          <div class="form-field" style="margin-bottom:6px;"><label>🔘 버튼 목록 <span style="color:var(--text3);font-size:10px;font-weight:400;">(Components V2 · Action Row)</span></label></div>
+          <div class="form-field" style="margin-bottom:6px;"><label>버튼 목록 <span style="color:var(--text3);font-size:10px;font-weight:400;">(Components V2 · Action Row)</span></label></div>
           <div id="btnRows">${btnRows}</div>
           <hr class="divider"/>
           <div class="actions-bar">
-            <button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button>
+            <button class="btn btn-white btn-md" onclick="saveVending()">저장</button>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><div class="card-title">📤 자판기 메시지 전송</div></div>
+          <div class="card-header"><div class="card-title">자판기 메시지 전송</div></div>
           <p style="font-size:12px;color:var(--text2);margin-bottom:14px;font-family:'JetBrains Mono',monospace;">
             설정한 자판기 채널로 메시지를 전송합니다.
           </p>
           <div class="actions-bar">
-            <button class="btn btn-white btn-md" onclick="sendVending()">📤 전송하기</button>
+            <button class="btn btn-white btn-md" onclick="sendVending()">전송하기</button>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><div class="card-title">📢 공지 버튼 내용</div></div>
+          <div class="card-header"><div class="card-title">공지 버튼 내용</div></div>
           <div class="form-field">
             <label>공지 내용</label>
-            <textarea id="vs_notice" placeholder="📢 공지 버튼을 눌렀을 때 표시될 내용..." style="min-height:120px;">${esc(vendingSettings.notice||'')}</textarea>
+            <textarea id="vs_notice" placeholder=" 공지 버튼을 눌렀을 때 표시될 내용..." style="min-height:120px;">${esc(vendingSettings.notice||'')}</textarea>
           </div>
           <hr class="divider"/>
           <div class="actions-bar">
-            <button class="btn btn-white btn-md" onclick="saveVending()">💾 저장</button>
+            <button class="btn btn-white btn-md" onclick="saveVending()">저장</button>
           </div>
         </div>
       </div>
@@ -2104,7 +2106,7 @@ function buildPreview() {
 
   const imgHtml = imgSrc
     ? `<img src="${imgSrc}" class="discord-embed-image" alt="embed image" onerror="this.style.display='none'"/>`
-    : `<div class="discord-embed-image-placeholder">🖼️ 이미지 없음</div>`;
+    : `<div class="discord-embed-image-placeholder">이미지 없음</div>`;
 
   // V2 버튼 행 (최대 5개 한 행)
   const btnHtml = vendingSettings.buttons.map(b =>
@@ -2113,7 +2115,7 @@ function buildPreview() {
 
   return `
     <div class="discord-msg">
-      <div class="discord-avatar">🤖</div>
+      <div class="discord-avatar"><svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="5.6" width="10" height="7" rx="2"/><path d="M8 5.6V3.2M6 8.6v1M10 8.6v1"/><circle cx="8" cy="2.4" r="0.8" fill="#fff" stroke="none"/></svg></div>
       <div class="discord-body">
         <div class="discord-username">Core <span>앱 · 오늘 오전 12:01</span></div>
         <div class="discord-embed">
@@ -2150,7 +2152,7 @@ function onImageFileSelect(input) {
 
   // 5MB 제한
   if (file.size > 5 * 1024 * 1024) {
-    showToast('⚠️ 이미지 파일은 5MB 이하만 가능합니다', true);
+    showToast('이미지 파일은 5MB 이하만 가능합니다', true);
     input.value = '';
     return;
   }
@@ -2221,8 +2223,8 @@ async function saveVending() {
         done: true,
       });
     }
-    showToast('✅ 자판기 설정이 저장되었습니다!');
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+    showToast('자판기 설정이 저장되었습니다!');
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function saveServerConfig() {
@@ -2253,19 +2255,19 @@ async function saveServerConfig() {
       buyLogChannelId:     vendingSettings.buyLogChannelId,
       chargeLogChannelId:  vendingSettings.chargeLogChannelId,
     });
-    showToast('✅ 채널 설정이 저장되었습니다!');
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+    showToast('채널 설정이 저장되었습니다!');
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function refreshDiscordData() {
-  showToast('🔄 새로고침 중...');
+  showToast('새로고침 중...');
   await loadDiscordData(currentLicense?.guildId);
   showPage('settings');
-  showToast('✅ 새로고침 완료!');
+  showToast('새로고침 완료!');
 }
 
 async function sendVending() {
-  if (!vendingSettings.vendingChannelId) { showToast('⚠️ 자판기 채널을 먼저 설정해주세요', true); return; }
+  if (!vendingSettings.vendingChannelId) { showToast('자판기 채널을 먼저 설정해주세요', true); return; }
   try {
     await sbInsert('panel_tasks', {
       guild_id:  currentLicense.guildId,
@@ -2273,8 +2275,8 @@ async function sendVending() {
       payload:   { channelId: vendingSettings.vendingChannelId, settings: vendingSettings },
       done:      false,
     });
-    showToast('📤 봇에 전송 요청을 보냈습니다!');
-  } catch(e) { showToast('❌ 전송 요청 실패: ' + e.message, true); }
+    showToast('봇에 전송 요청을 보냈습니다!');
+  } catch(e) { showToast('전송 요청 실패: ' + e.message, true); }
 }
 
 /* ── MODALS ── */
@@ -2282,7 +2284,7 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function openModalProd() {
-  if (!categories.length) { showToast('⚠️ 카테고리를 먼저 추가해주세요!', true); return; }
+  if (!categories.length) { showToast('카테고리를 먼저 추가해주세요!', true); return; }
   const sel = document.getElementById('prodCatSel');
   sel.innerHTML = categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
   document.getElementById('prodNameInput').value = '';
@@ -2298,8 +2300,8 @@ function toggleUnlimited() {
   const cb = document.getElementById('unlimitedCheckbox');
   if (!cb) return;
   if (_stockUnlimited) {
-    cb.style.background = 'var(--accent,#60a5fa)';
-    cb.style.borderColor = 'var(--accent,#60a5fa)';
+    cb.style.background = 'var(--accent,#b6905c)';
+    cb.style.borderColor = 'var(--accent,#b6905c)';
     cb.innerHTML = '<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   } else {
     cb.style.background = 'transparent';
@@ -2311,7 +2313,7 @@ function toggleUnlimited() {
 function openStockModal(prodId) {
   const prod = products.find(p => p.id == prodId);
   if (!prod) return;
-  document.getElementById('stockModalTitle').textContent = `📦 ${prod.name} — 재고 설정`;
+  document.getElementById('stockModalTitle').textContent = ` ${prod.name} — 재고 설정`;
   document.getElementById('stockTargetProdId').value = prodId;
   const existingList = stockItems.filter(s => String(s.product_id) === String(prodId));
   document.getElementById('stockItemsInput').value = existingList.map(s => s.note).join('\n');
@@ -2319,8 +2321,8 @@ function openStockModal(prodId) {
   const cb = document.getElementById('unlimitedCheckbox');
   if (cb) {
     if (_stockUnlimited) {
-      cb.style.background = 'var(--accent,#60a5fa)';
-      cb.style.borderColor = 'var(--accent,#60a5fa)';
+      cb.style.background = 'var(--accent,#b6905c)';
+      cb.style.borderColor = 'var(--accent,#b6905c)';
       cb.innerHTML = '<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     } else {
       cb.style.background = 'transparent';
@@ -2339,7 +2341,7 @@ function openModalStock() {}
 ══════════════════════════════════════════════ */
 async function saveCategory() {
   const name = document.getElementById('catNameInput').value.trim();
-  if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
+  if (!name) { showToast('이름을 입력하세요', true); return; }
   try {
     const result = await sbInsert('inventory_categories', {
       guild_id: currentLicense.guildId,
@@ -2349,9 +2351,9 @@ async function saveCategory() {
     closeModal('modalCat');
     document.getElementById('catNameInput').value = '';
     document.getElementById('catEmojiInput').value = '';
-    showToast('✅ 카테고리가 추가되었습니다!');
+    showToast('카테고리가 추가되었습니다!');
     refreshInventoryTab();
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function deleteCategory(id) {
@@ -2362,9 +2364,9 @@ async function deleteCategory(id) {
     categories = categories.filter(c => c.id != id);
     products   = products.filter(p => p.category_id != id);
     stockItems = stockItems.filter(s => !deletedProdIds.includes(s.product_id));
-    showToast('🗑️ 삭제되었습니다');
+    showToast('삭제되었습니다');
     refreshInventoryTab();
-  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
+  } catch(e) { showToast('삭제 실패: ' + e.message, true); }
 }
 
 /* ══════════════════════════════════════════════
@@ -2374,7 +2376,7 @@ async function saveProduct() {
   const category_id = parseInt(document.getElementById('prodCatSel').value);
   const name        = document.getElementById('prodNameInput').value.trim();
   const price       = parseInt(document.getElementById('prodPriceInput').value) || 0;
-  if (!name) { showToast('⚠️ 이름을 입력하세요', true); return; }
+  if (!name) { showToast('이름을 입력하세요', true); return; }
   const product_key = name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_가-힣]/g,'') + '_' + Date.now();
   try {
     const result = await sbInsert('inventory_products', {
@@ -2386,9 +2388,9 @@ async function saveProduct() {
     });
     products.push(result);
     closeModal('modalProd');
-    showToast('✅ 제품이 추가되었습니다!');
+    showToast('제품이 추가되었습니다!');
     refreshInventoryTab();
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function deleteProduct(id) {
@@ -2397,9 +2399,9 @@ async function deleteProduct(id) {
     await sbDelete('inventory_products', id);
     stockItems = stockItems.filter(s => s.product_id != id);
     products   = products.filter(p => p.id != id);
-    showToast('🗑️ 삭제되었습니다');
+    showToast('삭제되었습니다');
     refreshInventoryTab();
-  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
+  } catch(e) { showToast('삭제 실패: ' + e.message, true); }
 }
 
 /* ══════════════════════════════════════════════
@@ -2411,7 +2413,7 @@ async function saveStock() {
   const unlimited  = _stockUnlimited;
   // 줄바꿈 기준으로 분리, 빈 줄 제거
   const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  if (!unlimited && !lines.length) { showToast('⚠️ 재고 내용을 입력하거나 무제한을 체크하세요', true); return; }
+  if (!unlimited && !lines.length) { showToast('재고 내용을 입력하거나 무제한을 체크하세요', true); return; }
   try {
     // 제품에 unlimited 플래그 저장
     await _sb.from('inventory_products').update({ unlimited }).eq('id', product_id);
@@ -2430,18 +2432,18 @@ async function saveStock() {
       if (inserted) stockItems.push(...inserted);
     }
     closeModal('modalStock');
-    showToast(unlimited ? '✅ 무제한 재고로 설정되었습니다!' : `✅ 재고 ${lines.length}개가 저장되었습니다!`);
+    showToast(unlimited ? '무제한 재고로 설정되었습니다!' : ` 재고 ${lines.length}개가 저장되었습니다!`);
     refreshInventoryTab();
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function deleteStock(id) {
   try {
     await sbDelete('inventory_stock', id);
     stockItems = stockItems.filter(s => s.id != id);
-    showToast('🗑️ 삭제되었습니다');
+    showToast('삭제되었습니다');
     refreshInventoryTab();
-  } catch(e) { showToast('❌ 삭제 실패: ' + e.message, true); }
+  } catch(e) { showToast('삭제 실패: ' + e.message, true); }
 }
 
 async function clearAllStock() {
@@ -2449,9 +2451,9 @@ async function clearAllStock() {
   try {
     await sbDeleteByGuild('inventory_stock', currentLicense.guildId);
     stockItems = [];
-    showToast('🗑️ 재고가 초기화되었습니다');
+    showToast('재고가 초기화되었습니다');
     showPage('inventory');
-  } catch(e) { showToast('❌ 실패: ' + e.message, true); }
+  } catch(e) { showToast('실패: ' + e.message, true); }
 }
 
 /* ── TOAST ── */
@@ -2459,7 +2461,7 @@ function showToast(msg, warn=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.style.color = warn ? 'var(--danger)' : 'var(--success)';
-  t.style.borderColor = warn ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.2)';
+  t.style.borderColor = warn ? 'rgba(193,88,76,0.3)' : 'rgba(123,168,137,0.2)';
   t.classList.add('show');
   clearTimeout(t._t);
   t._t = setTimeout(() => t.classList.remove('show'), 3000);
@@ -2469,28 +2471,28 @@ function showToast(msg, warn=false) {
 function buildDashboardPage() {
   return `
     <div class="page-header">
-      <div class="page-title">🛒 판매 통계</div>
+      <div class="page-title">판매 통계</div>
       <div class="page-sub">// 스토어의 판매 현황을 확인합니다</div>
     </div>
     <div class="dash-hero">
-      <div class="dash-hero-icon">💳</div>
+      <div class="dash-hero-icon"><svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="1.6" y="3.6" width="12.8" height="8.8" rx="1.4"/><path d="M1.6 6.4h12.8" stroke-linecap="round"/></svg></div>
       <div class="dash-hero-label">총 충전금액</div>
       <div class="dash-hero-value" id="d_totalCharge">로드 중...</div>
       <div class="dash-hero-sub" id="d_totalChargeSub">집계 중...</div>
     </div>
     <div class="dash-grid">
       <div class="dash-stat blue">
-        <div class="dash-stat-label">오늘 매출 <span class="dash-stat-dollar">💲</span></div>
+        <div class="dash-stat-label">오늘 매출 <span class="dash-stat-dollar">₩</span></div>
         <div class="dash-stat-value" id="d_today">—</div>
         <div class="dash-stat-change neutral" id="d_todayChange">집계 중...</div>
       </div>
       <div class="dash-stat purple">
-        <div class="dash-stat-label">이번 주 매출 <span class="dash-stat-dollar">💲</span></div>
+        <div class="dash-stat-label">이번 주 매출 <span class="dash-stat-dollar">₩</span></div>
         <div class="dash-stat-value" id="d_week">—</div>
         <div class="dash-stat-change neutral" id="d_weekChange">집계 중...</div>
       </div>
       <div class="dash-stat orange">
-        <div class="dash-stat-label">이번 달 매출 <span class="dash-stat-dollar">💲</span></div>
+        <div class="dash-stat-label">이번 달 매출 <span class="dash-stat-dollar">₩</span></div>
         <div class="dash-stat-value" id="d_month">—</div>
         <div class="dash-stat-change neutral" id="d_monthChange">집계 중...</div>
       </div>
@@ -2500,7 +2502,7 @@ function buildDashboardPage() {
         <div class="rt-log-title">
           <div class="rt-live-dot"></div>
           실시간 구매로그
-          <span class="tag" id="rtLogCount" style="color:var(--danger);border-color:rgba(248,113,113,0.3);">LIVE</span>
+          <span class="tag" id="rtLogCount" style="color:var(--danger);border-color:rgba(193,88,76,0.3);">LIVE</span>
         </div>
         <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;" id="rtLogStatus">연결 중...</span>
       </div>
@@ -2518,11 +2520,11 @@ function buildDashboardPage() {
     </div>
     <div class="dash-row">
       <div class="card" style="margin-bottom:0">
-        <div class="card-header"><div class="card-title">🏆 인기 제품 TOP 5</div></div>
+        <div class="card-header"><div class="card-title">인기 제품 TOP 5</div></div>
         <div id="d_topProducts"><div class="dash-empty">집계 중...</div></div>
       </div>
       <div class="card" style="margin-bottom:0">
-        <div class="card-header"><div class="card-title">📦 현재 재고 현황</div></div>
+        <div class="card-header"><div class="card-title">현재 재고 현황</div></div>
         <div id="d_stockList"><div class="dash-empty">집계 중...</div></div>
       </div>
     </div>
@@ -2576,7 +2578,7 @@ function renderRtLog(logs) {
     const timeStr = ts ? formatRelativeTime(ts) : '-';
     return `
       <div class="rt-log-item">
-        <div class="rt-log-emoji">🛒</div>
+        <div class="rt-log-emoji"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M1.6 2h1.6l1.3 8.2a1.4 1.4 0 0 0 1.4 1.2h5.6a1.4 1.4 0 0 0 1.4-1.1L14 5H4"/><circle cx="6.4" cy="13.6" r="0.9"/><circle cx="11.2" cy="13.6" r="0.9"/></svg></div>
         <div class="rt-log-info">
           <div class="rt-log-prod">${esc(l.product_name||'알 수 없음')}</div>
           <div class="rt-log-user">${esc(l.user_id||'-')} ${l.category_name ? `<span style="color:var(--text3);">· ${esc(l.category_name)}</span>` : ''}</div>
@@ -2709,8 +2711,8 @@ async function initDashboard() {
 
   if (_dashChartSales) { _dashChartSales.destroy(); _dashChartSales = null; }
   if (_dashChartCount) { _dashChartCount.destroy(); _dashChartCount = null; }
-  _dashChartSales = makeChart('chartSales', salesData, '매출', 'rgba(74,222,128,1)');
-  _dashChartCount = makeChart('chartCount', countData, '건수', 'rgba(96,165,250,1)');
+  _dashChartSales = makeChart('chartSales', salesData, '매출', 'rgba(123,168,137,1)');
+  _dashChartCount = makeChart('chartCount', countData, '건수', 'rgba(182,144,92,1)');
 
   const prodCount = {};
   purchaseLogs.forEach(l => {
@@ -2817,12 +2819,12 @@ function buildEventLogPreview() {
   return `
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header" style="margin-bottom:14px;">
-        <div class="card-title">💬 로그 채널 메시지 미리보기 <span class="tag">Components V2</span></div>
+        <div class="card-title">로그 채널 메시지 미리보기 <span class="tag">Components V2</span></div>
         <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;">${chName}</span>
       </div>
       <div style="background:#313338;border-radius:10px;overflow:hidden;padding:16px;">
         <div style="display:flex;gap:12px;">
-          <div style="width:38px;height:38px;border-radius:50%;background:#5865f2;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">🤖</div>
+          <div style="width:38px;height:38px;border-radius:50%;background:#5865f2;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;"></div>
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">Core <span style="font-size:11px;font-weight:400;color:#949ba4;">앱 · 지금</span></div>
             <!-- Components V2: Container -->
@@ -2830,33 +2832,33 @@ function buildEventLogPreview() {
               <!-- Section: 헤더 -->
               <div style="padding:12px 14px 8px;border-bottom:1px solid #3f4147;">
                 <div style="font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;">
-                  🎉 <span>초대 이벤트 포인트 지급</span>
+                   <span>초대 이벤트 포인트 지급</span>
                 </div>
               </div>
               <!-- Section: 본문 -->
               <div style="padding:10px 14px 12px;">
                 <div style="font-size:13px;color:#dbdee1;line-height:1.6;">
                   <span style="color:#a78bfa;font-weight:600;">@초대된 멤버</span>님이 서버에 입장했습니다.<br/>
-                  초대자 <span style="color:#60a5fa;font-weight:600;">@초대한 유저</span>에게 포인트가 지급되었습니다.
+                  초대자 <span style="color:#b6905c;font-weight:600;">@초대한 유저</span>에게 포인트가 지급되었습니다.
                 </div>
                 <!-- Separator -->
                 <div style="height:1px;background:#3f4147;margin:10px 0;"></div>
                 <!-- Fields Row -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                   <div style="background:#1e1f22;border-radius:6px;padding:8px 10px;">
-                    <div style="font-size:10px;color:#949ba4;font-family:'JetBrains Mono',monospace;margin-bottom:3px;">💎 지급 포인트</div>
+                    <div style="font-size:10px;color:#949ba4;font-family:'JetBrains Mono',monospace;margin-bottom:3px;">지급 포인트</div>
                     <div style="font-size:15px;font-weight:700;color:#a78bfa;">+${pts}P</div>
                   </div>
                   <div style="background:#1e1f22;border-radius:6px;padding:8px 10px;">
-                    <div style="font-size:10px;color:#949ba4;font-family:'JetBrains Mono',monospace;margin-bottom:3px;">📊 총 초대 횟수</div>
-                    <div style="font-size:15px;font-weight:700;color:#4ade80;">1회</div>
+                    <div style="font-size:10px;color:#949ba4;font-family:'JetBrains Mono',monospace;margin-bottom:3px;">총 초대 횟수</div>
+                    <div style="font-size:15px;font-weight:700;color:#7ba889;">1회</div>
                   </div>
                 </div>
               </div>
               <!-- Action Row: Components V2 Button -->
               <div style="padding:0 14px 12px;display:flex;align-items:center;gap:4px;">
                 <div style="font-size:10px;color:#4e5058;font-family:'JetBrains Mono',monospace;margin-right:4px;">— Action Row —</div>
-                <div style="display:inline-flex;align-items:center;gap:5px;background:#4e5058;border-radius:4px;padding:5px 12px;font-size:12px;color:#dbdee1;font-weight:500;">👤 초대한 유저 정보</div>
+                <div style="display:inline-flex;align-items:center;gap:5px;background:#4e5058;border-radius:4px;padding:5px 12px;font-size:12px;color:#dbdee1;font-weight:500;">초대한 유저 정보</div>
               </div>
             </div>
           </div>
@@ -2890,14 +2892,14 @@ function buildEventsPage() {
 
   return `
     <div class="page-header">
-      <div class="page-title">🎉 초대 이벤트</div>
+      <div class="page-title">초대 이벤트</div>
       <div class="page-sub">// 디스코드 초대 링크로 초대 시 포인트 자동 지급 · 웹패널 설정만 담당</div>
     </div>
 
     <!-- 히어로 배너 -->
     <div class="ev-hero">
       <div class="ev-hero-row">
-        <div class="ev-hero-icon">🎉</div>
+        <div class="ev-hero-icon"><svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><rect x="2" y="6.4" width="12" height="7" rx="1"/><path d="M2 6.4h12M8 6.4v7M8 6.4C6.6 6.4 5 5.6 5 4.2A1.8 1.8 0 0 1 8 3a1.8 1.8 0 0 1 3 1.2c0 1.4-1.6 2.2-3 2.2Z"/></svg></div>
         <div style="flex:1;min-width:160px;">
           <div class="ev-hero-label">Invite Event System</div>
           <div class="ev-hero-title">초대 이벤트 관리</div>
@@ -2913,7 +2915,7 @@ function buildEventsPage() {
     <!-- 상태 카드 -->
     <div class="ev-grid">
       <div class="ev-stat-card">
-        <div class="ev-stat-label">💎 초대 1명당 포인트</div>
+        <div class="ev-stat-label">초대 1명당 포인트</div>
         <div class="ev-stat-value">${Number(eventConfig.points_per_invite||0).toLocaleString()}</div>
         <div class="ev-stat-sub">포인트 지급 기준</div>
       </div>
@@ -2923,7 +2925,7 @@ function buildEventsPage() {
         <div class="ev-stat-sub">${status === 'on' ? '이벤트 진행 중' : status === 'expired' ? '기간 만료 — 지급 중단' : '비활성 상태'}</div>
       </div>
       <div class="ev-stat-card">
-        <div class="ev-stat-label">🔒 유저당 최대 초대수</div>
+        <div class="ev-stat-label">유저당 최대 초대수</div>
         <div class="ev-stat-value">${eventConfig.max_invites_per_user > 0 ? eventConfig.max_invites_per_user + '명' : '무제한'}</div>
         <div class="ev-stat-sub">${eventConfig.max_invites_per_user > 0 ? '최대 초대 수 제한 있음' : '제한 없음'}</div>
       </div>
@@ -2932,9 +2934,9 @@ function buildEventsPage() {
     <!-- 설정 카드 -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title">⚙️ 이벤트 설정</div>
+        <div class="card-title">이벤트 설정</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span class="tag" style="${status==='on'?'color:var(--success);border-color:rgba(74,222,128,0.3);':status==='expired'?'color:var(--danger);border-color:rgba(248,113,113,0.3);':''}">${statusLabel}</span>
+          <span class="tag" style="${status==='on'?'color:var(--success);border-color:rgba(123,168,137,0.3);':status==='expired'?'color:var(--danger);border-color:rgba(193,88,76,0.3);':''}">${statusLabel}</span>
         </div>
       </div>
 
@@ -2942,7 +2944,7 @@ function buildEventsPage() {
       <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:4px 14px;margin-bottom:16px;">
         <div class="toggle-row">
           <div>
-            <div class="toggle-label">🎉 이벤트 활성화</div>
+            <div class="toggle-label">이벤트 활성화</div>
             <div class="toggle-desc">비활성화 시 봇이 포인트 지급을 중단합니다</div>
           </div>
           <div class="toggle-switch" id="ev_ts_enabled" onclick="toggleEvSwitch()" style="background:${eventConfig.enabled?'#a78bfa':'#333'};">
@@ -2953,12 +2955,12 @@ function buildEventsPage() {
 
       <div class="form-row">
         <div class="form-field">
-          <label>💎 초대 1명당 지급 포인트</label>
+          <label>초대 1명당 지급 포인트</label>
           <input type="number" id="ev_points" value="${eventConfig.points_per_invite||100}" min="1" placeholder="예) 100"/>
           <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 초대한 사람 기준으로 지급됩니다</div>
         </div>
         <div class="form-field">
-          <label>🔒 유저당 최대 초대 수 <span style="color:var(--text3);font-size:10px;">(0 = 무제한)</span></label>
+          <label>유저당 최대 초대 수 <span style="color:var(--text3);font-size:10px;">(0 = 무제한)</span></label>
           <input type="number" id="ev_maxInvites" value="${eventConfig.max_invites_per_user||0}" min="0" placeholder="0"/>
           <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 포인트를 받을 수 있는 최대 초대 인원 수</div>
         </div>
@@ -2966,7 +2968,7 @@ function buildEventsPage() {
 
       <div class="form-row">
         <div class="form-field">
-          <label>📅 이벤트 시작 일시</label>
+          <label>이벤트 시작 일시</label>
           <input type="datetime-local" id="ev_startAt" value="${toDatetimeLocal(eventConfig.start_at)}"/>
           <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;">// 빈 칸이면 즉시 시작</div>
         </div>
@@ -2978,13 +2980,13 @@ function buildEventsPage() {
       </div>
 
       <div class="form-field">
-        <label>📢 이벤트 로그 채널 <span style="color:var(--text3);font-size:10px;">(초대 시 봇이 로그 전송)</span></label>
+        <label>이벤트 로그 채널 <span style="color:var(--text3);font-size:10px;">(초대 시 봇이 로그 전송)</span></label>
         <select id="ev_logCh" onchange="onEvLogChChange(this.value)">${logChOpts}</select>
       </div>
 
       <!-- 안내 박스 -->
       <div class="ev-info-box">
-        <div class="ev-info-box-title">💡 동작 방식 안내</div>
+        <div class="ev-info-box-title">동작 방식 안내</div>
         <div class="ev-info-box-desc">
           1. 멤버가 초대 링크로 서버 입장 시 봇이 <span>초대자에게 포인트 지급</span><br/>
           2. 종료 일시가 지나면 봇이 자동으로 <span>포인트 지급 중단</span><br/>
@@ -3000,8 +3002,8 @@ function buildEventsPage() {
       <hr class="divider"/>
       <div id="ev_botStatus" style="display:none;"></div>
       <div class="actions-bar">
-        <button class="btn btn-ghost btn-md" onclick="resetEventConfig()">🗑️ 이벤트 초기화</button>
-        <button class="btn btn-white btn-md" onclick="saveEventConfig()">💾 봇에 저장·반영</button>
+        <button class="btn btn-ghost btn-md" onclick="resetEventConfig()">이벤트 초기화</button>
+        <button class="btn btn-white btn-md" onclick="saveEventConfig()">봇에 저장·반영</button>
       </div>
     </div>
   `;
@@ -3049,9 +3051,9 @@ async function saveEventConfig() {
   const maxInv   = parseInt(document.getElementById('ev_maxInvites')?.value) || 0;
   const logCh    = document.getElementById('ev_logCh')?.value || '';
 
-  if (!endVal) { showToast('⚠️ 이벤트 종료 일시는 필수입니다', true); return; }
+  if (!endVal) { showToast('이벤트 종료 일시는 필수입니다', true); return; }
   if (startVal && endVal && new Date(startVal) >= new Date(endVal)) {
-    showToast('⚠️ 종료 일시가 시작 일시보다 늦어야 합니다', true); return;
+    showToast('종료 일시가 시작 일시보다 늦어야 합니다', true); return;
   }
 
   eventConfig.points_per_invite    = points;
@@ -3064,9 +3066,9 @@ async function saveEventConfig() {
     const el = document.getElementById('ev_botStatus');
     if (!el) return;
     const styles = {
-      sending: { bg:'rgba(96,165,250,0.1)',  border:'rgba(96,165,250,0.3)',  color:'#60a5fa', dot:'#60a5fa', anim:'blink 1.2s infinite' },
-      ok:      { bg:'rgba(74,222,128,0.1)',  border:'rgba(74,222,128,0.3)',  color:'#4ade80', dot:'#4ade80', anim:'none' },
-      error:   { bg:'rgba(248,113,113,0.1)', border:'rgba(248,113,113,0.3)', color:'#f87171', dot:'#f87171', anim:'none' },
+      sending: { bg:'rgba(182,144,92,0.1)',  border:'rgba(182,144,92,0.3)',  color:'#b6905c', dot:'#b6905c', anim:'blink 1.2s infinite' },
+      ok:      { bg:'rgba(123,168,137,0.1)',  border:'rgba(123,168,137,0.3)',  color:'#7ba889', dot:'#7ba889', anim:'none' },
+      error:   { bg:'rgba(193,88,76,0.1)', border:'rgba(193,88,76,0.3)', color:'#c1584c', dot:'#c1584c', anim:'none' },
     };
     const s = styles[state] || styles.sending;
     el.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;background:${s.bg};border:1px solid ${s.border};color:${s.color};font-size:12px;font-family:'JetBrains Mono',monospace;margin-top:10px;transition:all 0.3s;`;
@@ -3077,7 +3079,7 @@ async function saveEventConfig() {
 
   try {
     if (!_sb) throw new Error('Supabase 미연결');
-    // ⭐ DELETE + INSERT 방식 → Realtime INSERT 이벤트가 확실히 발생
+    //  DELETE + INSERT 방식 → Realtime INSERT 이벤트가 확실히 발생
     // UPDATE 방식은 일부 호스팅 환경에서 Realtime 이벤트가 누락될 수 있음
     await _sb.from('panel_tasks')
       .delete()
@@ -3108,12 +3110,12 @@ async function saveEventConfig() {
     }
 
     if (received) {
-      setBotStatus('ok', '✓ 봇에 설정이 반영되었습니다!');
+      setBotStatus('ok', '봇에 설정이 반영되었습니다!');
     } else {
-      setBotStatus('error', '⚠️ 저장됨 — 봇 응답 없음 (5초 폴링으로 곧 처리)');
+      setBotStatus('error', '저장됨 — 봇 응답 없음 (5초 폴링으로 곧 처리)');
     }
 
-    showToast('✅ 이벤트 설정이 저장되었습니다!');
+    showToast('이벤트 설정이 저장되었습니다!');
     // 상태 배지 즉시 갱신 (페이지 전환 없이)
     const badge = document.querySelector('.ev-status-badge');
     if (badge) {
@@ -3122,8 +3124,8 @@ async function saveEventConfig() {
       badge.innerHTML = `<div class="ev-status-dot"></div>${{on:'ACTIVE',off:'INACTIVE',expired:'EXPIRED'}[st]}`;
     }
   } catch(e) {
-    setBotStatus('error', '❌ 저장 실패: ' + (e.message || '오류'));
-    showToast('❌ 저장 실패: ' + e.message, true);
+    setBotStatus('error', '저장 실패: ' + (e.message || '오류'));
+    showToast('저장 실패: ' + e.message, true);
   }
 }
 
@@ -3201,7 +3203,7 @@ function renderUserTable(users) {
       ? `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:11px;background:${grade.color}22;border:1px solid ${grade.color}55;color:${grade.color};font-family:'JetBrains Mono',monospace;">${esc(grade.name)}</span>`
       : `<span style="color:var(--text3);font-size:11px;font-family:'JetBrains Mono',monospace;">-</span>`;
     const pointsHtml = u.points !== null
-      ? `<span style="color:#fbbf24;font-weight:600;">${Number(u.points).toLocaleString()}원</span>`
+      ? `<span style="color:#c99a52;font-weight:600;">${Number(u.points).toLocaleString()}원</span>`
       : `<span style="color:var(--text3);">-</span>`;
     return `
     <tr style="border-bottom:1px solid var(--border);">
@@ -3212,8 +3214,8 @@ function renderUserTable(users) {
       <td style="padding:12px 16px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--success);">${(u.totalPurchase||0).toLocaleString()}원 (${u.purchaseCount||0}건)</td>
       <td style="padding:12px 16px;">${gradeHtml}</td>
       <td style="padding:12px 16px;white-space:nowrap;display:flex;gap:6px;">
-        <button class="btn btn-sm" style="background:#1a2a1a;color:#4ade80;border:1px solid #2a4a2a;" onclick="openPurchaseLog('${esc(u.user_id)}')">🛒 구매기록</button>
-        <button class="btn btn-sm" style="background:#1a1f2a;color:#60a5fa;border:1px solid #2a3a50;" onclick="openUserManage('${esc(u.user_id)}')">⚙️ 관리</button>
+        <button class="btn btn-sm" style="background:#1a2a1a;color:#7ba889;border:1px solid #2a4a2a;" onclick="openPurchaseLog('${esc(u.user_id)}')">구매기록</button>
+        <button class="btn btn-sm" style="background:#1a1f2a;color:#b6905c;border:1px solid #2a3a50;" onclick="openUserManage('${esc(u.user_id)}')">관리</button>
       </td>
     </tr>`;
   }).join('');
@@ -3230,12 +3232,12 @@ function filterUsers(q) {
 function buildUsersPage() {
   return `
     <div class="page-header">
-      <div class="page-title">👥 유저 목록</div>
+      <div class="page-title">유저 목록</div>
     </div>
     <div class="card" style="padding:0;overflow:hidden;">
       <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
         <div style="position:relative;">
-          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;">🔍</span>
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);display:inline-flex;"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M13.2 13.2l-2.9-2.9"/></svg></span>
           <input type="text" placeholder="유저 ID / Psid로 검색..." oninput="filterUsers(this.value)"
             style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px 10px 38px;color:var(--text);font-size:13px;outline:none;"/>
         </div>
@@ -3246,10 +3248,10 @@ function buildUsersPage() {
             <tr style="border-bottom:1px solid var(--border2);">
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">유저 ID</th>
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">Psid</th>
-              <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">💰 보유금액</th>
+              <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">보유금액</th>
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">누적 충전</th>
               <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">누적 구매</th>
-              <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">🏅 등급</th>
+              <th style="padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text2);">등급</th>
               <th style="padding:12px 16px;text-align:right;font-size:12px;font-weight:700;color:var(--text2);">관리</th>
             </tr>
           </thead>
@@ -3283,11 +3285,11 @@ async function saveUserManage() {
   const points  = document.getElementById('editUserPoints').value;
   const gradeId = document.getElementById('editUserGrade').value;
   if (!userId) return;
-  if (points === '') { showToast('⚠️ 보유금액을 입력하세요', true); return; }
+  if (points === '') { showToast('보유금액을 입력하세요', true); return; }
   const pointsNum = parseInt(points);
-  if (isNaN(pointsNum) || pointsNum < 0) { showToast('⚠️ 보유금액은 0 이상의 숫자여야 합니다', true); return; }
+  if (isNaN(pointsNum) || pointsNum < 0) { showToast('보유금액은 0 이상의 숫자여야 합니다', true); return; }
   try {
-    // ⭐ 기존 포인트 기록 (수동 충전 로그용)
+    //  기존 포인트 기록 (수동 충전 로그용)
     const prevUser = allUsers.find(u => u.user_id === userId);
     const prevPoints = prevUser?.points ?? 0;
 
@@ -3300,7 +3302,7 @@ async function saveUserManage() {
       updated_at: new Date().toISOString(),
     }, { onConflict: 'guild_id,user_id' });
 
-    // ⭐ 포인트가 변경된 경우 수동 충전 로그 태스크 생성 (봇이 채널로 전송)
+    //  포인트가 변경된 경우 수동 충전 로그 태스크 생성 (봇이 채널로 전송)
     if (pointsNum !== prevPoints) {
       try {
         await _sb.from('panel_tasks').insert({
@@ -3328,10 +3330,10 @@ async function saveUserManage() {
       allUsers[idx].grade_id = gradeId || null;
     }
     closeModal('modalUserEdit');
-    showToast('✅ 유저 정보가 저장되었습니다!');
+    showToast('유저 정보가 저장되었습니다!');
     renderUserTable(allUsers);
   } catch(e) {
-    showToast('❌ 저장 실패: ' + e.message, true);
+    showToast('저장 실패: ' + e.message, true);
   }
 }
 
@@ -3390,35 +3392,35 @@ function buildGradesPage() {
     const role = discordRoles.find(r => r.id === g.role_id);
     return `
       <div class="list-item">
-        <div style="width:14px;height:14px;border-radius:50%;background:${g.color||'#4ade80'};flex-shrink:0;"></div>
+        <div style="width:14px;height:14px;border-radius:50%;background:${g.color||'#7ba889'};flex-shrink:0;"></div>
         <div style="flex:1;">
           <div class="item-name">${esc(g.name)}</div>
           <div class="item-meta">${role ? '@ '+esc(role.name) : '역할 없음'} · 할인 ${g.discount||0}% · 승급조건 ${g.required ? (g.required).toLocaleString()+'원 이상' : '없음'}</div>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="openGradeEdit('${g.id}')">✏️ 편집</button>
+        <button class="btn btn-ghost btn-sm" onclick="openGradeEdit('${g.id}')">편집</button>
         <button class="btn btn-red-ghost btn-sm" onclick="deleteGrade('${g.id}')">삭제</button>
       </div>`;
   }).join('');
   return `
     <div class="page-header">
-      <div class="page-title">🏅 등급 관리</div>
+      <div class="page-title">등급 관리</div>
       <div class="page-sub">// 유저 등급과 역할 · 할인율을 설정합니다</div>
     </div>
     <div class="card">
       <div class="card-header">
-        <div class="card-title">🏅 등급 목록 <span class="tag">${grades.length}개</span></div>
+        <div class="card-title">등급 목록 <span class="tag">${grades.length}개</span></div>
         <button class="btn btn-white btn-sm" onclick="openGradeAdd()">+ 등급 추가</button>
       </div>
-      ${grades.length ? items : emptyState('🏅','등급이 없습니다','등급을 추가해주세요')}
+      ${grades.length ? items : emptyState('','등급이 없습니다','등급을 추가해주세요')}
     </div>`;
 }
 
 function openGradeAdd() {
-  document.getElementById('gradeModalTitle').textContent = '🏅 등급 추가';
+  document.getElementById('gradeModalTitle').textContent = '등급 추가';
   document.getElementById('editGradeId').value = '';
   document.getElementById('gradeNameInput').value = '';
   document.getElementById('gradeDiscountInput').value = '';
-  document.getElementById('gradeColorInput').value = '#4ade80';
+  document.getElementById('gradeColorInput').value = '#7ba889';
   document.getElementById('gradeRequiredInput').value = '';
   document.getElementById('gradeRoleSel').innerHTML = '<option value="">역할 없음</option>' +
     discordRoles.map(r => `<option value="${r.id}">@ ${esc(r.name)}</option>`).join('');
@@ -3428,11 +3430,11 @@ function openGradeAdd() {
 function openGradeEdit(id) {
   const g = grades.find(x => x.id === id);
   if (!g) return;
-  document.getElementById('gradeModalTitle').textContent = '✏️ 등급 편집';
+  document.getElementById('gradeModalTitle').textContent = '등급 편집';
   document.getElementById('editGradeId').value = id;
   document.getElementById('gradeNameInput').value = g.name || '';
   document.getElementById('gradeDiscountInput').value = g.discount || 0;
-  document.getElementById('gradeColorInput').value = g.color || '#4ade80';
+  document.getElementById('gradeColorInput').value = g.color || '#7ba889';
   document.getElementById('gradeRequiredInput').value = g.required || 0;
   document.getElementById('gradeRoleSel').innerHTML = '<option value="">역할 없음</option>' +
     discordRoles.map(r => `<option value="${r.id}" ${r.id === g.role_id ? 'selected' : ''}>@ ${esc(r.name)}</option>`).join('');
@@ -3446,16 +3448,16 @@ async function saveGrade() {
   const discount = parseInt(document.getElementById('gradeDiscountInput').value) || 0;
   const color   = document.getElementById('gradeColorInput').value;
   const required = parseInt(document.getElementById('gradeRequiredInput').value) || 0;
-  if (!name) { showToast('⚠️ 등급 이름을 입력하세요', true); return; }
+  if (!name) { showToast('등급 이름을 입력하세요', true); return; }
   const gradeObj = { id, name, role_id, discount, color, required };
   const idx = grades.findIndex(g => g.id === id);
   if (idx >= 0) grades[idx] = gradeObj; else grades.push(gradeObj);
   try {
     await saveGradesConfig();
     closeModal('modalGrade');
-    showToast('✅ 등급이 저장되었습니다!');
+    showToast('등급이 저장되었습니다!');
     showPage('grades');
-  } catch(e) { showToast('❌ 저장 실패: ' + e.message, true); }
+  } catch(e) { showToast('저장 실패: ' + e.message, true); }
 }
 
 async function deleteGrade(id) {
@@ -3463,9 +3465,9 @@ async function deleteGrade(id) {
   grades = grades.filter(g => g.id !== id);
   try {
     await saveGradesConfig();
-    showToast('🗑️ 삭제되었습니다');
+    showToast('삭제되었습니다');
     showPage('grades');
-  } catch(e) { showToast('❌ 삭제 실패', true); }
+  } catch(e) { showToast('삭제 실패', true); }
 }
 
 /* 모달 외부 클릭 닫기 */
